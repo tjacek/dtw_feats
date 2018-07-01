@@ -1,4 +1,4 @@
-import os
+import os,pickle
 
 def bottom_files(path):
     all_paths=[]
@@ -8,3 +8,14 @@ def bottom_files(path):
                 for filename_i in filenames]
             all_paths+=paths
     return all_paths
+
+def save_object(nn,path):
+    file_object = open(path,'wb')
+    pickle.dump(nn,file_object)
+    file_object.close()
+
+def read_object(path):
+    file_object = open(path,'rb')
+    obj=pickle.load(file_object)  
+    file_object.close()
+    return obj
