@@ -6,6 +6,9 @@ class Action(object):
         self.name=name
         self.cat=cat
         self.person=person
+    
+    def __str__(self):
+        return self.name
 
     def __len__(self):
         return len(self.img_seq)

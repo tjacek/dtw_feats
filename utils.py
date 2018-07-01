@@ -8,4 +8,3 @@ def bottom_files(path):
                 for filename_i in filenames]
             all_paths+=paths
     return all_paths
-#print(len(bottom_files('seqs')))
