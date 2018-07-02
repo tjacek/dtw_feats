@@ -1,22 +1,21 @@
-from collections import defaultdict
 from metric import dtw_metric
 
 class PairwiseDistance(object):
-    def __init__(self):
-        self.pairs={}#defaultdict(lambda:{})
+    def __init__(self,pairs):
+        self.raw_pairs=pairs
    
-    def __getitem__(self,index):
-        if(not index in self.pairs):
-            self.pairs[index]={}	
-        return self.pairs[index]
+    def __getitem__(self,index):	
+        return self.raw_pairs[index]
 
     def has_pair(self,seq_a,seq_b):
-    	if(seq_a in self.pairs):
-            return seq_b in self.pairs[seq_a]		
-    	return False
+        if(seq_a in self.raw_pairs):
+            return seq_b in self.raw_pairs[seq_a]		
+        return False
 
 def make_pairwise_distance(actions):
-    pairs=PairwiseDistance()
+    pairs_dict={ action_i.name:{}
+                    for action_i in actions}
+    pairs=PairwiseDistance(pairs_dict)
     for i,action_i in enumerate(actions):
         print("%i %s " % (i,action_i.name))
         for action_j in actions:
