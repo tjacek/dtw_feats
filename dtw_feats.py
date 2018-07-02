@@ -4,7 +4,7 @@ import sklearn.manifold
 from sklearn.manifold import TSNE
 from sklearn.manifold import MDS
 
-def compute_pairs(in_path='seqs/max_z',out_path='pairs/max_z_pairs'):
+def compute_pairs(in_path='seqs/corl',out_path='pairs/corl_pairs'):
     read_actions=actions.io.ActionReader()
     print(in_path)
     seqs=read_actions(in_path)
@@ -13,7 +13,7 @@ def compute_pairs(in_path='seqs/max_z',out_path='pairs/max_z_pairs'):
     print("pairs computadion %d" % (time.time()-t0))
     utils.save_object(pairs.raw_pairs,out_path)
 
-def show_dtw_feats(action_path='seqs/max_z',pairs_path='pairs/max_z_pairs' ):
+def show_dtw_feats(action_path='seqs/corl',pairs_path='pairs/corl_pairs',title="corl" ):
     read_actions=actions.io.ActionReader(as_dict=True)
     seqs=read_actions(action_path)
     raw_pairs=utils.read_object(pairs_path)
@@ -22,7 +22,7 @@ def show_dtw_feats(action_path='seqs/max_z',pairs_path='pairs/max_z_pairs' ):
     X=dtw_pairs.as_matrix(action_names)
     y=[ seqs[name_i].cat for name_i in action_names]
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
-    plot.plot_embedding(embd,y)
+    plot.plot_embedding(embd,y,title=title)
 
 #compute_pairs()
 show_dtw_feats()

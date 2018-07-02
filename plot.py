@@ -12,10 +12,12 @@ def plot_embedding(X,y,title=None):
     random.shuffle(cats)
     plt.figure()
     ax = plt.subplot(111)
+
+#    plt.cm.get_cmap('Vega20c')
     for i in range(n_points):
         color_i= float(cats[int(y[i])-1]) / float(n_cats)
         plt.text(X[i, 0], X[i, 1], str(y[i]),
-                   color=plt.cm.Set3( color_i),
+                   color=plt.cm.tab20( color_i),
                    fontdict={'weight': 'bold', 'size': 9})
 
     plt.xticks([]), plt.yticks([])
