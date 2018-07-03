@@ -20,3 +20,8 @@ def std(action_array):
 
 def skew(action_array):
     return scipy.stats.skew(action_array,axis=0)
+
+def area(img_array):
+    img_array[img_array!=0]=1.0
+    size=float(img_array.shape[0] * img_array.shape[1])
+    return np.sum(img_array)
