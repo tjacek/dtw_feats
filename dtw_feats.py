@@ -12,7 +12,7 @@ def concat_actions(in_path1='seqs/max_z',in_path2='seqs/all',out_path='seqs/full
     save_actions=actions.io.ActionWriter()
     save_actions(unified_actions,out_path) 
 
-def compute_pairs(in_path='seqs/skew',out_path='pairs/skew_pairs'):
+def compute_pairs(in_path='seqs/full',out_path='pairs/full_pairs'):
     read_actions=actions.io.ActionReader()
     print(in_path)
     seqs=read_actions(in_path)
@@ -21,7 +21,7 @@ def compute_pairs(in_path='seqs/skew',out_path='pairs/skew_pairs'):
     print("pairs computation %d" % (time.time()-t0))
     utils.save_object(pairs.raw_pairs,out_path)
 
-def show_dtw_feats(action_path='seqs/max_z',pairs_path='pairs/max_z_pairs',title="max_z" ):
+def show_dtw_feats(action_path='seqs/full',pairs_path='pairs/full_pairs',title="full" ):
     read_actions=actions.io.ActionReader(as_dict=True)
     seqs=read_actions(action_path)
     raw_pairs=utils.read_object(pairs_path)
@@ -42,9 +42,9 @@ def show_global_feats(action_path='seqs/all',title="global features"):
 
 def tsne_embd(X,y,title):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
-    plot.plot_embedding(embd,y,title=title)
+    plot.plot_embedding(embd,y,title=title,highlist=[12,15])
 
-concat_actions()
+#concat_actions()
 #compute_pairs()
-#show_dtw_feats()
+show_dtw_feats()
 #show_global_feats()
