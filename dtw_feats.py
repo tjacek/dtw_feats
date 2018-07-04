@@ -1,9 +1,18 @@
 import time
 import numpy as np
-import actions.io,metric,graph,utils,plot,feats
+import metric,graph,utils,plot,feats
+import actions.io,actions.concat
 from sklearn.manifold import TSNE
 
-def compute_pairs(in_path='seqs/all',out_path='pairs/all_pairs'):
+def concat_actions(in_path1='seqs/max_z',in_path2='seqs/all',out_path='seqs/full'):
+    read_actions=actions.io.ActionReader(as_dict=True)
+    actions1=read_actions(in_path1)
+    actions2=read_actions(in_path2)
+    unified_actions=actions.concat.concat_actions(actions1,actions2)
+    save_actions=actions.io.ActionWriter()
+    save_actions(unified_actions,out_path) 
+
+def compute_pairs(in_path='seqs/skew',out_path='pairs/skew_pairs'):
     read_actions=actions.io.ActionReader()
     print(in_path)
     seqs=read_actions(in_path)
@@ -12,7 +21,7 @@ def compute_pairs(in_path='seqs/all',out_path='pairs/all_pairs'):
     print("pairs computation %d" % (time.time()-t0))
     utils.save_object(pairs.raw_pairs,out_path)
 
-def show_dtw_feats(action_path='seqs/all',pairs_path='pairs/all_pairs',title="all" ):
+def show_dtw_feats(action_path='seqs/max_z',pairs_path='pairs/max_z_pairs',title="max_z" ):
     read_actions=actions.io.ActionReader(as_dict=True)
     seqs=read_actions(action_path)
     raw_pairs=utils.read_object(pairs_path)
@@ -35,6 +44,7 @@ def tsne_embd(X,y,title):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
     plot.plot_embedding(embd,y,title=title)
 
+concat_actions()
 #compute_pairs()
 #show_dtw_feats()
-show_global_feats()
+#show_global_feats()

@@ -19,3 +19,8 @@ def read_object(path):
     obj=pickle.load(file_object)  
     file_object.close()
     return obj
+
+def save_string(path,string):
+    file_str = open(str(path),'w')
+    file_str.write(string)
+    file_str.close()
