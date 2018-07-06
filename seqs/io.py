@@ -1,5 +1,5 @@
 import numpy as np
-import actions,utils
+import seqs,utils
 
 class ActionReader(object):
     def __init__(self,as_dict=False):
@@ -20,7 +20,7 @@ class ActionReader(object):
     def parse_action(self,action_path):
         name,cat,person=self.get_action_desc(action_path)       
         img_seq=read_text_action(action_path)
-        return actions.Action(img_seq,name,cat,person)
+        return seqs.Action(img_seq,name,cat,person)
 
 class ActionWriter(object):
     def __init__(self):
@@ -37,6 +37,15 @@ def as_action_dict(actions):
 def read_text_action(action_path):
     return list(np.genfromtxt(action_path, delimiter=','))
 
+def as_text(action_i,out_path):
+    def line_helper(frame):
+        line=[ str(cord_i) for cord_i in list(frame)]
+        return ",".join(line) 
+    lines=[line_helper(frame_i) 
+            for frame_i in action_i.img_seq]
+    text="\n".join(lines)
+    utils.save_string(out_path,text)
+
 def cp_dataset(action_path):
     action_name=action_path.split('/')[-1]
     raw=action_name.split('_')
@@ -46,11 +55,4 @@ def cp_dataset(action_path):
         return action_name,cat,person
     raise Exception("Wrong dataset format " + name +" " + str(len(names)))
 
-def as_text(action_i,out_path):
-    def line_helper(frame):
-        line=[ str(cord_i) for cord_i in list(frame)]
-        return ",".join(line) 
-    lines=[line_helper(frame_i) 
-            for frame_i in action_i.img_seq]
-    text="\n".join(lines)
-    utils.save_string(out_path,text)
+#def mhad_dataset(action_path):

@@ -1,4 +1,5 @@
 import numpy as np 
+import utils
 
 class Action(object):
     def __init__(self,img_seq,name,cat,person):
@@ -20,5 +21,15 @@ class Action(object):
             new_seq=[ fun(img_i) for img_i in self.img_seq]
         return Action(new_seq,self.name,self.cat,self.person)	
     
+    def dim(self):
+        frame=self.img_seq[0]
+        if(type(frame)==list):
+            return len(frame)
+        return frame.shape
+
     def as_array(self):
         return np.array(self.img_seq)
+
+    def as_feature(self):
+        action_array=self.as_array().T
+        return [ feature_i for feature_i in action_array]
