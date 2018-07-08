@@ -25,10 +25,16 @@ class ActionReader(object):
         return seqs.Action(img_seq,name,cat,person)
 
 class ActionWriter(object):
-    def __init__(self):
-        self.save_action=as_text
+    def __init__(self,img_seq=False):
+        if(img_seq):
+            self.save_action=as_imgs
+        else:
+            self.save_action=as_text
         
     def __call__(self,actions,out_path):
+        if(type(actions)==dict):
+            actions=actions.values()
+        utils.make_dir(out_path)
         for action_i in actions:
             action_path=out_path+'/'+action_i.name
             self.save_action(action_i,action_path)
@@ -52,7 +58,7 @@ def read_img_action(action_path):
     img_names=os.listdir(action_path)
     img_names.sort(key=utils.natural_keys)
     img_paths=[ action_path+'/'+name_i for name_i in img_names]
-    return [cv2.imread(img_path_i) 
+    return [cv2.imread(img_path_i,0) 
                 for img_path_i in img_paths]
 
 def as_text(action_i,out_path):
@@ -63,6 +69,13 @@ def as_text(action_i,out_path):
             for frame_i in action_i.img_seq]
     text="\n".join(lines)
     utils.save_string(out_path,text)
+
+def as_imgs(action_i,action_path):
+    print(action_path)
+    utils.make_dir(action_path)
+    for j,img_j in enumerate(action_i.img_seq):
+        path_ij=action_path+'/img'+str(j)+'.png'
+        cv2.imwrite(path_ij,img_j)
 
 def cp_dataset(action_path):
     action_name=action_path.split('/')[-1]

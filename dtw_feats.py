@@ -32,7 +32,10 @@ def tsne_embd(X,y,title):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
     plot.plot_embedding(embd,y,title=title,highlist=None)
 
+seqs.concat.simple_concat(in_path1="../../AArtyk/time/train",
+                  in_path2="../../AArtyk/time/train",
+                  out_path="test",img_seq=True)
 #concat_actions()
 #compute_pairs()
-show_dtw_feats()
+#show_dtw_feats()
 #show_global_feats()
