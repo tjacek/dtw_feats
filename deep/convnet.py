@@ -1,4 +1,4 @@
-import deep
+import deep,deep.reader
 import lasagne
 import theano
 import theano.tensor as T
@@ -110,13 +110,11 @@ def get_updates(loss,out_layer):
     return updates
 
 def default_params():
-    return {"input_shape":(None,2,60,60),"num_filters":16,"n_hidden":100,
+    return {"input_shape":(None,2,64,64),"num_filters":16,"n_hidden":100,
               "filter_size":(5,5),"pool_size":(4,4),"p":0.5, "l1_reg":0.001}
 
-def get_model(n_cats,preproc,nn_path=None, params=None, compile=True,l1_reg=True,model_p=0.5):
-    if(nn_path==None):
-        compile=True
-    if(compile):
+def get_model(n_cats,preproc,nn_path=None, params=None,l1_reg=True,model_p=0.5):
+    if(nn_path is None):
         if(params==None):
             params=default_params()
         old_shape=params['input_shape']

@@ -1,5 +1,7 @@
 import numpy as np
 import seqs.io 
+import lasagne
+import pickle
 
 class NeuralNetwork(object):
     def __init__(self,hyperparams,out_layer):
