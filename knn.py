@@ -12,8 +12,6 @@ def knn(nn_graph,k):
 
 def pred_cat(name_i,nn_graph,k):
     neighbors=nn_graph.get_neighbors(name_i,n=k)
-    print(name_i)
-    print(neighbors)
     if(k==0):
         return neighbors[0]
     else:
@@ -24,7 +22,10 @@ def check_prediction(pred_y,true_y):
     print(classification_report(pred_y,true_y,digits=4))
     print(confusion_matrix(pred_y,true_y))
 
+def get_accuracy(matrix):
+    return np.trace(matrix)/np.sum(matrix)
+
 if __name__ == "__main__":
-    nn_graph=graph.make_nn_graph("mhad/max_z_pairs","mhad/max_z")
+    nn_graph=graph.make_nn_graph("mhad/skew_pairs","mhad/skew")
     pred_y,true_y=knn(nn_graph,k=10)
     check_prediction(pred_y,true_y)
