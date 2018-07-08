@@ -1,11 +1,13 @@
 import numpy as np
 import seqs,utils
+import cv2,os
 
 class ActionReader(object):
-    def __init__(self,as_dict=False):
+    def __init__(self,read_dirs,read_seq,as_dict=False):
         self.as_dict=as_dict
         self.get_action_desc=cp_dataset
-        self.get_action_paths=utils.bottom_files  	
+        self.get_action_paths=read_dirs
+        self.read_seq=read_seq  	
     
     def __call__(self,action_dir):
         action_paths=self.get_action_paths(action_dir)
@@ -19,7 +21,7 @@ class ActionReader(object):
 
     def parse_action(self,action_path):
         name,cat,person=self.get_action_desc(action_path)       
-        img_seq=read_text_action(action_path)
+        img_seq= self.read_seq(action_path) #read_text_action(action_path)
         return seqs.Action(img_seq,name,cat,person)
 
 class ActionWriter(object):
@@ -31,11 +33,27 @@ class ActionWriter(object):
             action_path=out_path+'/'+action_i.name
             self.save_action(action_i,action_path)
 
+def build_action_reader(img_seq,as_dict=True):
+    if(img_seq):
+        read_dirs=utils.bottom_dirs
+        read_seq=read_img_action
+    else:
+        read_dirs=utils.bottom_files
+        read_seq=read_text_action
+    return ActionReader(read_dirs,read_seq,as_dict)
+
 def as_action_dict(actions):
     return { action_i.name:action_i for action_i in actions} 
 
 def read_text_action(action_path):
     return list(np.genfromtxt(action_path, delimiter=','))
+
+def read_img_action(action_path):
+    img_names=os.listdir(action_path)
+    img_names.sort(key=utils.natural_keys)
+    img_paths=[ action_path+'/'+name_i for name_i in img_names]
+    return [cv2.imread(img_path_i) 
+                for img_path_i in img_paths]
 
 def as_text(action_i,out_path):
     def line_helper(frame):
@@ -53,6 +71,4 @@ def cp_dataset(action_path):
         cat=raw[0].replace('a','')
         person=int(raw[1].replace('s',''))
         return action_name,cat,person
-    raise Exception("Wrong dataset format " + name +" " + str(len(names)))
-
-#def mhad_dataset(action_path):
+    raise Exception("Wrong dataset format " + action_name +" " + str(len(raw)))
