@@ -33,3 +33,8 @@ class Action(object):
     def as_feature(self):
         action_array=self.as_array().T
         return [ feature_i for feature_i in action_array]
+
+    def as_pairs(self,norm=255.0):
+        norm_imgs=[ (img_i/norm) 
+                    for img_i in self.img_seq]
+        return [ (self.cat,img_i) for img_i in norm_imgs]
