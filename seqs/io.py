@@ -11,6 +11,7 @@ class ActionReader(object):
     
     def __call__(self,action_dir):
         action_paths=self.get_action_paths(action_dir)
+        print(self.get_action_paths)
         actions=[self.parse_action(action_path_i) 
                    for action_path_i in action_paths]
         if(not actions):
@@ -79,9 +80,8 @@ def as_imgs(action_i,action_path):
 
 def cp_dataset(action_path):
     action_name=action_path.split('/')[-1]
-    raw=action_name.split('_')
-    if(len(raw)==4):
-        cat=raw[0].replace('a','')
-        person=int(raw[1].replace('s',''))
-        return action_name,cat,person
-    raise Exception("Wrong dataset format " + action_name +" " + str(len(raw)))
+    raw=utils.extract_numbers(action_name)
+    if(len(raw)>2):
+        name= "a%i_s%i_e%i" % (raw[0],raw[1],raw[2])
+        return name,raw[0],raw[1]
+    raise Exception("Wrong dataset format " + action_name +" " + str(len(raw)))    

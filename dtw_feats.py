@@ -1,6 +1,6 @@
 import time
 import numpy as np
-import metric,graph,pairs,utils,plot,feats
+import metric,graph,pairs,utils#,plot,feats
 import seqs.io,seqs.concat
 from sklearn.manifold import TSNE
 
@@ -32,9 +32,9 @@ def tsne_embd(X,y,title):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
     plot.plot_embedding(embd,y,title=title,highlist=None)
 
-seqs.concat.simple_concat(in_path1="../../AArtyk/time/train",
-                  in_path2="../../AArtyk/time/train",
-                  out_path="test",img_seq=True)
+seqs.concat.simple_concat(in_path1="data/proj",
+                  in_path2="data/time",
+                  out_path="data/MSR",img_seq=True)
 #concat_actions()
 #compute_pairs()
 #show_dtw_feats()

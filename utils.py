@@ -27,6 +27,10 @@ def atoi(text):
 def natural_keys(text):
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
+def extract_numbers(text):
+    str_numb=re.findall(r'\d+',text)
+    return [int(n) for n in str_numb]
+
 def save_object(nn,path):
     file_object = open(path,'wb')
     pickle.dump(nn,file_object)
