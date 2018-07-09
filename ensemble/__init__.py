@@ -15,3 +15,12 @@ def extract_deep(data_path,nn_path,out_path):
         out_i=out_path+'/'+name_i
         print(out_i)
         save_actions(feat_actions_i,out_i)
+
+def global_feats(feat_path):
+    feat_paths=utils.bottom_dirs(feat_path)
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    for in_path_i in feat_paths:
+        print(in_path_i)
+        actions_i=read_actions(in_path_i)
+        print(len(actions_i))
+#def fuse_features():
