@@ -26,7 +26,7 @@ class Model(object):
         self.type_name=type_name
 
     def save(self,path):
-        with open(path, 'w') as f:
+        with open(path, 'wb') as f:
             pickle.dump(self, f)
 
     def set_determistic(self):

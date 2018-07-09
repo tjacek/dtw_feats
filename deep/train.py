@@ -27,4 +27,4 @@ def get_n_batches(imgs,batch_size=10):
     n_batches=n_imgs/batch_size
     if((n_imgs%batch_size)!=0):
         n_batches+=1
-    return n_batches
+    return int(n_batches)

@@ -27,6 +27,6 @@ class NNReader(object):
             return neural_net
     
     def __unpickle__(self,in_path):
-        with open(str(in_path), 'r') as f:
+        with open(str(in_path), 'rb') as f:
             model = pickle.load(f)
         return model

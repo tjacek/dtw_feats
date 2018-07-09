@@ -7,6 +7,9 @@ def simple_concat(in_path1="../../AArtyk/time/train",
     read_actions=seqs.io.build_action_reader(img_seq=img_seq,as_dict=True)
     actions1=read_actions(in_path1)
     actions2=read_actions(in_path2)
+    print(len(actions1.keys()))
+    print(len(actions2.keys()))
+ 
 #    dim=2 if img_seq else 1
     new_actions=concat_actions(actions1,actions2,dim=1)
     save_actions=seqs.io.ActionWriter(img_seq=True)  
@@ -25,6 +28,7 @@ def unify_actions(action1,action2,dim=1):
         array1=array1[:new_dim]
         array2=array2[:new_dim]
     print(array1.shape)
+    print(array2.shape)
     new_array=np.concatenate((array1,array2),axis=dim)
     print(new_array.shape)
     return seqs.Action(new_array,action1.name,
