@@ -1,3 +1,4 @@
+import numpy as np
 import deep,deep.reader
 import lasagne
 import theano
@@ -19,8 +20,8 @@ class Convet(deep.NeuralNetwork):
                                updates=updates,allow_input_downcast=True)
 
     def __call__(self,in_img):
-        print(type(in_img))
-        img4D=self.preproc.apply(in_img)
+        img3D=self.preproc(in_img)
+        img4D=np.expand_dims(img3D,0)
         return self.__features__(img4D).flatten()
     
     def get_category(self,img):

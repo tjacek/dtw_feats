@@ -44,6 +44,12 @@ class ImgPreproc(object):
         self.dim=dim
 
     def __call__(self,img_i):
+        if(type(img_i)==list):
+            return [ self.apply(img_j) for img_j in img_i]
+        else:
+            return self.apply(img_i)
+
+    def apply(self,img_i):
         height=img_i.shape[0]
         new_height=self.get_new_height(height)
         frames=np.vsplit(img_i,self.dim) 

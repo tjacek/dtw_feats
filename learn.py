@@ -1,6 +1,6 @@
 import numpy as np
 import deep,deep.convnet,deep.train
-import utils
+import utils,ensemble
 import theano.gpuarray
 
 def get_dataset(in_path,preproc):
@@ -37,4 +37,5 @@ def binarize(y,cat_j):
                for y_i in y]
 
 #simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)
-ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
+#ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
+ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
