@@ -1,6 +1,5 @@
 import numpy as np
-import seqs.io
-import feats,plot
+import plot,utils
 
 class Instance(object):
     def __init__(self,data,cat,person,name):
@@ -22,11 +21,19 @@ def to_dataset(instances):
     X=np.array(X)
     return X,y
 
+def from_files(in_path):
+    with open(in_path) as f:
+         lines=f.readlines()
+    return [ parse_instance(line_i)
+                for line_i in lines]     
+
+def parse_instance(line_i):
+    feats,cat,person,name=line_i.split("#")
+    data=utils.str_to_vector(feats)
+    return Instance(data,cat,person,name)
+
 if __name__ == "__main__":
-    action_path="mra/feats/nn19"
-    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    actions=read_actions(action_path)
-    feat_extractor=feats.GlobalFeatures()
-    inst=[feat_extractor(action_i) for action_i in actions]
-    X,y=to_dataset(inst)
+    action_path="mra/datasets/nn19"
+    insts=from_files(action_path)
+    X,y=to_dataset(insts)
     plot.plot_embedding(X,y,highlist=[20])

@@ -47,3 +47,7 @@ def save_string(path,string):
     file_str = open(str(path),'w')
     file_str.write(string)
     file_str.close()
+
+def str_to_vector(str,sep=","):
+    return [float(cord_i)
+                for cord_i in str.split(sep) ]
