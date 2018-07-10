@@ -18,7 +18,6 @@ def bottom_dirs(path):
     for root, directories, filenames in os.walk(path):
         if(not directories):
             all_paths.append(root)
-    print(all_paths)
     return all_paths
 
 def atoi(text):
@@ -43,6 +42,8 @@ def read_object(path):
     return obj
 
 def save_string(path,string):
+    if(type(string)==list):
+        string="\n".join(string)
     file_str = open(str(path),'w')
     file_str.write(string)
     file_str.close()

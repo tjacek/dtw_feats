@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats
+import instances
 
 class GlobalFeatures(object):
     def __init__(self):
@@ -11,20 +12,8 @@ class GlobalFeatures(object):
         for serie_i in series:
             for extractor_i in self.feature_extractor:
                 global_feats.append(extractor_i(serie_i))
-        return Instance(global_feats,action_i.cat,
-                        action_i.person,action_i.name) 
-
-class Instance(object):
-    def __init__(self,data,cat,person,name):
-        self.data = data
-        self.cat=cat
-        self.person=person
-        self.name=name
-
-    def  __str__(self):
-        feats=[ str(feat_i) for feat_i in list(self.data)]
-        feats=",".join(feats)
-        return "%s#%s#%s#%s" % (feats,self.cat,self.person,self.name)
+        return instances.Instance(global_feats,action_i.cat,
+                            action_i.person,action_i.name) 
 
 def avg(action_array):
     return np.mean(action_array,axis=0)
