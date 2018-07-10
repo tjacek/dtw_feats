@@ -18,7 +18,11 @@ class Instance(object):
 
 def to_dataset(instances):
     X,y=[],[]
-    for inst_i in instances:
+    instances={inst_i.name:inst_i for inst_i in instances}
+    names=instances.keys()
+    names.sort()
+    for name_i in names:
+        inst_i=instances[name_i]
         X.append(np.array(inst_i.data))
         y.append(inst_i.cat)	
     X=np.array(X)
