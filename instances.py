@@ -1,11 +1,12 @@
 import numpy as np
 import plot,utils
+import seqs.select 
 
 class Instance(object):
     def __init__(self,data,cat,person,name):
         self.data = data
-        self.cat=cat
-        self.person=person
+        self.cat=int(cat)
+        self.person=int(person)
         self.name=name
 
     def  __str__(self):
@@ -32,8 +33,20 @@ def parse_instance(line_i):
     data=utils.str_to_vector(feats)
     return Instance(data,cat,person,name)
 
+def split_instances(instances,selector=None):
+    if(selector is None):
+        selector=seqs.select.ModuloSelector(n=1)
+    train,test=[],[]
+    for inst_i in instances:
+        if(selector(inst_i)):
+            train.append(inst_i)
+        else:
+            test.append(inst_i)
+    return train,test
+
 if __name__ == "__main__":
     action_path="mra/datasets/nn19"
     insts=from_files(action_path)
-    X,y=to_dataset(insts)
+    inst,inst2=split_instances(insts)
+    X,y=to_dataset(inst)    
     plot.plot_embedding(X,y,highlist=[20])
