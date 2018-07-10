@@ -1,6 +1,8 @@
 import numpy as np
 import plot,utils
 import seqs.select 
+import sklearn.datasets
+import ensemble.single_cls
 
 class Instance(object):
     def __init__(self,data,cat,person,name):
@@ -20,7 +22,7 @@ def to_dataset(instances):
         X.append(np.array(inst_i.data))
         y.append(inst_i.cat)	
     X=np.array(X)
-    return X,y
+    return sklearn.datasets.base.Bunch(data=X, target=y)
 
 def from_files(in_path):
     with open(in_path) as f:
@@ -47,6 +49,9 @@ def split_instances(instances,selector=None):
 if __name__ == "__main__":
     action_path="mra/datasets/nn19"
     insts=from_files(action_path)
-    inst,inst2=split_instances(insts)
-    X,y=to_dataset(inst)    
-    plot.plot_embedding(X,y,highlist=[20])
+    train,test=split_instances(insts)
+    for inst_i in train:
+        print(inst_i.name)	
+    train,test=to_dataset(train),to_dataset(test)   
+#    plot.plot_embedding(train.data,train.target,highlist=[20])
+    ensemble.single_cls.simple_exp(train,test)
