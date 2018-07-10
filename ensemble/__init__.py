@@ -1,4 +1,5 @@
 import seqs.io,utils,deep.reader 
+import feats
 
 def extract_deep(data_path,nn_path,out_path):
     read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
@@ -11,16 +12,24 @@ def extract_deep(data_path,nn_path,out_path):
         model_i=nn_reader(path_i)
         feat_actions_i=[ action_i(model_i,whole_seq=False)
                             for action_i in actions]
-        name_i=path_i.split('/')[-1]
+        name_i=get_name(path_i)
         out_i=out_path+'/'+name_i
         print(out_i)
         save_actions(feat_actions_i,out_i)
 
-def global_feats(feat_path):
-    feat_paths=utils.bottom_dirs(feat_path)
+def global_feats(in_path,out_path):
+    feat_paths=utils.bottom_dirs(in_path)
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    utils.make_dir(out_path)
+    feat_extractor=feats.GlobalFeatures()
+    print(feat_paths)
     for in_path_i in feat_paths:
         print(in_path_i)
-        actions_i=read_actions(in_path_i)
-        print(len(actions_i))
-#def fuse_features():
+        actions=read_actions(in_path_i)
+        lines=[str(feat_extractor(action_i)) for action_i in actions]
+        name_i=get_name(in_path_i)
+        out_i=out_path+'/'+name_i
+        utils.save_string(out_i,lines)
+
+def get_name(path_i):
+    return path_i.split('/')[-1]
