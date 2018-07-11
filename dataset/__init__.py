@@ -39,6 +39,10 @@ class Dataset(object):
             insts.append(inst_i)
         return insts
 
+def read_dataset(in_path):
+    insts=dataset.instances.from_files(in_path)
+    return to_dataset(insts)
+
 def to_dataset(insts):
     X,y,persons,names=[],[],[],[]
     if(type(insts)==list):
@@ -52,3 +56,12 @@ def to_dataset(insts):
         persons.append(inst_i.person)
     X=np.array(X)
     return Dataset(X=X,y=y,persons=persons,names=names)
+
+def unify_datasets(datasets):
+    if(len(datasets)==1):
+        return datasets[0]
+    feats=[ dataset_i.X for dataset_i in datasets]
+    united_X=np.concatenate(feats,axis=1)
+    print(united_X.shape)
+    first=datasets[0]
+    return Dataset(united_X,first.y,first.persons,first.names)

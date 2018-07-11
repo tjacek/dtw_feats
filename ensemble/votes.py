@@ -5,10 +5,13 @@ from sklearn.metrics import classification_report
 from collections import Counter
 
 class VotingEnsemble(object):
-    def __init__(self,norm=True):
+    def __init__(self,norm=True,select=150):
         self.norm=norm
-    
-    def __call__(self,deep_path):
+        self.select=select
+        self.basic_feats=None
+
+    def __call__(self,basic_paths,deep_path):
+        self.basic_feats=get_basic_dataset(basic_paths)
         deep_paths=utils.bottom_files(deep_path)
         all_pred=[]
         y_true=None
@@ -30,18 +33,24 @@ class VotingEnsemble(object):
             cat_i=count.most_common()[0][0]
             y_pred.append(cat_i)
         return y_pred 
-
+    
     def get_dataset(self,feat_path_i):
-        insts=dataset.instances.from_files(feat_path_i)
-        dataset_i=dataset.to_dataset(insts)
+        adapt_dataset=dataset.read_dataset(feat_path_i)
+        full_dataset=dataset.unify_datasets([adapt_dataset,self.basic_feats])
         if(self.norm):
-            dataset_i.norm()
-        dataset_i.select()
-        return dataset_i
+            full_dataset.norm()
+        if(not self.select is None ):
+            full_dataset.select(self.select)
+        return full_dataset
 
     def get_model(self,dataset_i):
         train,test=dataset_i.split()
         clf=LogisticRegression()
         clf = clf.fit(train.X, train.y)
         y_pred = clf.predict(test.X)
-        return test.y,y_pred 
+        return test.y,y_pred
+
+def get_basic_dataset(basic_paths):
+    datasets=[dataset.read_dataset(basic_i) 
+                for basic_i in basic_paths]
+    return dataset.unify_datasets(datasets)             
