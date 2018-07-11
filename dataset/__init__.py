@@ -1,5 +1,8 @@
 import numpy as np
 import dataset.instances
+from sklearn import preprocessing
+from sklearn.svm import SVC
+from sklearn.feature_selection import RFE
 
 class Dataset(object):
     def __init__(self,X,y,persons,names):
@@ -11,6 +14,17 @@ class Dataset(object):
     def __len__(self):
         return len(self.y)	
     
+    def norm(self):
+        self.X=preprocessing.scale(self.X)
+
+    def select(self,n=100):
+        svc = SVC(kernel='linear',C=1)
+        rfe = RFE(estimator=svc,n_features_to_select=n,step=1)
+        rfe.fit(self.X, self.y)
+        self.X= rfe.transform(self.X)
+        print("New dim: ")
+        print(self.X.shape)    
+
     def split(self):
         insts=self.to_instances()
         train,test=instances.split_instances(insts)

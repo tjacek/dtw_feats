@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report
 from collections import Counter
 
 class VotingEnsemble(object):
-    def __init__(self,norm=False):
+    def __init__(self,norm=True):
         self.norm=norm
     
     def __call__(self,deep_path):
@@ -34,6 +34,9 @@ class VotingEnsemble(object):
     def get_dataset(self,feat_path_i):
         insts=dataset.instances.from_files(feat_path_i)
         dataset_i=dataset.to_dataset(insts)
+        if(self.norm):
+            dataset_i.norm()
+        dataset_i.select()
         return dataset_i
 
     def get_model(self,dataset_i):

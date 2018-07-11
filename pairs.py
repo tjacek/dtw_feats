@@ -1,8 +1,9 @@
 import numpy as np
 import time,utils,seqs.io
 from metric import dtw_metric
+import dataset.instances
 
-def compute_pairs(in_path='mra/seqs/corl',out_path='mra/corl_pairs'):
+def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
     read_actions=seqs.io.ActionReader(as_dict=True)
     print(in_path)
     actions=read_actions(in_path)
@@ -44,5 +45,23 @@ def as_matrix(actions,pairs_dict):
     y=[actions[name_i].cat for name_i in names]
     return X,y
 
+def as_instances(pairs):
+    names=pairs.keys()
+    insts=[dataset.instances.empty_instance(name_i)
+                    for name_i in names]
+    train,test=dataset.instances.split_instances(insts)
+    train_names=[inst_i.name for inst_i in train]
+    train_names.sort()
+    def feat_helper(inst_i):
+        name_i=inst_i.name
+        return [pairs[name_i][name_j]
+                    for name_j in train_names]
+    for inst_i in insts:
+        inst_i.data=feat_helper(inst_i)
+    return insts
+
 if __name__ == "__main__":
-    compute_pairs()
+    dtw_pairs=utils.read_object('mra/pairs/max_z_pairs')
+    insts=as_instances(dtw_pairs)
+    dataset.instances.to_txt('mra/simple/max_z_feats.txt',insts)
+#    compute_pairs()

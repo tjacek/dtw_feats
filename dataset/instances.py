@@ -27,6 +27,10 @@ def parse_instance(line_i):
     data=utils.str_to_vector(feats)
     return Instance(data,cat,person,name)
 
+def empty_instance(name):
+    cat,person,e=utils.extract_numbers(name)
+    return Instance(None,cat,person,name)
+
 def split_instances(instances,selector=None):
     if(selector is None):
         selector=seqs.select.ModuloSelector(n=1)
@@ -37,6 +41,10 @@ def split_instances(instances,selector=None):
         else:
             test.append(inst_i)
     return train,test
+
+def to_txt(out_path,insts):
+    lines=[str(inst_i) for inst_i in insts]
+    utils.save_string(out_path,lines)
 
 if __name__ == "__main__":
     action_path="mra/datasets/nn19"
