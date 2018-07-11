@@ -16,18 +16,6 @@ class Instance(object):
         feats=",".join(feats)
         return "%s#%s#%s#%s" % (feats,self.cat,self.person,self.name)
 
-def to_dataset(instances):
-    X,y=[],[]
-    instances={inst_i.name:inst_i for inst_i in instances}
-    names=instances.keys()
-    names.sort()
-    for name_i in names:
-        inst_i=instances[name_i]
-        X.append(np.array(inst_i.data))
-        y.append(inst_i.cat)	
-    X=np.array(X)
-    return sklearn.datasets.base.Bunch(data=X, target=y)
-
 def from_files(in_path):
     with open(in_path) as f:
          lines=f.readlines()
