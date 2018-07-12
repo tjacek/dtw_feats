@@ -11,6 +11,7 @@ def bottom_files(path):
             paths=[ root+'/'+filename_i 
                 for filename_i in filenames]
             all_paths+=paths
+    all_paths.sort(key=natural_keys)        
     return all_paths
 
 def bottom_dirs(path):
