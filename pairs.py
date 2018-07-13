@@ -1,5 +1,5 @@
 import numpy as np
-import time,utils,seqs.io
+import time,feats,utils,seqs.io
 from metric import dtw_metric
 import dataset.instances
 
@@ -60,8 +60,18 @@ def as_instances(pairs):
         inst_i.data=feat_helper(inst_i)
     return insts
 
-if __name__ == "__main__":
-    dtw_pairs=utils.read_object('mra/pairs/max_z_pairs')
+def make_dtw_feats(in_path='mra/pairs/corl_pairs',
+                   out_path='mra/simple/corl_feats.txt'):
+    dtw_pairs=utils.read_object(in_path)
     insts=as_instances(dtw_pairs)
-    dataset.instances.to_txt('mra/simple/max_z_feats.txt',insts)
-#    compute_pairs()
+    dataset.instances.to_txt(out_path,insts)
+
+def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
+    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_action(in_path)
+    feat_extractor=feats.GlobalFeatures()
+    insts=[feat_extractor(action_i) for action_i in actions]
+    dataset.instances.to_txt(out_path,insts)
+
+if __name__ == "__main__":
+    make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt')
