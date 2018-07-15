@@ -16,7 +16,7 @@ class LocalFeatures(object):
 
 class BasicFeatures(LocalFeatures):
     def __init__(self):
-        all_features=[area]
+        all_features=[area,corl,std,skew]
         super(BasicFeatures, self).__init__(all_features)  
 
 class GlobalFeatures(object):
@@ -24,11 +24,11 @@ class GlobalFeatures(object):
         self.feature_extractor=[avg,std,skew]
 
     def __call__(self,action_i):
-        series=action_i.as_feature()
+#        series=action_i.as_feature()
+        array_i=action_i.as_array()
         global_feats=[]
-        for serie_i in series:
-            for extractor_i in self.feature_extractor:
-                global_feats.append(extractor_i(serie_i))
+        for extractor_j in self.feature_extractor:
+            global_feats+=extractor_j(None,array_i)
         return instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
 
@@ -43,14 +43,19 @@ def extract_points(img_i):
             points.append(point_d)
     return np.array(points)
 
-def avg(action_array):
-    return np.mean(action_array,axis=0)
+def avg(img_array,action_array):
+    return list(np.mean(action_array,axis=0))
 
-def std(action_array):
-    return np.std(action_array,axis=0)
+def std(img_array,pcloud):
+    return list(np.std(pcloud,axis=0))
 
-def skew(action_array):
-    return scipy.stats.skew(action_array,axis=0)
+def skew(img_array,pcloud):
+    return list(scipy.stats.skew(pcloud,axis=0))
+
+def corl(img_array,pcloud):
+    def corl_helper(i,j):
+        return scipy.stats.pearsonr(pcloud[:,i],pcloud[:,j])[0]
+    return [corl_helper(0,1) ,corl_helper(0,2),corl_helper(1,2)]
 
 def area(img_array,point_cloud):
     n_points=point_cloud.shape[0]
