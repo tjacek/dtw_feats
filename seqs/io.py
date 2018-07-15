@@ -40,6 +40,14 @@ class ActionWriter(object):
             action_path=out_path+'/'+action_i.name
             self.save_action(action_i,action_path)
 
+def transform_actions(in_path,out_path,transform,
+                      img_in=True,img_out=False,whole_seq=False):
+    read_actions=build_action_reader(img_seq=img_in,as_dict=False)
+    actions=read_actions(in_path)
+    new_actions=[ action_i(transform,whole_seq=whole_seq)  for action_i in actions]
+    save_actions=ActionWriter(img_seq=img_out)
+    save_actions(new_actions,out_path)
+
 def build_action_reader(img_seq,as_dict=True):
     if(img_seq):
         read_dirs=utils.bottom_dirs
