@@ -1,24 +1,23 @@
-import dataset,dataset.instances,utils
+import dataset,dataset.instances,utils,ensemble.single_cls
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from sklearn.metrics import classification_report
 from collections import Counter
 
 class VotingEnsemble(object):
     def __init__(self,norm=True,select=None):
-        self.build_dataset=LatePreproc()
+        self.build_dataset=LatePreproc(True,None)
 
     def __call__(self,basic_paths,deep_path):
         y_true,all_pred=self.all_predictions(basic_paths,deep_path)
         y_pred=self.vote(all_pred)
-        indep_votes=indepen_measure(y_true,all_pred)
-        indep=np.sum(indep_votes,axis=0).astype(float)
-        indep/=len(y_true)
-        print(list(indep))  
-        print(classification_report(y_true, y_pred,digits=4))
-    
+        ensemble.single_cls.show_result(y_true,y_pred)
+        #indep_votes=indepen_measure(y_true,all_pred)
+        #indep=np.sum(indep_votes,axis=0).astype(float)
+        #indep/=len(y_true)
+        #print(list(indep))
+
     def all_predictions(self,basic_paths,deep_path):
-        self.build_dataset.get_basic_dataset(basic_paths)
+        self.build_dataset.init(basic_paths)
         deep_paths=utils.bottom_files(deep_path)
         all_pred=[]
         y_true=None
@@ -47,10 +46,32 @@ class VotingEnsemble(object):
         return test.y,y_pred
 
 class LatePreproc(object):
-    def __init__(self,norm=True,feats=100):   
+    def __init__(self,norm=True,n_feats=100):   
         self.norm=norm
-        self.select=select
-        self.basic_feats=None
+        self.n_feats=n_feats
+        self.basic_dataset=None
+
+    def init(self,basic_paths):
+        if(len(basic_paths)==0):
+            print("No basic dataset")
+            self.basic_feats=None
+        datasets=[dataset.read_dataset(basic_i) 
+                for basic_i in basic_paths]
+        self.basic_dataset=dataset.unify_datasets(datasets)
+
+    def get_dataset(self,feat_path_i):
+        print(feat_path_i)
+        adapt_dataset=dataset.read_dataset(feat_path_i)
+        full_dataset=dataset.unify_datasets([adapt_dataset,self.basic_dataset])
+        preproc(full_dataset,self.norm,self.n_feats)
+        print(full_dataset.X.shape)
+        return full_dataset
+
+class EarlyPreproc(object):
+    def __init__(self,norm=True,basic_feats=150,deep_feats=100):   
+        self.norm=norm
+        self.basic_feats=basic_feats
+        self.deep_feats=deep_feats
 
     def init(self,basic_paths):
         if(len(basic_paths)==0):
@@ -58,12 +79,16 @@ class LatePreproc(object):
         datasets=[dataset.read_dataset(basic_i) 
                 for basic_i in basic_paths]
         self.basic=dataset.unify_datasets(datasets)
+        preproc(self.basic,self.norm,self.basic_feats)
 
     def get_dataset(self,feat_path_i):
         adapt_dataset=dataset.read_dataset(feat_path_i)
+        preproc(adapt_dataset,self.norm,self.deep_feats)
         full_dataset=dataset.unify_datasets([adapt_dataset,self.basic_feats])
-        if(self.norm):
-            full_dataset.norm()
-        if(not self.select is None ):
-            full_dataset.select(self.select)
-        return full_dataset
+        return full_dataset    
+
+def preproc(dataset_i,norm,select):
+    if(norm):
+        dataset_i.norm()
+    if(not select is None ):
+        dataset_i.select(select)
