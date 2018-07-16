@@ -5,16 +5,19 @@ from collections import Counter
 
 class VotingEnsemble(object):
     def __init__(self,norm=True,select=None):
-        self.build_dataset=EarlyPreproc(True,150,100)
+        self.build_dataset=EarlyPreproc(True,250,100)
 
-    def __call__(self,basic_paths,deep_path):
-        y_true,all_pred=self.all_predictions(basic_paths,deep_path)
-        y_pred=self.vote(all_pred)
+    def __call__(self,basic_paths,deep_paths):
+        if(deep_paths):
+            y_true,all_pred=self.all_predictions(basic_paths,deep_paths)
+            y_pred=self.vote(all_pred)
+        else:
+            self.build_dataset.init(basic_paths)
+            y_true,y_pred=ensemble.single_cls.simple_exp(self.build_dataset.basic_dataset)
+        print(basic_paths)
+        print(deep_paths)
+        print(str(self.build_dataset))
         ensemble.single_cls.show_result(y_true,y_pred)
-        #indep_votes=indepen_measure(y_true,all_pred)
-        #indep=np.sum(indep_votes,axis=0).astype(float)
-        #indep/=len(y_true)
-        #print(list(indep))
 
     def all_predictions(self,basic_paths,deep_path):
         self.build_dataset.init(basic_paths)
@@ -51,6 +54,10 @@ class LatePreproc(object):
         self.n_feats=n_feats
         self.basic_dataset=None
 
+    def __str__(self):
+        n_feats= self.n_feats  if(self.n_feats) else 0
+        return "norm:%i n_feats:%i" % (self.norm,n_feats)
+
     def init(self,basic_paths):
         if(len(basic_paths)==0):
             print("No basic dataset")
@@ -74,6 +81,11 @@ class EarlyPreproc(object):
         self.deep_feats=deep_feats
         self.basic_dataset=None
     
+    def __str__(self):
+        basic_feats= self.basic_feats if(self.basic_feats) else 0
+        deep_feats= self.deep_feats if(self.deep_feats) else 0
+        return "norm:%i basic_feat:%i deep_feats:%i" % (self.norm,basic_feats,deep_feats)
+
     def init(self,basic_paths):
         if(len(basic_paths)==0):
             self.basic_feats=None

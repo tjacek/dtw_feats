@@ -12,12 +12,17 @@ class Dataset(object):
         self.names=names
 
     def __len__(self):
-        return len(self.y)	
+        return len(self.y)
+
+    def dim(self):
+        return self.X.shape[1]	
     
     def norm(self):
         self.X=preprocessing.scale(self.X)
 
     def select(self,n=100):
+        if(self.dim()<n):
+            return self
         svc = SVC(kernel='linear',C=1)
         rfe = RFE(estimator=svc,n_features_to_select=n,step=1)
         rfe.fit(self.X, self.y)
@@ -58,6 +63,9 @@ def to_dataset(insts):
     return Dataset(X=X,y=y,persons=persons,names=names)
 
 def unify_datasets(datasets):
+    datasets=[dataset_i 
+                for dataset_i in datasets
+                    if(not dataset_i is None)]
     if(len(datasets)==1):
         return datasets[0]
     feats=[ dataset_i.X for dataset_i in datasets]
