@@ -5,7 +5,7 @@ from collections import Counter
 
 class VotingEnsemble(object):
     def __init__(self,norm=True,select=None):
-        self.build_dataset=LatePreproc(True,None)
+        self.build_dataset=EarlyPreproc(True,150,100)
 
     def __call__(self,basic_paths,deep_path):
         y_true,all_pred=self.all_predictions(basic_paths,deep_path)
@@ -72,19 +72,20 @@ class EarlyPreproc(object):
         self.norm=norm
         self.basic_feats=basic_feats
         self.deep_feats=deep_feats
-
+        self.basic_dataset=None
+    
     def init(self,basic_paths):
         if(len(basic_paths)==0):
             self.basic_feats=None
         datasets=[dataset.read_dataset(basic_i) 
                 for basic_i in basic_paths]
-        self.basic=dataset.unify_datasets(datasets)
-        preproc(self.basic,self.norm,self.basic_feats)
+        self.basic_dataset=dataset.unify_datasets(datasets)
+        preproc(self.basic_dataset,self.norm,self.basic_feats)
 
     def get_dataset(self,feat_path_i):
         adapt_dataset=dataset.read_dataset(feat_path_i)
         preproc(adapt_dataset,self.norm,self.deep_feats)
-        full_dataset=dataset.unify_datasets([adapt_dataset,self.basic_feats])
+        full_dataset=dataset.unify_datasets([adapt_dataset,self.basic_dataset])
         return full_dataset    
 
 def preproc(dataset_i,norm,select):

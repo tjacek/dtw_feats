@@ -1,6 +1,6 @@
 import numpy as np
 import deep,deep.convnet,deep.train
-import utils,ensemble
+import utils,ensemble,ensemble.votes,ensemble.single_cls
 import theano.gpuarray
 
 def get_dataset(in_path,preproc):
@@ -38,4 +38,12 @@ def binarize(y,cat_j):
 
 #simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)
 #ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
-ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
+#ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
+#ensemble.global_feats("mhad/feats","mhad/datasets")
+
+basic_paths=['mhad/simple/max_z_feats.txt','mhad/simple/basic.txt']#,'mhad/simple/corls.txt']
+#['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
+adapt_path='mhad/datasets'
+ens=ensemble.votes.VotingEnsemble()
+ens(basic_paths,adapt_path)
+#ensemble.single_cls.simple_exp('mra/simple/max_z_feats.txt')
