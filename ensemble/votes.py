@@ -26,7 +26,7 @@ class VotingEnsemble(object):
         y_true=None
         for feat_path_i in deep_paths:
             dataset_i=self.build_dataset.get_dataset(feat_path_i) 
-            y_i,y_pred=self.get_model(dataset_i)
+            y_i,y_pred=train_model(dataset_i)
             if(y_true is None):
                 y_true=y_i
             all_pred.append(y_pred)
@@ -40,13 +40,6 @@ class VotingEnsemble(object):
             cat_i=count.most_common()[0][0]
             y_pred.append(cat_i)
         return y_pred 
-
-    def get_model(self,dataset_i):
-        train,test=dataset_i.split()
-        clf=LogisticRegression()
-        clf = clf.fit(train.X, train.y)
-        y_pred = clf.predict(test.X)
-        return test.y,y_pred
 
 class LatePreproc(object):
     def __init__(self,norm=True,n_feats=100):   
