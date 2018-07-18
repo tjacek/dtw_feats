@@ -4,8 +4,8 @@ import numpy as np
 from collections import Counter
 
 class VotingEnsemble(object):
-    def __init__(self,norm=True,select=None):
-        self.build_dataset=EarlyPreproc(True,250,100)
+    def __init__(self,norm=True,basic_feats=250,deep_feats=100):
+        self.build_dataset=EarlyPreproc(norm,basic_feats,deep_feats)
 
     def __call__(self,basic_paths,deep_paths):
         if(deep_paths):
