@@ -7,14 +7,9 @@ class Experiment(object):
         self.build_dataset=ensemble.votes.EarlyPreproc(True,None,deep_feats)
         self.stats={'true_positives':count_agree,'common_errors':common_errors}
 
-    def __call__(self,deep_path):
-        datasets=[self.build_dataset.get_dataset(path_i)
-                    for path_i in utils.bottom_files(deep_path)]
-        result=[ ensemble.single_cls.train_model(dataset_i)
-                    for dataset_i in datasets]
-        y_true=result[0][0]
-        y_pred=[result_i[1] for result_i in result]
-        return { name_i: stat_i(y_true,y_pred)
+    def __call__(self,deep_paths):
+        y_true,all_preds=self.build_dataset.all_predictions(None,deep_paths)
+        return { name_i: stat_i(y_true,all_preds)
                     for name_i,stat_i in self.stats.items()}
 
 def cls_compare(y_true,all_preds):
