@@ -10,7 +10,7 @@ class VotingEnsemble(object):
     def __call__(self,basic_paths,deep_paths):
         if(deep_paths):
             y_true,all_pred=self.build_dataset.all_predictions(basic_paths,deep_paths)
-            y_pred=self.vote(all_pred)
+            y_pred=vote(all_pred)
         else:
             self.build_dataset.init(basic_paths)
             y_true,y_pred=ensemble.single_cls.simple_exp(self.build_dataset.basic_dataset)
@@ -19,14 +19,14 @@ class VotingEnsemble(object):
         print(str(self.build_dataset))
         ensemble.single_cls.show_result(y_true,y_pred)
 
-    def vote(self,all_votes):
-        all_votes=np.array(all_votes)
-        y_pred=[]
-        for vote_i in all_votes.T:
-            count =Counter(vote_i)
-            cat_i=count.most_common()[0][0]
-            y_pred.append(cat_i)
-        return y_pred 
+def vote(all_votes):
+    all_votes=np.array(all_votes)
+    y_pred=[]
+    for vote_i in all_votes.T:
+        count =Counter(vote_i)
+        cat_i=count.most_common()[0][0]
+        y_pred.append(cat_i)
+    return y_pred 
 
 class BuildDataset(object):
     def __init__(self, norm):
