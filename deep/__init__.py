@@ -61,6 +61,18 @@ class ImgPreproc(object):
             raise Exception("incorrect img size")
         return x/self.dim
 
+def get_dataset(in_path,preproc):
+    X,y=deep.read_dataset(in_path)
+    y=np.array(y)
+    y-= np.min(y)
+    n_cats=deep.count_cats(y)
+    X=np.array([preproc(x_i) for x_i in X])
+    return X,y,n_cats
+
+def binarize(y,cat_j):
+    return [ 0 if(y_i==cat_j) else 1
+               for y_i in y]
+
 def get_dims(imgset):
     first=imgset[0]
     return first.shape[0],first.shape[1]

@@ -1,27 +1,22 @@
 import numpy as np
-import deep,deep.convnet,deep.train
-import utils,ensemble,ensemble.votes,ensemble.single_cls
+import utils,deep,deep.convnet,deep.train
+import ensemble,ensemble.votes,ensemble.single_cls
+import ensemble.stats,ensemble.multi_alg
 import theano.gpuarray
 
-def get_dataset(in_path,preproc):
-    X,y=deep.read_dataset(in_path)
-    y=np.array(y)
-    y-= np.min(y)
-    n_cats=deep.count_cats(y)
-    X=np.array([preproc(x_i) for x_i in X])
-    return X,y,n_cats
-
-def simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False):
-    preproc=deep.ImgPreproc(4)
-    X,y,n_cats=get_dataset(dataset_path,preproc)
+def simple_exp(dataset_path='data/MSR',nn_path='data/nn',
+                compile=False,n_frames=4):
+    preproc=deep.ImgPreproc(n_frames)
+    X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
     model_path=None if(compile) else nn_path
     model=deep.convnet.get_model(n_cats,preproc,nn_path=model_path)
     deep.train.train_super_model(X,y,model,num_iter=25)
     model.get_model().save(nn_path)
 
-def ensemble_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False):
-    preproc=deep.ImgPreproc(4)
-    X,y,n_cats=get_dataset(dataset_path,preproc)
+def ensemble_exp(dataset_path='data/MSR',nn_path='data/nn',
+                    compile=False,n_frames=4):
+    preproc=deep.ImgPreproc(n_frames)
+    X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
     utils.make_dir(nn_path)
     for j in range(n_cats):
         nn_path_j=nn_path+'/nn'+str(j)
@@ -32,18 +27,19 @@ def ensemble_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False):
         deep.train.train_super_model(X,y_j,model_j,num_iter=150)
         model_j.get_model().save(nn_path_j)
 
-def binarize(y,cat_j):
-    return [ 0 if(y_i==cat_j) else 1
-               for y_i in y]
-
 #simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)
 #ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
 #ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
 #ensemble.global_feats("mhad/feats","mhad/datasets")
 
-basic_paths=['mhad/simple/max_z_feats.txt','mhad/simple/basic.txt']#,'mhad/simple/corls.txt']
+basic_paths=['mhad/simple/basic.txt']
+#['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
 #['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
 adapt_path='mhad/datasets'
-ens=ensemble.votes.VotingEnsemble()
-ens(basic_paths,adapt_path)
-#ensemble.single_cls.simple_exp('mra/simple/max_z_feats.txt')
+ 
+multi_alg=ensemble.multi_alg.MultiAlgEnsemble()
+exp1=ensemble.stats.Experiment(multi_alg)
+stats=exp1(basic_paths[0])
+#exp2=ensemble.stats.Experiment()
+#stats=exp2(adapt_path)
+ensemble.stats.show_stats(stats)
