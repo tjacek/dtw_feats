@@ -21,7 +21,7 @@ class Dataset(object):
         self.X=preprocessing.scale(self.X)
 
     def select(self,n=100):
-        if(self.dim()<n):
+        if(self.dim()<n or n==0):
             return self
         svc = SVC(kernel='linear',C=1)
         rfe = RFE(estimator=svc,n_features_to_select=n,step=1)

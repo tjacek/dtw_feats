@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import accuracy_score
 import ensemble.votes,ensemble.single_cls
 import utils
 
@@ -8,18 +9,29 @@ class Experiment(object):
             self.build_dataset=ensemble.votes.EarlyPreproc(True,None,deep_feats)
         else:
             self.build_dataset=deep_feats
-        self.stats={'true_positives':count_agree,'common_errors':indep_rating}
+        self.stats={'true_positives':true_pos,'common_errors':indep_rating,
+                    'quality_rating':quality_rating,'ensemble_accuracy':ensemble_accuracy}
 
-    def __call__(self,deep_paths):
-        y_true,all_preds=self.build_dataset.all_predictions(None,deep_paths)
+    def __call__(self,deep_paths,basic_paths=None):
+        y_true,all_preds=self.build_dataset.all_predictions(basic_paths,deep_paths)
         return { name_i: stat_i(y_true,all_preds)
                     for name_i,stat_i in self.stats.items()}
 
 def show_stats(stats):
     for name_i,value_i in stats.items():
-        median_i=np.median(value_i)
-        mean_i=np.mean(value_i)
-        print("stats:%s median:%f avg:%f" % (name_i,median_i,mean_i)) 
+        if(isinstance(value_i,(int,float,long))):
+            print("stats:%s %f" % (name_i,value_i))
+        else:
+            median_i=np.median(value_i)
+            mean_i=np.mean(value_i)
+            max_i=np.amax(value_i)
+            min_i=np.amin(value_i)
+            all_stats=(name_i,median_i,mean_i,max_i,min_i)
+            print("stats:%s median:%f avg:%f max:%f min:%f" % all_stats) 
+
+def ensemble_accuracy(y_true,all_preds):
+    y_pred=ensemble.votes.vote(all_preds)
+    return accuracy_score(y_true,y_pred)
 
 def quality_rating(y_true,all_preds):
     error_matrix=common_errors(y_true,all_preds)
@@ -41,6 +53,10 @@ def common_errors(y_true,all_preds):
                 for pred_i in all_preds]
                     for j,pred_j in enumerate(all_preds)]
     return np.array(errors) /  float(len(y_true))
+
+def true_pos(y_true,all_preds):
+    return [accuracy_score(y_true,pred_i)
+                for pred_i in all_preds]
 
 def count_agree(single_pred,all_preds):
     size=float(len(single_pred))

@@ -56,7 +56,7 @@ class LatePreproc(BuildDataset):
         return "norm:%i n_feats:%i" % (self.norm,n_feats)
 
     def init(self,basic_paths):
-        if(check_paths(basic_paths)):
+        if(not basic_paths):
             return
         datasets=[dataset.read_dataset(basic_i) 
                 for basic_i in basic_paths]
@@ -81,8 +81,9 @@ class EarlyPreproc(BuildDataset):
         return "norm:%i basic_feat:%i deep_feats:%i" % (self.norm,basic_feats,deep_feats)
 
     def init(self,basic_paths):
-        if(check_paths(basic_paths)):
+        if(not basic_paths):
             return
+        print(basic_paths)
         datasets=[dataset.read_dataset(basic_i) 
                 for basic_i in basic_paths]
         self.basic_dataset=dataset.unify_datasets(datasets)
@@ -92,14 +93,7 @@ class EarlyPreproc(BuildDataset):
         adapt_dataset=dataset.read_dataset(feat_path_i)
         preproc(adapt_dataset,self.norm,self.deep_feats)
         full_dataset=dataset.unify_datasets([adapt_dataset,self.basic_dataset])
-        return full_dataset    
-
-def check_paths(paths):
-    if(not paths):
-        return True
-    if(len(basic_paths)==0):
-        return True
-    return False
+        return full_dataset
 
 def preproc(dataset_i,norm,select):
     if(norm):
