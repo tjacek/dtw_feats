@@ -9,14 +9,27 @@ class Experiment(object):
             self.build_dataset=ensemble.votes.EarlyPreproc(True,None,deep_feats)
         else:
             self.build_dataset=deep_feats
-        self.stats={'true_positives':true_pos,'common_errors':indep_rating,
-                    'quality_rating':quality_rating,'ensemble_accuracy':ensemble_accuracy}
+        self.stats={'common_errors':IndepMetric(False),'common_prediction':IndepMetric(True),
+                    'quality_rating':quality_rating,'individual_accuracy':true_pos,
+                    'ensemble_accuracy':ensemble_accuracy}
 
     def __call__(self,deep_paths,basic_paths=None):
         y_true,all_preds=self.build_dataset.all_predictions(basic_paths,deep_paths)
         return { name_i: stat_i(y_true,all_preds)
                     for name_i,stat_i in self.stats.items()}
 
+class IndepMetric(object):
+    def __init__(self,flip):
+        self.flip=flip
+
+    def __call__(self,y_true,all_preds):    
+        error_matrix=common_preds(y_true,all_preds,flip=self.flip)
+        n_cls=len(all_preds)
+        for i in xrange(n_cls):
+            error_matrix[i][i]=0
+        n_cls=float(error_matrix.shape[0])
+        return np.sum(error_matrix,axis=0)/n_cls
+       
 def show_stats(stats):
     for name_i,value_i in stats.items():
         if(isinstance(value_i,(int,float,long))):
@@ -34,25 +47,20 @@ def ensemble_accuracy(y_true,all_preds):
     return accuracy_score(y_true,y_pred)
 
 def quality_rating(y_true,all_preds):
-    error_matrix=common_errors(y_true,all_preds)
-    return np.sum(error_matrix,axis=0)
+    error_matrix=common_preds(y_true,all_preds)
+    n_cls=float(error_matrix.shape[0])
+    return np.sum(error_matrix,axis=0)/n_cls
 
-def indep_rating(y_true,all_preds):
-    error_matrix=common_errors(y_true,all_preds)
-    n_cls=len(all_preds)
-    for i in xrange(n_cls):
-        error_matrix[i][i]=0
-    return np.sum(error_matrix,axis=0)
-                    
-def common_errors(y_true,all_preds):
-    false_pos= [compare_pred(y_true,pred_i) for pred_i in all_preds]
-    def error_helper(j,pred_i,pred_j):
-        common_ij=1-compare_pred(pred_i,pred_j)
-        return np.dot(common_ij,false_pos[j])
-    errors=[[ error_helper(j,pred_i,pred_j)
+def common_preds(y_true,all_preds,flip=False):
+    true_pos= [compare_pred(y_true,pred_i,flip=flip) 
+                for pred_i in all_preds]
+    def pred_helper(j,pred_i,pred_j):
+        common_ij=compare_pred(pred_i,pred_j,flip=True)
+        return np.dot(common_ij,true_pos[j])
+    preds= [[ pred_helper(j,pred_i,pred_j)
                 for pred_i in all_preds]
                     for j,pred_j in enumerate(all_preds)]
-    return np.array(errors) /  float(len(y_true))
+    return np.array(preds) /  float(len(y_true))
 
 def true_pos(y_true,all_preds):
     return [accuracy_score(y_true,pred_i)
@@ -63,10 +71,11 @@ def count_agree(single_pred,all_preds):
     return [ sum(compare_pred(single_pred,pred_i))/size
                 for pred_i in all_preds]
 
-def compare_pred(a,b,as_int=True):
+def compare_pred(a,b,flip=False):
     comp=[ a_i!=b_i for a_i,b_i in zip(a,b)]
-    if(as_int):
-        comp=np.array(comp).astype(int)
+    comp=np.array(comp).astype(int)
+    if(flip):
+        comp=1-comp
     return comp
 
 def cls_compare(y_true,all_preds):
