@@ -45,6 +45,9 @@ class Dataset(object):
         return insts
 
 def read_dataset(in_path):
+    if(type(in_path)==list):
+        datasets=[read_dataset(path_i) for path_i in in_path]
+        return unify_datasets(datasets)
     insts=dataset.instances.from_files(in_path)
     return to_dataset(insts)
 
