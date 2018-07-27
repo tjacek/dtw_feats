@@ -10,8 +10,8 @@ class Experiment(object):
         else:
             self.build_dataset=deep_feats
         self.stats={'common_errors':IndepMetric(False),'common_prediction':IndepMetric(True),
-                    'quality_rating':quality_rating,'individual_accuracy':true_pos,
-                    'ensemble_accuracy':ensemble_accuracy}
+                    'individual_accuracy':true_pos,
+                    'ensemble_accuracy':ensemble_accuracy,'votes':vote_histogram}
 
     def __call__(self,deep_paths,basic_paths=None):
         y_true,all_preds=self.build_dataset.all_predictions(basic_paths,deep_paths)
@@ -19,11 +19,11 @@ class Experiment(object):
                     for name_i,stat_i in self.stats.items()}
 
 class IndepMetric(object):
-    def __init__(self,flip):
-        self.flip=flip
+    def __init__(self,error):
+        self.error=error
 
     def __call__(self,y_true,all_preds):    
-        error_matrix=common_preds(y_true,all_preds,flip=self.flip)
+        error_matrix=common_preds(y_true,all_preds,self.error)
         n_cls=len(all_preds)
         for i in xrange(n_cls):
             error_matrix[i][i]=0
@@ -51,16 +51,29 @@ def quality_rating(y_true,all_preds):
     n_cls=float(error_matrix.shape[0])
     return np.sum(error_matrix,axis=0)/n_cls
 
-def common_preds(y_true,all_preds,flip=False):
-    true_pos= [compare_pred(y_true,pred_i,flip=flip) 
+def vote_histogram(y_true,all_preds):
+    true_pos=[compare_pred(y_true,pred_i,erorr=False) 
                 for pred_i in all_preds]
+    true_pos=np.array(true_pos)
+    votes=np.sum(true_pos,axis=0)
+    n_cats=true_pos.shape[0]+1
+    hist=np.zeros((n_cats,))
+    for vote_i in votes:
+        hist[vote_i]+=1.0
+    hist/=np.sum(hist)    
+    return np.cumsum(hist)
+
+def common_preds(y_true,all_preds,erorr=False):
+    true_pos= [compare_pred(y_true,pred_i,erorr=erorr) 
+                for pred_i in all_preds]
+    norm_const=[ float(sum(true_i)) for true_i in true_pos]
     def pred_helper(j,pred_i,pred_j):
-        common_ij=compare_pred(pred_i,pred_j,flip=True)
-        return np.dot(common_ij,true_pos[j])
+        common_ij=compare_pred(pred_i,pred_j,erorr=True)
+        return np.dot(common_ij,true_pos[j])/  norm_const[j]
     preds= [[ pred_helper(j,pred_i,pred_j)
                 for pred_i in all_preds]
                     for j,pred_j in enumerate(all_preds)]
-    return np.array(preds) /  float(len(y_true))
+    return np.array(preds)
 
 def true_pos(y_true,all_preds):
     return [accuracy_score(y_true,pred_i)
@@ -71,10 +84,10 @@ def count_agree(single_pred,all_preds):
     return [ sum(compare_pred(single_pred,pred_i))/size
                 for pred_i in all_preds]
 
-def compare_pred(a,b,flip=False):
-    comp=[ a_i!=b_i for a_i,b_i in zip(a,b)]
+def compare_pred(a,b,erorr=False):
+    comp=[ a_i==b_i for a_i,b_i in zip(a,b)]
     comp=np.array(comp).astype(int)
-    if(flip):
+    if(erorr):
         comp=1-comp
     return comp
 
