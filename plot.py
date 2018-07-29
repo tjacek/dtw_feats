@@ -21,14 +21,10 @@ def plot_embedding(X,y,title=None,highlist=None):
     plt.figure()
     ax = plt.subplot(111)
 
-#    highlist=Set(highlist)
     def color_helper(i):
         return float(cats[int(y[i])-1]) / float(n_cats)
 
     for i in range(n_points):
-#        if(y[i] in highlist):
-#            color_i=color_helper(1)
-#        else:
         color_i= color_helper(i)
         plt.text(X[i, 0], X[i, 1], str(y[i]),
                    color=plt.cm.tab20( color_i),
@@ -42,4 +38,13 @@ def plot_embedding(X,y,title=None,highlist=None):
 def show_distance(D):
     plt.imshow(D, zorder=2, cmap='Blues', interpolation='nearest')
     plt.colorbar();
+    plt.show()
+
+def show_histogram(hist,title='hist',cumsum=True):
+    if(cumsum):
+        hist=np.cumsum(hist)
+    fig = plt.figure()
+    x=range(hist.shape[0])
+    plt.bar(x,hist)
+    fig.suptitle(title)
     plt.show()

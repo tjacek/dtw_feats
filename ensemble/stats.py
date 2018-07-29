@@ -61,7 +61,7 @@ def vote_histogram(y_true,all_preds):
     for vote_i in votes:
         hist[vote_i]+=1.0
     hist/=np.sum(hist)    
-    return np.cumsum(hist)
+    return hist
 
 def common_preds(y_true,all_preds,erorr=False):
     true_pos= [compare_pred(y_true,pred_i,erorr=erorr) 
@@ -93,12 +93,3 @@ def compare_pred(a,b,erorr=False):
 
 def cls_compare(y_true,all_preds):
     return [count_agree(pred_i,all_preds) for pred_i in all_preds]
-
-def gini_index(hist):
-    hist=np.sort(hist)
-    cum_hist=np.cumsum(hist)
-    n_bin=hist.shape[0]
-    interv=1.0/n_bin
-    lorenz=[i*interv for i in range(n_bin) ]
-    return 2*np.sum(lorenz-cum_hist)
-

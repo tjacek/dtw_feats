@@ -1,7 +1,6 @@
 import numpy as np
 import utils,deep,deep.convnet,deep.train
-import ensemble,ensemble.votes,ensemble.single_cls
-import ensemble.stats,ensemble.multi_alg
+import ensemble
 import theano.gpuarray
 
 def simple_exp(dataset_path='data/MSR',nn_path='data/nn',
@@ -27,22 +26,7 @@ def ensemble_exp(dataset_path='data/MSR',nn_path='data/nn',
         deep.train.train_super_model(X,y_j,model_j,num_iter=150)
         model_j.get_model().save(nn_path_j)
 
-def cls_stats(in_path,multi_alg=True):
-    if(multi_alg):
-        multi_alg=ensemble.multi_alg.MultiAlgEnsemble()
-        exp1=ensemble.stats.Experiment(multi_alg)
-    else:
-        exp1=ensemble.stats.Experiment()
-    stats=exp1(in_path)
-    ensemble.stats.show_stats(stats)
 #simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)
 #ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
 #ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
 #ensemble.global_feats("mhad/feats","mhad/datasets")
-
-basic_paths=['mhad/simple/basic.txt']
-#['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
-#['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
-adapt_path='mhad/datasets'
- 
-cls_stats(basic_paths[0],multi_alg=True)
