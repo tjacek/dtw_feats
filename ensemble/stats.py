@@ -93,3 +93,12 @@ def compare_pred(a,b,erorr=False):
 
 def cls_compare(y_true,all_preds):
     return [count_agree(pred_i,all_preds) for pred_i in all_preds]
+
+def gini_index(hist):
+    hist=np.sort(hist)
+    cum_hist=np.cumsum(hist)
+    n_bin=hist.shape[0]
+    interv=1.0/n_bin
+    lorenz=[i*interv for i in range(n_bin) ]
+    return 2*np.sum(lorenz-cum_hist)
+
