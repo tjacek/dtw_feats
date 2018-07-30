@@ -41,6 +41,8 @@ def show_distance(D):
     plt.show()
 
 def show_histogram(hist,title='hist',cumsum=True):
+    if(type(hist)==list):
+        hist=np.array(hist)
     if(cumsum):
         hist=np.cumsum(hist)
     fig = plt.figure()

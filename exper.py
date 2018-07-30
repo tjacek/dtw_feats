@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.special
 import ensemble.votes,ensemble.single_cls
 import ensemble.stats,ensemble.multi_alg,plot
 
@@ -33,12 +34,22 @@ def gini_index(hist):
     n_bin=hist.shape[0]
     interv=1.0/(n_bin)
     lorenz=[(i+1)*interv for i in range(n_bin) ]
-    print(lorenz)
     return np.sum(lorenz-cum_hist)/np.sum(lorenz)
 
-basic_path=['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
+def binomial_dist(n):
+    p=1.0/n
+    bin_coff=[scipy.special.binom(n,k)
+                for k in range(n)]
+    dist=[ bin_coff[k] * (p**k)*((1.0-p)**(n-k)) 
+                for k in range(n)]
+    plot.show_histogram(dist,'binomial',cumsum=True)
+            
+
+
+basic_path=['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt']
 #['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
 #['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
-adapt_path='mra/datasets'
+adapt_path='mhad/datasets'
  
-cls_stats(in_path=adapt_path,basic_paths=None,multi_alg=False)
+#cls_stats(in_path=adapt_path,basic_paths=basic_path,multi_alg=False)
+binomial_dist(20)
