@@ -2,10 +2,11 @@ import dataset,dataset.instances,utils,ensemble.single_cls
 from sklearn.linear_model import LogisticRegression
 import numpy as np
 from collections import Counter
+from sets import Set
 
 class VotingEnsemble(object):
-    def __init__(self,norm=True,basic_feats=250,deep_feats=100):
-        self.build_dataset=EarlyPreproc(norm,basic_feats,deep_feats)
+    def __init__(self,norm=True,basic_feats=250,deep_feats=100,restr=None):
+        self.build_dataset=EarlyPreproc(norm,basic_feats,deep_feats,restr)
 
     def __call__(self,basic_paths,deep_paths):
         if(deep_paths):
@@ -29,13 +30,17 @@ def vote(all_votes):
     return y_pred 
 
 class BuildDataset(object):
-    def __init__(self, norm):
+    def __init__(self, norm,restr=None):
         self.norm = norm
         self.basic_dataset=None
+        self.restr=Set(restr)
 
     def all_predictions(self,basic_paths,deep_path):
         self.init(basic_paths)
         deep_paths=utils.bottom_files(deep_path)
+        if(self.restr):
+            deep_paths=[path_i for i,path_i in enumerate(deep_paths)
+                            if(i in self.restr)]
         def pred_helper(feat_path_i):
             print(feat_path_i)
             dataset_i=self.get_dataset(feat_path_i) 
@@ -47,8 +52,8 @@ class BuildDataset(object):
         return y_true,all_preds
 
 class LatePreproc(BuildDataset):
-    def __init__(self,norm=True,n_feats=100):   
-        super(LatePreproc, self).__init__(norm)
+    def __init__(self,norm=True,n_feats=100,restr=None):   
+        super(LatePreproc, self).__init__(norm,restr)
         self.n_feats=n_feats
 
     def __str__(self):
@@ -68,8 +73,8 @@ class LatePreproc(BuildDataset):
         return full_dataset
 
 class EarlyPreproc(BuildDataset):
-    def __init__(self,norm=True,basic_feats=150,deep_feats=100):   
-        super(EarlyPreproc, self).__init__(norm)
+    def __init__(self,norm=True,basic_feats=150,deep_feats=100,restr=None):   
+        super(EarlyPreproc, self).__init__(norm,restr)
         self.basic_feats=basic_feats
         self.deep_feats=deep_feats
     
