@@ -42,6 +42,10 @@ def show_stats(stats):
             all_stats=(name_i,median_i,mean_i,max_i,min_i)
             print("stats:%s median:%f avg:%f max:%f min:%f" % all_stats) 
 
+def best_clf(stats,k=5,criterion='individual_accuracy'):
+    clf_metric=stats[criterion]
+    return np.argsort(clf_metric)[:k]
+
 def ensemble_accuracy(y_true,all_preds):
     y_pred=ensemble.votes.vote(all_preds)
     return accuracy_score(y_true,y_pred)
