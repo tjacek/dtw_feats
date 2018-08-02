@@ -1,6 +1,6 @@
 import numpy as np
 import utils,deep,deep.convnet,deep.train
-import ensemble
+import ensemble,pairs,utils
 import theano.gpuarray
 
 def simple_exp(dataset_path='data/MSR',nn_path='data/nn',
@@ -26,6 +26,15 @@ def ensemble_exp(dataset_path='data/MSR',nn_path='data/nn',
         deep.train.train_super_model(X,y_j,model_j,num_iter=150)
         model_j.get_model().save(nn_path_j)
 
+def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
+    deep_paths=utils.bottom_dirs(in_path)
+    utils.make_dir(out_path)
+    for in_i in deep_paths:
+        out_i=ensemble.get_out_path(in_i,out_path)
+        print(out_i)
+        pairs.compute_pairs(in_i,out_i)
+
+ensemble_pairs(in_path='mhad/feats')
 #simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)
 #ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
 #ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
