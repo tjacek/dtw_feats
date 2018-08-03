@@ -1,6 +1,6 @@
 import time
 import numpy as np
-import metric,graph,pairs,utils#,plot,feats
+import metric,graph,pairs,utils,plot,feats
 import seqs.io,seqs.concat
 from sklearn.manifold import TSNE
 
@@ -12,11 +12,9 @@ def concat_actions(in_path1='seqs/max_z',in_path2='seqs/all',out_path='seqs/full
     save_actions=actions.io.ActionWriter()
     save_actions(unified_actions,out_path) 
 
-def show_dtw_feats(action_path='mra/seqs/corl',pairs_path='mra/corl_pairs',title="full" ):
-    read_actions=seqs.io.ActionReader(as_dict=True)
-    actions=read_actions(action_path)
+def show_dtw_feats(pairs_path='mra/pairs/corl_pairs',title="full" ):
     dtw_pairs=utils.read_object(pairs_path)
-    X,y=pairs.as_matrix(actions,dtw_pairs)
+    X,y=pairs.as_matrix(dtw_pairs)
     tsne_embd(X,y,title)
 
 def show_global_feats(action_path='seqs/all',title="global features"):
@@ -32,10 +30,10 @@ def tsne_embd(X,y,title):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
     plot.plot_embedding(embd,y,title=title,highlist=None)
 
-seqs.concat.simple_concat(in_path1="data/proj",
-                  in_path2="data/time",
-                  out_path="data/MSR",img_seq=True)
+#seqs.concat.simple_concat(in_path1="data/proj",
+#                  in_path2="data/time",
+#                  out_path="data/MSR",img_seq=True)
 #concat_actions()
 #compute_pairs()
-#show_dtw_feats()
+show_dtw_feats()
 #show_global_feats()
