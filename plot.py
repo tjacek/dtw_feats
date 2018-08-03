@@ -4,17 +4,24 @@ import numpy as np
 import random
 from sets import Set
 
-class ColorHelper(object):
+class CatColors(object):
     def __init__(self,cats):
         self.cats=cats
         self.n_cats= cats.shape[0]
 
-    def __call__(self,y_i):    
+    def __call__(self,i,y_i):    
         num=float(self.cats[int(y_i)-1])
         div=float(self.n_cats)
         return  num/div
 
-def cat_colors(y,highlist=None):
+class PersonColors(object):
+    def __init__(self, persons):
+        self.persons = persons
+    
+    def __call__(self,i,y_i):
+        return float(self.persons[i]%2)
+
+def make_cat_colors(y,highlist=None):
     cats=np.unique(y)
     if(highlist):
         highlist=Set(highlist)
@@ -24,7 +31,7 @@ def cat_colors(y,highlist=None):
                 cats[i]=0
     else:
         random.shuffle(cats)
-    return ColorHelper(cats)
+    return CatColors(cats)
 
 def plot_embedding(X,y,title=None,color_helper=None):
     n_points=X.shape[0]
@@ -36,7 +43,7 @@ def plot_embedding(X,y,title=None,color_helper=None):
     ax = plt.subplot(111)
 
     for i in range(n_points):
-        color_i= color_helper(y[i])
+        color_i= color_helper(i,y[i])
         plt.text(X[i, 0], X[i, 1], str(y[i]),
                    color=plt.cm.tab20( color_i),
                    fontdict={'weight': 'bold', 'size': 9})

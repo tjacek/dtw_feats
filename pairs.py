@@ -41,7 +41,8 @@ def as_matrix(pairs_dict):
                 for inst_i in insts]
     X=np.array(distance)
     y=[inst_i.cat for inst_i in insts]
-    return X,y
+    persons=[inst_i.person for inst_i in insts]
+    return X,y,persons
 
 def as_instances(pairs):
     insts=get_descs(pairs)
