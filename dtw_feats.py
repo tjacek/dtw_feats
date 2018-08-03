@@ -15,7 +15,8 @@ def concat_actions(in_path1='seqs/max_z',in_path2='seqs/all',out_path='seqs/full
 def show_dtw_feats(pairs_path='mra/pairs/corl_pairs',title="full" ):
     dtw_pairs=utils.read_object(pairs_path)
     X,y=pairs.as_matrix(dtw_pairs)
-    tsne_embd(X,y,title)
+    color_helper=plot.cat_colors(y)
+    tsne_embd(X,y,title,color_helper)
 
 def show_global_feats(action_path='seqs/all',title="global features"):
     read_actions=seqs.io.ActionReader(as_dict=False)
@@ -26,9 +27,9 @@ def show_global_feats(action_path='seqs/all',title="global features"):
     X=np.array(X)
     tsne_embd(X,y,title)
 
-def tsne_embd(X,y,title):
+def tsne_embd(X,y,title='tsne',color_helper=None):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
-    plot.plot_embedding(embd,y,title=title,highlist=None)
+    plot.plot_embedding(embd,y,title=title,color_helper=color_helper)
 
 #seqs.concat.simple_concat(in_path1="data/proj",
 #                  in_path2="data/time",

@@ -4,13 +4,19 @@ import numpy as np
 import random
 from sets import Set
 
-def plot_embedding(X,y,title=None,highlist=None):
-    n_points=X.shape[0]
-    x_min, x_max = np.min(X, 0), np.max(X, 0)
-    X = (X - x_min) / (x_max - x_min)
+class ColorHelper(object):
+    def __init__(self,cats):
+        self.cats=cats
+        self.n_cats= cats.shape[0]
+
+    def __call__(self,y_i):    
+        num=float(self.cats[int(y_i)-1])
+        div=float(self.n_cats)
+        return  num/div
+
+def cat_colors(y,highlist=None):
     cats=np.unique(y)
-    n_cats= cats.shape[0]
-    if(not highlist is None):
+    if(highlist):
         highlist=Set(highlist)
         for i in range(n_cats):
             cat_i= int(cats[i])
@@ -18,14 +24,19 @@ def plot_embedding(X,y,title=None,highlist=None):
                 cats[i]=0
     else:
         random.shuffle(cats)
+    return ColorHelper(cats)
+
+def plot_embedding(X,y,title=None,color_helper=None):
+    n_points=X.shape[0]
+    x_min, x_max = np.min(X, 0), np.max(X, 0)
+    X = (X - x_min) / (x_max - x_min)
+   
+    color_helper=color_helper if(color_helper) else lambda(i):0
     plt.figure()
     ax = plt.subplot(111)
 
-    def color_helper(i):
-        return float(cats[int(y[i])-1]) / float(n_cats)
-
     for i in range(n_points):
-        color_i= color_helper(i)
+        color_i= color_helper(y[i])
         plt.text(X[i, 0], X[i, 1], str(y[i]),
                    color=plt.cm.tab20( color_i),
                    fontdict={'weight': 'bold', 'size': 9})
