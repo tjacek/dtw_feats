@@ -19,6 +19,7 @@ def bottom_dirs(path):
     for root, directories, filenames in os.walk(path):
         if(not directories):
             all_paths.append(root)
+    all_paths.sort(key=natural_keys) 
     return all_paths
 
 def atoi(text):

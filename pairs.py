@@ -36,7 +36,7 @@ def all_pairs(names):
     return pairs
 
 def as_matrix(pairs_dict):
-    insts=get_descs(pairs_dict)
+    insts=get_descs(pairs_dict,as_dict=False)
     distance=[ distance_vector(inst_i.name,pairs_dict) 
                 for inst_i in insts]
     X=np.array(distance)
@@ -57,10 +57,13 @@ def as_instances(pairs):
         inst_i.data=feat_helper(inst_i)
     return insts
 
-def get_descs(pairs):
+def get_descs(pairs,as_dict=False):
     names=pairs.keys()
-    return [dataset.instances.empty_instance(name_i)
-                    for name_i in names]
+    insts=[dataset.instances.empty_instance(name_i)
+            for name_i in names]
+    if(as_dict):
+        insts={ inst_i.name:inst_i for inst_i in insts}
+    return insts
 
 def distance_vector(name_i,pairs):
     sub_dict=pairs[name_i]
