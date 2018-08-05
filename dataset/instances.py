@@ -4,6 +4,19 @@ import seqs.select
 import sklearn.datasets
 import ensemble.single_cls
 
+class InstsGroup(object):
+    def __init__(self,instances):
+        self.instances=instances
+
+    def select(self, selector,group=False):
+        s_insts=[selector(inst_i) 
+                    for inst_i in self.instances
+                        if(selector(inst_i))]
+        if(group):
+            return InstsGroup(s_insts)
+        else:
+            return s_insts
+
 class Instance(object):
     def __init__(self,data,cat,person,name):
         self.data = data
@@ -32,14 +45,12 @@ def empty_instance(name):
     return Instance(None,cat,person,name)
 
 def split_instances(instances,selector=None):
+    instances=InstsGroup(instances)
     if(selector is None):
         selector=seqs.select.ModuloSelector(n=1)
-    train,test=[],[]
-    for inst_i in instances:
-        if(selector(inst_i)):
-            train.append(inst_i)
-        else:
-            test.append(inst_i)
+    rev_selector= lambda x: not selector(x)
+    train=instances.select(selector)
+    test=instances.select(rev_selector)
     return train,test
 
 def to_txt(out_path,insts):
