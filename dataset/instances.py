@@ -3,19 +3,43 @@ import plot,utils
 import seqs.select 
 import sklearn.datasets
 import ensemble.single_cls
+from sets import Set
 
 class InstsGroup(object):
     def __init__(self,instances):
         self.instances=instances
+    
+    def __len__(self):
+        return len(self.instances)
 
-    def select(self, selector,group=False):
-        s_insts=[selector(inst_i) 
-                    for inst_i in self.instances
-                        if(selector(inst_i))]
-        if(group):
-            return InstsGroup(s_insts)
-        else:
-            return s_insts
+    def __getitem__(self, key):
+        return self.instances[key]
+
+    def find(self,names):
+        names=Set(names)
+        return[ inst_i 
+                for inst_i in self.instances
+                    if(inst_i.name in names)]
+
+    def as_dict(self):
+        return { inst_i.name:inst_i for inst_i in self.instances}
+
+    def names(self):
+        return [inst_i.name for inst_i in self.instances]
+
+    def cats(self):
+        return [inst_i.cat for inst_i in self.instances] 
+
+    def split(self, selector):
+        if(selector is None):
+            selector=seqs.select.ModuloSelector(n=1)
+        train,test=[],[]
+        for inst_i in self.instances:       
+            if(selector(inst_i)):
+                train.append(inst_i)
+            else:
+                test.append(inst_i)
+        return InstsGroup(train),InstsGroup(test)
 
 class Instance(object):
     def __init__(self,data,cat,person,name):
@@ -46,12 +70,7 @@ def empty_instance(name):
 
 def split_instances(instances,selector=None):
     instances=InstsGroup(instances)
-    if(selector is None):
-        selector=seqs.select.ModuloSelector(n=1)
-    rev_selector= lambda x: not selector(x)
-    train=instances.select(selector)
-    test=instances.select(rev_selector)
-    return train,test
+    return instances.split(selector)
 
 def to_txt(out_path,insts):
     lines=[str(inst_i) for inst_i in insts]
