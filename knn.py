@@ -9,13 +9,50 @@ class Graph(object):
         self.distances=distances
         self.desc=desc
 
+class ClusterGraph(Graph):
+    def __init__(self, distances,desc):
+        train,test=desc.split()
+        super(ClusterGraph, self).__init__( distances,train)
+
+    def averages(self):
+        cats=self.by_cat()
+        cat_sizes=[ float(len(cat_i)) for cat_i in cats]
+        size=float(len(self.desc))
+        a,b=[],[]
+        for i,cat_i in enumerate(cats):
+            b_i=[np.sum(self.distance_matrix(cat_i,cat_j))
+                    for j,cat_j in enumerate(cats)
+                        if(i!=j)]
+            a_i=np.sum(self.distance_matrix(cat_i,cat_i))/cat_sizes[i]
+            b_i=np.sum(b_i)/(size-cat_sizes[i])
+            a.append(a_i)
+            b.append(b_i)            
+        return a,b    
+    
+    def by_cat(self):
+        n_cats=self.desc.n_cats()
+        return [self.desc.get_cat(i+1) for i in range(n_cats)]
+
+    def centroid(self,i):
+        cat_names=self.desc.get_cat(i)
+        dist_matrix=self.distance_matrix(cat_names,cat_names)
+        total_dist=np.sum(dist_matrix,axis=0)
+        index=np.argmin(total_dist)
+        return cat_names[index]
+
+    def distance_matrix(self,a_names,b_names):
+        dist=[[ self.distances[name_i][name_j]
+                for name_j in a_names]
+                    for name_i in b_names]
+        return np.array(dist)
+
+def silhouette(a,b):
+    return [  (b_i-a_i)/max([a_i,b_i])  
+                for a_i,b_i in zip(a,b)]
+
 class NNGraph(Graph):
     def __init__(self, distances,desc):
         super(NNGraph, self).__init__( distances,desc.as_dict())
-
-    def by_cat(self):
-        n_cats=self.desc.n_cats()
-        return [self.desc.get_cat(i) for i in range(n_cats)]
 
     def pred(self,name_i,k=10,admis=None):
         names=self.find_neighbors(name_i,k=k,admis=admis)
@@ -54,5 +91,9 @@ def get_accuracy(matrix):
     return np.trace(matrix)/np.sum(matrix)
 
 if __name__ == "__main__":
-    pred_y,true_y=knn("mhad/deep_pairs/nn2",k=10)
-    check_prediction(pred_y,true_y)
+    dtw_pairs,insts=read_dtw("mhad/pairs/max_z")
+    cluster_graph=ClusterGraph(dtw_pairs,insts)
+    a,b=cluster_graph.averages()
+    print(silhouette(a,b))
+#    pred_y,true_y=knn("mhad/pairs/max_z",k=10)
+#    check_prediction(pred_y,true_y)
