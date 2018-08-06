@@ -15,12 +15,6 @@ class InstsGroup(object):
     def __getitem__(self, key):
         return self.instances[key]
 
-    def find(self,names):
-        names=Set(names)
-        return[ inst_i 
-                for inst_i in self.instances
-                    if(inst_i.name in names)]
-
     def as_dict(self):
         return { inst_i.name:inst_i for inst_i in self.instances}
 
@@ -30,7 +24,7 @@ class InstsGroup(object):
     def cats(self):
         return [inst_i.cat for inst_i in self.instances] 
 
-    def split(self, selector):
+    def split(self, selector=None):
         if(selector is None):
             selector=seqs.select.ModuloSelector(n=1)
         train,test=[],[]
@@ -56,8 +50,9 @@ class Instance(object):
 def from_files(in_path):
     with open(in_path) as f:
          lines=f.readlines()
-    return [ parse_instance(line_i)
-                for line_i in lines]     
+    insts=[ parse_instance(line_i)
+                    for line_i in lines]                 
+    return InstsGroup(insts)
 
 def parse_instance(line_i):
     feats,cat,person,name=line_i.split("#")
@@ -68,20 +63,6 @@ def empty_instance(name):
     cat,person,e=utils.extract_numbers(name)
     return Instance(None,cat,person,name)
 
-def split_instances(instances,selector=None):
-    instances=InstsGroup(instances)
-    return instances.split(selector)
-
 def to_txt(out_path,insts):
     lines=[str(inst_i) for inst_i in insts]
     utils.save_string(out_path,lines)
-
-if __name__ == "__main__":
-    action_path="mra/datasets/nn19"
-    insts=from_files(action_path)
-    train,test=split_instances(insts)
-    for inst_i in train:
-        print(inst_i.name)	
-    train,test=to_dataset(train),to_dataset(test)   
-#    plot.plot_embedding(train.data,train.target,highlist=[20])
-    ensemble.single_cls.simple_exp(train,test)

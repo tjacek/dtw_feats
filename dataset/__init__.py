@@ -32,7 +32,7 @@ class Dataset(object):
 
     def split(self):
         insts=self.to_instances()
-        train,test=instances.split_instances(insts)
+        train,test=insts.split()
         return to_dataset(train),to_dataset(test)
 
     def to_instances(self):
@@ -42,7 +42,7 @@ class Dataset(object):
             x_i,y_i,person_i,name_i=self.X[i],self.y[i],self.persons[i],self.names[i]
             inst_i=dataset.instances.Instance(x_i,y_i,person_i,name_i)
             insts.append(inst_i)
-        return insts
+        return instances.InstsGroup(insts)
 
 def read_dataset(in_path):
     if(type(in_path)==list):
@@ -53,8 +53,7 @@ def read_dataset(in_path):
 
 def to_dataset(insts):
     X,y,persons,names=[],[],[],[]
-    if(type(insts)==list):
-        insts={inst_i.name:inst_i for inst_i in insts}
+    insts=insts.as_dict()
     names=insts.keys()
     names.sort()
     for i,name_i in enumerate(names):
