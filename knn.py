@@ -4,10 +4,18 @@ import utils,pairs,dataset.instances
 from collections import Counter
 from sklearn.metrics import classification_report,confusion_matrix
 
-class NNGraph(object):
+class Graph(object):
     def __init__(self, distances,desc):
         self.distances=distances
         self.desc=desc
+
+class NNGraph(Graph):
+    def __init__(self, distances,desc):
+        super(NNGraph, self).__init__( distances,desc.as_dict())
+
+    def by_cat(self):
+        n_cats=self.desc.n_cats()
+        return [self.desc.get_cat(i) for i in range(n_cats)]
 
     def pred(self,name_i,k=10,admis=None):
         names=self.find_neighbors(name_i,k=k,admis=admis)
@@ -25,14 +33,18 @@ class NNGraph(object):
         return [names[i] for i in indexes]
 
 def knn(pairs_path,k=10):
-    in_pairs=utils.read_object(pairs_path)    
-    insts=pairs.get_descs(in_pairs)
-    nn_graph=NNGraph(in_pairs,insts.as_dict())
+    dtw_pairs,insts=read_dtw(pairs_path)
+    nn_graph=NNGraph(dtw_pairs,insts)
     train,test=insts.split(None)
     y_true=test.cats()
     y_pred=[ nn_graph.pred(name_i,k,train.names()) 
                 for name_i in test.names()]
     return y_pred,y_true
+
+def read_dtw(pairs_path):
+    dtw_pairs=utils.read_object(pairs_path)    
+    insts=pairs.get_descs(dtw_pairs)
+    return dtw_pairs,insts
 
 def check_prediction(pred_y,true_y):
     print(classification_report(pred_y,true_y,digits=4))
@@ -42,5 +54,5 @@ def get_accuracy(matrix):
     return np.trace(matrix)/np.sum(matrix)
 
 if __name__ == "__main__":
-    pred_y,true_y=knn("mhad/pairs/corls",k=10)
+    pred_y,true_y=knn("mhad/deep_pairs/nn2",k=10)
     check_prediction(pred_y,true_y)
