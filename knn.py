@@ -9,7 +9,7 @@ class Graph(object):
         self.distances=distances
         self.desc=desc
 
-    def as_vector(name_i,names=None):
+    def as_vector(self,name_i,names=None):
         if(not names):
             names=self.distances.keys()
             names.sort()
@@ -42,10 +42,11 @@ class ClusterGraph(Graph):
         return [self.desc.get_cat(i+1) for i in range(n_cats)]
 
     def centroid(self,i):
+        print(i)
         cat_names=self.desc.get_cat(i)
         dist_matrix=self.distance_matrix(cat_names,cat_names)
         total_dist=np.sum(dist_matrix,axis=0)
-        index=np.argmin(total_dist)
+        index=np.argmax(total_dist)
         return cat_names[index]
 
     def distance_matrix(self,a_names,b_names):
@@ -58,14 +59,26 @@ def silhouette(a,b):
     return [  (b_i-a_i)/max([a_i,b_i])  
                 for a_i,b_i in zip(a,b)]
 
-def best_separation(in_path='mhad/deep_pairs'):
+def best_separation(in_path='mhad/deep_pairs',out_path='mhad/quality.txt'):
     paths=utils.bottom_files(in_path)
     dtw_graphs=[]
     for path_i in paths:
         print(path_i)
         dtw_pairs,insts=read_dtw(path_i)
         dtw_graphs.append(ClusterGraph(dtw_pairs,insts))
-    return best_cls(dtw_graphs)
+    best_cls_ids=best_cls(dtw_graphs)
+    names=dtw_graphs[0].distances.keys()
+    feat_names=[ dtw_graphs[cls_i].centroid(i+1) 
+                    for i,cls_i in enumerate(best_cls_ids)]
+    feats=[ dtw_graphs[cls_i].as_vector(feat_names[i],names) 
+                for i,cls_i in enumerate(best_cls_ids)]
+    X=np.array(feats).T
+    insts=pairs.get_descs(names)
+    for i,inst_i in enumerate(insts):
+        print(X[i].shape)
+        inst_i.data=X[i]
+        print(inst_i.data.shape)
+    dataset.instances.to_txt(out_path,insts)
 
 def best_cls(dtw_graphs):
     quality=np.array([graph_i.quality()
@@ -113,7 +126,7 @@ def get_accuracy(matrix):
     return np.trace(matrix)/np.sum(matrix)
 
 if __name__ == "__main__":
-    print(best_separation(in_path='mhad/deep_pairs'))
+    best_separation(in_path='mhad/deep_pairs')
 #    dtw_pairs,insts=read_dtw("mhad/pairs/max_z")
 #    cluster_graph=ClusterGraph(dtw_pairs,insts)
 #    a,b=cluster_graph.averages()

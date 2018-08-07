@@ -12,7 +12,7 @@ def simple_exp(in_path):
         full_dataset=in_path
     print("dataset dim %i" % full_dataset.dim())
     full_dataset.norm()
-    y_true,y_pred=train_model(dataset_i)
+    y_true,y_pred=train_model(full_dataset)
     show_result(y_true,y_pred)
 
 def show_result(y_true,y_pred):
