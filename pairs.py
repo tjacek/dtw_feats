@@ -57,13 +57,12 @@ def as_instances(pairs):
         inst_i.data=feat_helper(inst_i)
     return insts
 
-def get_descs(pairs,as_dict=False):
-    names=pairs.keys()
+def get_descs(names):
+    if(type(names)==dict):
+        names=list(names.keys())
     insts=[dataset.instances.empty_instance(name_i)
             for name_i in names]
-    if(as_dict):
-        insts={ inst_i.name:inst_i for inst_i in insts}
-    return insts
+    return dataset.instances.InstsGroup(insts)
 
 def distance_vector(name_i,pairs):
     sub_dict=pairs[name_i]

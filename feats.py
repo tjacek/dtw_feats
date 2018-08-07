@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-import instances,seqs.io
+import dataset.instances,seqs.io
 
 class LocalFeatures(object):
     def __init__(self, feature_extractors):
@@ -24,12 +24,11 @@ class GlobalFeatures(object):
         self.feature_extractor=[avg,std,skew]
 
     def __call__(self,action_i):
-#        series=action_i.as_feature()
         array_i=action_i.as_array()
         global_feats=[]
         for extractor_j in self.feature_extractor:
             global_feats+=extractor_j(None,array_i)
-        return instances.Instance(global_feats,action_i.cat,
+        return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
 
 def preproc_img(img_i,img_size=64):
