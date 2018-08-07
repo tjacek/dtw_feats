@@ -38,7 +38,7 @@ def plot_embedding(X,y,title=None,color_helper=None):
     x_min, x_max = np.min(X, 0), np.max(X, 0)
     X = (X - x_min) / (x_max - x_min)
    
-    color_helper=color_helper if(color_helper) else lambda(i):0
+    color_helper=color_helper if(color_helper) else lambda i:0
     plt.figure()
     ax = plt.subplot(111)
 

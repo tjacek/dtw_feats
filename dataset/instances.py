@@ -23,6 +23,14 @@ class InstsGroup(object):
 
     def cats(self):
         return [inst_i.cat for inst_i in self.instances] 
+    
+    def get_cat(self,i):
+        return [inst_i.name for inst_i in self.instances
+                    if(inst_i.cat==i)]
+
+    def n_cats(self):
+        cats=np.unique(self.cats())
+        return cats.shape[0]
 
     def split(self, selector=None):
         if(selector is None):
