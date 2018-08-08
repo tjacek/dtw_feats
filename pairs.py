@@ -46,7 +46,7 @@ def as_matrix(pairs_dict):
 
 def as_instances(pairs):
     insts=get_descs(pairs)
-    train,test=dataset.instances.split_instances(insts)
+    train,test=insts.split()#dataset.instances.split_instances(insts)
     train_names=[inst_i.name for inst_i in train]
     train_names.sort()
     def feat_helper(inst_i):
