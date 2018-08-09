@@ -52,16 +52,8 @@ def read_dataset(in_path):
     return to_dataset(insts)
 
 def to_dataset(insts):
-    X,y,persons,names=[],[],[],[]
-    insts=insts.as_dict()
-    names=insts.keys()
-    names.sort()
-    for i,name_i in enumerate(names):
-        inst_i=insts[name_i]
-        X.append(np.array(inst_i.data))
-        y.append(inst_i.cat)
-        persons.append(inst_i.person)
-    X=np.array(X)
+    X=np.array(insts.data())
+    y,persons,names=insts.cats(),insts.persons(),insts.names()
     return Dataset(X=X,y=y,persons=persons,names=names)
 
 def unify_datasets(datasets):

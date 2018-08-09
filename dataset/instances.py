@@ -7,25 +7,32 @@ from sets import Set
 
 class InstsGroup(object):
     def __init__(self,instances):
+        if(type(instances)!=dict):
+            instances={ inst_i.name:inst_i for inst_i in instances}
         self.instances=instances
     
     def __len__(self):
-        return len(self.instances)
+        return len(self.instances.keys())
 
     def __getitem__(self, key):
         return self.instances[key]
 
-    def as_dict(self):
-        return { inst_i.name:inst_i for inst_i in self.instances}
-
     def names(self):
-        return [inst_i.name for inst_i in self.instances]
+        names=self.instances.keys()
+        names.sort()
+        return names
+    
+    def data(self):
+        return [self.instances[name_i].data for name_i in self.names()] 
+
+    def persons(self):
+        return [self.instances[name_i].person for name_i in self.names()] 
 
     def cats(self):
-        return [inst_i.cat for inst_i in self.instances] 
+        return [self.instances[name_i].cat for name_i in self.names()] 
     
     def get_cat(self,i):
-        return [inst_i.name for inst_i in self.instances
+        return [inst_i.name for inst_i in self.instances.values()
                     if(inst_i.cat==i)]
 
     def n_cats(self):
@@ -33,14 +40,14 @@ class InstsGroup(object):
         return cats.shape[0]
 
     def to_txt(self,out_path):
-        lines=[str(inst_i) for inst_i in self.instances]
+        lines=[str(inst_i) for inst_i in self.instances.values()]
         utils.save_string(out_path,lines)
     
     def split(self, selector=None):
         if(selector is None):
             selector=seqs.select.ModuloSelector(n=1)
         train,test=[],[]
-        for inst_i in self.instances:       
+        for inst_i in self.instances.values():       
             if(selector(inst_i)):
                 train.append(inst_i)
             else:
