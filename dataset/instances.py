@@ -32,6 +32,10 @@ class InstsGroup(object):
         cats=np.unique(self.cats())
         return cats.shape[0]
 
+    def to_txt(self,out_path):
+        lines=[str(inst_i) for inst_i in self.instances]
+        utils.save_string(out_path,lines)
+    
     def split(self, selector=None):
         if(selector is None):
             selector=seqs.select.ModuloSelector(n=1)
@@ -70,7 +74,3 @@ def parse_instance(line_i):
 def empty_instance(name):
     cat,person,e=utils.extract_numbers(name)
     return Instance(None,cat,person,name)
-
-def to_txt(out_path,insts):
-    lines=[str(inst_i) for inst_i in insts]
-    utils.save_string(out_path,lines)
