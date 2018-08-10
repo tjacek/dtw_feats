@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report,confusion_matrix
 
 class NNGraph(graph.Graph):
     def __init__(self, distances,desc):
-        super(NNGraph, self).__init__( distances,desc.as_dict())
+        super(NNGraph, self).__init__( distances,desc)
 
     def pred(self,name_i,k=10,admis=None):
         names=self.find_neighbors(name_i,k=k,admis=admis)
@@ -39,11 +39,13 @@ def check_prediction(pred_y,true_y):
 def get_accuracy(matrix):
     return np.trace(matrix)/np.sum(matrix)
 
+def ensemple_knn(in_path,k=10):
+    paths=utils.bottom_files(in_path)
+    for path_i in paths:
+        pred_y,true_y=knn(path_i,k=k)
+        accuracy=np.mean([ float(pred_i==true_i) 
+                        for pred_i,true_i in zip(pred_y,true_y)])
+        print("%s %f" % (path_i,accuracy))
 if __name__ == "__main__":
-    graph.quality.best_separation(in_path='mhad/deep_pairs')
-#    dtw_pairs,insts=read_dtw("mhad/pairs/max_z")
-#    cluster_graph=ClusterGraph(dtw_pairs,insts)
-#    a,b=cluster_graph.averages()
-#    print(silhouette(a,b))
-#    pred_y,true_y=knn("mhad/pairs/max_z",k=10)
-#    check_prediction(pred_y,true_y)
+    ensemple_knn(in_path='mhad/deep_pairs',k=10)
+#    graph.quality.best_separation(in_path='mhad/deep_pairs')
