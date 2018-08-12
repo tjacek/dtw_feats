@@ -16,6 +16,9 @@ class InstsGroup(object):
 
     def __getitem__(self, key):
         return self.instances[key]
+    
+    def raw(self):
+        return self.instances.values()
 
     def names(self):
         names=self.instances.keys()
