@@ -2,13 +2,23 @@ import seqs.io,utils,deep.reader
 import feats
 
 class EnsembleFun(object):
-    def __init__(self,fun):
-        self.fun=fun
+    def __init__(self,in_fun,out_fun=None):
+        self.in_fun=in_fun
+        self.out_fun=out_fun
 
-    def __call__(self,in_path):
-        model_paths=utils.bottom_files(nn_path)
-        utils.make_dir(out_path)
-        return [self.fun(path_i) for path_i in model_paths]
+    def __call__(self,in_path,out_path=None):
+        model_paths=utils.bottom_files(in_path)
+        if(out_path):
+            utils.make_dir(out_path)
+        all_result=[]
+        for path_i in model_paths:
+            print(path_i)
+            result_i=self.in_fun(path_i)
+            all_result.append(result_i)
+            if(self.out_fun):
+                out_path_i=get_out_path(path_i,out_path)
+                self.out_fun(out_path_i,result_i)
+        return all_result
 
 def extract_deep(data_path,nn_path,out_path):
     read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)

@@ -1,5 +1,5 @@
 import numpy as np
-import graph,graph.quality
+import graph,graph.quality,ensemble
 import utils,pairs,dataset.instances
 from collections import Counter
 from sklearn.metrics import classification_report,confusion_matrix
@@ -40,12 +40,13 @@ def get_accuracy(matrix):
     return np.trace(matrix)/np.sum(matrix)
 
 def ensemple_knn(in_path,k=10):
-    paths=utils.bottom_files(in_path)
-    for path_i in paths:
+    def knn_helper(path_i):
         pred_y,true_y=knn(path_i,k=k)
-        accuracy=np.mean([ float(pred_i==true_i) 
+        return np.mean([ float(pred_i==true_i) 
                         for pred_i,true_i in zip(pred_y,true_y)])
-        print("%s %f" % (path_i,accuracy))
+    ens=ensemble.EnsembleFun(in_fun=knn_helper)
+    print(ens(in_path))
+
 if __name__ == "__main__":
     ensemple_knn(in_path='mhad/deep_pairs',k=10)
 #    graph.quality.best_separation(in_path='mhad/deep_pairs')
