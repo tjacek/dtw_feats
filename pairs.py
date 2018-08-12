@@ -1,7 +1,15 @@
 import numpy as np
-import time,feats,utils,seqs.io
+import time,feats,utils,seqs.io,ensemble
 from metric import dtw_metric
 import dataset.instances
+
+class PairsEnsemble(ensemble.EnsembleFun):
+    def __init__(self):
+        def pair_helper(in_path):
+            dtw_pairs=utils.read_object(in_path)
+            return as_instances(dtw_pairs)
+        out_fun=lambda out_path,insts:insts.to_txt(out_path)
+        super(PairsEnsemble, self).__init__(pair_helper,out_fun)
 
 def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
@@ -47,13 +55,13 @@ def as_matrix(pairs_dict):
 def as_instances(pairs):
     insts=get_descs(pairs)
     train,test=insts.split()#dataset.instances.split_instances(insts)
-    train_names=[inst_i.name for inst_i in train]
+    train_names= train.names()#[inst_i.name for inst_i in train]
     train_names.sort()
     def feat_helper(inst_i):
         name_i=inst_i.name
         return [pairs[name_i][name_j]
                     for name_j in train_names]
-    for inst_i in insts:
+    for inst_i in insts.raw():
         inst_i.data=feat_helper(inst_i)
     return insts
 
@@ -84,6 +92,8 @@ def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
     dataset.instances.to_txt(out_path,insts)
 
 if __name__ == "__main__":
+    pairs_ensemble=PairsEnsemble()
+    pairs_ensemble(in_path='mhad/deep_pairs',out_path='mhad/dtw_feats')
 #    compute_pairs(in_path='mhad/seqs/corl',out_path='mhad/pairs/corls')
-    make_dtw_feats(in_path='mhad/pairs/corls',out_path='mhad/simple/corls.txt')
+#    make_dtw_feats(in_path='mhad/pairs/corls',out_path='mhad/simple/corls.txt')
 #    make_stats_feat(in_path='mhad/seqs/all',out_path='mhad/simple/basic.txt')
