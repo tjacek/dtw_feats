@@ -1,6 +1,15 @@
 import seqs.io,utils,deep.reader 
 import feats
 
+class EnsembleFun(object):
+    def __init__(self,fun):
+        self.fun=fun
+
+    def __call__(self,in_path):
+        model_paths=utils.bottom_files(nn_path)
+        utils.make_dir(out_path)
+        return [self.fun(path_i) for path_i in model_paths]
+
 def extract_deep(data_path,nn_path,out_path):
     read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
     save_actions=seqs.io.ActionWriter(img_seq=False)
@@ -29,9 +38,6 @@ def global_feats(in_path,out_path):
         out_i=get_out_path(in_path_i,out_path)
         utils.save_string(out_i,lines)
 
-def get_out_path(in_path,out_path):
-    name=get_name(in_path)
-    return out_path+'/'+name
-
-def get_name(path_i):
-    return path_i.split('/')[-1]
+def get_out_path(in_path,dir_path):
+    name= in_path.split('/')[-1]
+    return dir_path+'/'+name
