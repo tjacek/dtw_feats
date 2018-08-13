@@ -20,20 +20,17 @@ class EnsembleFun(object):
                 self.out_fun(out_path_i,result_i)
         return all_result
 
-def extract_deep(data_path,nn_path,out_path):
+def extract_deep(nn_path):
     read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
     save_actions=seqs.io.ActionWriter(img_seq=False)
     actions=read_actions(data_path)
-    model_paths=utils.bottom_files(nn_path)
     nn_reader=deep.reader.NNReader(4)
-    utils.make_dir(out_path)
-    for path_i in model_paths:
+    def deep_helper(path_i):
         model_i=nn_reader(path_i)
-        feat_actions_i=[ action_i(model_i,whole_seq=False)
-                            for action_i in actions]
-        out_i=get_out_path(path_i,out_path)
-        print(out_i)
-        save_actions(feat_actions_i,out_i)
+        return [ action_i(model_i,whole_seq=False)
+                    for action_i in actions]
+    out_fun=lambda out_path_i,result_i:save_actions(result_i,out_path_i)
+    return EnsembleFun(deep_helper,out_fun)
 
 def global_feats(in_path,out_path):
     feat_paths=utils.bottom_dirs(in_path)
