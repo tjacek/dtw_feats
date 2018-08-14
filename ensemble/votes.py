@@ -38,6 +38,8 @@ class BuildDataset(object):
     def all_predictions(self,basic_paths,deep_path):
         self.init(basic_paths)
         deep_paths=utils.bottom_files(deep_path)
+        if(not deep_paths):
+            raise Exception("No datasets at " + deep_paths)
         if(self.restr):
             deep_paths=[path_i for i,path_i in enumerate(deep_paths)
                             if(i in self.restr)]
