@@ -33,17 +33,14 @@ def extract_deep(nn_path):
     return EnsembleFun(deep_helper,out_fun)
 
 def global_feats(in_path,out_path):
-    feat_paths=utils.bottom_dirs(in_path)
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    utils.make_dir(out_path)
     feat_extractor=feats.GlobalFeatures()
-    print(feat_paths)
-    for in_path_i in feat_paths:
-        print(in_path_i)
+    def in_fun(in_path_i): 
         actions=read_actions(in_path_i)
-        lines=[str(feat_extractor(action_i)) for action_i in actions]
-        out_i=get_out_path(in_path_i,out_path)
-        utils.save_string(out_i,lines)
+        return [str(feat_extractor(action_i)) 
+                    for action_i in actions]
+    out_fun=utils.save_string(out_i,lines)
+    return EnsembleFun(in_fun,out_fun)
 
 def get_out_path(in_path,dir_path):
     name= in_path.split('/')[-1]
