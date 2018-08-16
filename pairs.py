@@ -3,13 +3,12 @@ import time,feats,utils,seqs.io,ensemble
 from metric import dtw_metric
 import dataset.instances
 
-class PairsEnsemble(ensemble.EnsembleFun):
-    def __init__(self):
-        def pair_helper(in_path):
-            dtw_pairs=utils.read_object(in_path)
-            return as_instances(dtw_pairs)
-        out_fun=lambda out_path,insts:insts.to_txt(out_path)
-        super(PairsEnsemble, self).__init__(pair_helper,out_fun)
+def get_pairs_ensemble():
+    def pair_helper(in_path):
+        dtw_pairs=utils.read_object(in_path)
+        return as_instances(dtw_pairs)
+    out_fun=lambda out_path,insts:insts.to_txt(out_path)
+    return  ensemble.EnsembleFun(pair_helper,out_fun)
 
 def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
@@ -92,8 +91,8 @@ def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
     dataset.instances.to_txt(out_path,insts)
 
 if __name__ == "__main__":
-    pairs_ensemble=PairsEnsemble()
-    pairs_ensemble(in_path='mhad/deep_pairs',out_path='mhad/dtw_feats')
+    pairs_ensemble= get_pairs_ensemble()
+    pairs_ensemble(in_path='mhad/deep_pairs',out_path='mhad/dtw_datasets')
 #    compute_pairs(in_path='mhad/seqs/corl',out_path='mhad/pairs/corls')
 #    make_dtw_feats(in_path='mhad/pairs/corls',out_path='mhad/simple/corls.txt')
 #    make_stats_feat(in_path='mhad/seqs/all',out_path='mhad/simple/basic.txt')
