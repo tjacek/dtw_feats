@@ -69,6 +69,13 @@ class Instance(object):
         feats=",".join(feats)
         return "%s#%s#%s#%s" % (feats,self.cat,self.person,self.name)
 
+def get_descs(names):
+    if(type(names)==dict):
+        names=list(names.keys())
+    insts=[empty_instance(name_i)
+            for name_i in names]
+    return InstsGroup(insts)
+
 def from_files(in_path):
     with open(in_path) as f:
          lines=f.readlines()
