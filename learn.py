@@ -12,22 +12,23 @@ def simple_exp(dataset_path='data/MSR',nn_path='data/nn',
     deep.train.train_super_model(X,y,model,num_iter=25)
     model.get_model().save(nn_path)
 
-def ensemble_exp(dataset_path='data/MSR',nn_path='data/nn',
-                    compile=False,n_frames=4):
+def ensemble_exp(compile=False,n_frames=4,n_iters=150):
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
-    utils.make_dir(nn_path)
-    for j in range(n_cats):
-        nn_path_j=nn_path+'/nn'+str(j)
-        print(nn_path_j)
+    def in_ensemble(in_path):
         model_path=None if(compile) else nn_path_j        
         model_j=deep.convnet.get_model(2,preproc,nn_path=model_path)
         y_j=binarize(y,j)
-        deep.train.train_super_model(X,y_j,model_j,num_iter=150)
+        deep.train.train_super_model(X,y_j,model_j,num_iter=n_iters)
+        return model_j
+    def out_ensemble(nn_path_j,result_i):
         model_j.get_model().save(nn_path_j)
+    return ensemble.EnsembleFun(in_ensemble,out_ensemble,gen_paths=n_cats)
 
 def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
     deep_paths=utils.bottom_dirs(in_path)
+    deep_paths=deep_paths[2:]
+    print(deep_paths)
     utils.make_dir(out_path)
     for in_i in deep_paths:
         out_i=ensemble.get_out_path(in_i,out_path)
