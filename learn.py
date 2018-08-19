@@ -15,25 +15,28 @@ def simple_exp(dataset_path='data/MSR',nn_path='data/nn',
 def ensemble_exp(compile=False,n_frames=4,n_iters=150):
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
-    def in_ensemble(in_path):
+    def in_fun(in_path):
         model_path=None if(compile) else nn_path_j        
         model_j=deep.convnet.get_model(2,preproc,nn_path=model_path)
         y_j=binarize(y,j)
         deep.train.train_super_model(X,y_j,model_j,num_iter=n_iters)
         return model_j
-    def out_ensemble(nn_path_j,result_i):
+    def out_fun(nn_path_j,result_i):
         model_j.get_model().save(nn_path_j)
-    return ensemble.EnsembleFun(in_ensemble,out_ensemble,gen_paths=n_cats)
+    return ensemble.EnsembleFun(in_fun,out_fun,gen_paths=n_cats)
 
 def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
-    deep_paths=utils.bottom_dirs(in_path)
-    deep_paths=deep_paths[2:]
-    print(deep_paths)
-    utils.make_dir(out_path)
-    for in_i in deep_paths:
-        out_i=ensemble.get_out_path(in_i,out_path)
-        print(out_i)
-        pairs.compute_pairs(in_i,out_i)
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
+    def in_fun(in_path_i):
+        actions=read_actions(in_path)
+        t0=time.time()
+        result_i=make_pairwise_distance(actions)
+        print("pairs computation %d" % (time.time()-t0))    
+        return result_i
+    def out_fun(out_path_i,result_i):
+        lines_i=as_txt(result_i)
+        utils.save_string(out_path_i,lines_i)
+    return ensemble.EnsembleFun(in_fun,out_fun)
 
 ensemble_pairs(in_path='mhad/feats')
 #simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)

@@ -36,15 +36,6 @@ class DTWPairs(object):
             inst_i.data=feat_helper(inst_i)
        return insts
 
-def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
-    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
-    print(in_path)
-    actions=read_actions(in_path)
-    t0=time.time()
-    pairs=make_pairwise_distance(actions)
-    prin("pairs computation %d" % (time.time()-t0))
-    utils.save_object(pairs,out_path)
-
 def make_pairwise_distance(actions):
     pairs_dict={ name_i:{name_i:0.0}
                     for name_i in actions.keys()}
@@ -77,17 +68,9 @@ def as_tuples(dtw_distance):
                 for name_i in names
                     for name_j in names]
 
-def make_dtw_feats(in_path='mra/pairs/corl_pairs',
-                   out_path='mra/simple/corl_feats.txt'):
-    dtw_pairs=utils.read_object(in_path)
+def make_dtw_feats():
+    dtw_pairs=utils.read_object
     insts=as_instances(dtw_pairs)
-    dataset.instances.to_txt(out_path,insts)
-
-def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
-    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    actions=read_action(in_path)
-    feat_extractor=feats.GlobalFeatures()
-    insts=[feat_extractor(action_i) for action_i in actions]
     dataset.instances.to_txt(out_path,insts)
 
 def from_txt(in_path):
