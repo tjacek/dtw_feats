@@ -2,10 +2,10 @@ import seqs.io,utils,deep.reader
 import feats
 
 class EnsembleFun(object):
-    def __init__(self,in_fun,out_fun=None,gen_paths=None):
+    def __init__(self,in_fun,out_fun=None,n_paths=None):
         self.in_fun=in_fun
         self.out_fun=out_fun
-        self.get_paths=get_paths
+        self.n_paths=n_paths
 
     def __call__(self,in_path,out_path=None):
         model_paths=self.get_paths(in_path)
@@ -22,8 +22,8 @@ class EnsembleFun(object):
         return all_result
 
     def get_paths(self,in_path):
-        if(self.gen_paths):
-            return [ in_path+'/nn'+str(i) for i in range(self.get_paths)]
+        if(type(self.n_paths)==int):
+            return [ in_path+'/nn'+str(i) for i in range(self.n_paths)]
         return utils.bottom_files(in_path)
 
 def extract_deep(nn_path):

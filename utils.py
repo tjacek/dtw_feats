@@ -32,6 +32,18 @@ def extract_numbers(text):
     str_numb=re.findall(r'\d+',text)
     return [int(n) for n in str_numb]
 
+def read_decorate(in_fun):
+    def in_helper(path_i):
+        obj_i=read_object(path_i)
+        return in_fun(obj_i)
+    return in_helper
+
+def save_decorate(out_fun):
+    def out_helper(path_j,result_j):
+        obj_j=out_fun(result_j)
+        save_object(obj_j,path_j)
+    return out_helper    
+
 def save_object(nn,path):
     file_object = open(path,'wb')
     pickle.dump(nn,file_object)

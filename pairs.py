@@ -3,30 +3,23 @@ import time,feats,utils,seqs.io,ensemble
 from metric import dtw_metric
 import dataset.instances
 
-def get_pairs_ensemble():
-    def pair_helper(in_path):
-        dtw_pairs=utils.read_object(in_path)
-        return as_instances(dtw_pairs)
-    out_fun=lambda out_path,insts:insts.to_txt(out_path)
-    return  ensemble.EnsembleFun(pair_helper,out_fun)
-
 def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
     print(in_path)
     actions=read_actions(in_path)
     t0=time.time()
     pairs=make_pairwise_distance(actions)
-    print("pairs computation %d" % (time.time()-t0))
+    prin("pairs computation %d" % (time.time()-t0))
     utils.save_object(pairs,out_path)
 
-def make_pairwise_distance(actions,fraction=1000):
+def make_pairwise_distance(actions):
     pairs_dict={ name_i:{name_i:0.0}
                     for name_i in actions.keys()}
     names=actions.keys()
     n_names=len(actions.keys())
     for i in range(1,n_names):
         print(i)
-        for j in range(0,i):	
+        for j in range(0,i):    
             action_i=actions[names[i]]#pair_i[0]]
             action_j=actions[names[j]]#pair_i[1]]
             distance=dtw_metric(action_i.img_seq,action_j.img_seq)
@@ -34,13 +27,22 @@ def make_pairwise_distance(actions,fraction=1000):
             pairs_dict[action_j.name][action_i.name]=distance
     return pairs_dict
 
-def all_pairs(names):
-    pairs=[]
-    n_names=len(names)
-    for i in range(1,n_names):
-        for j in range(0,i):
-            pairs.append((names[i],names[j])) 
-    return pairs
+def get_pairs_ensemble():
+    def pair_helper(in_path):
+        dtw_pairs=utils.read_object(in_path)
+        return as_instances(dtw_pairs)
+    out_fun=lambda out_path,insts:insts.to_txt(out_path)
+    return  ensemble.EnsembleFun(pair_helper,out_fun)
+
+def as_txt(dtw_distance):
+    dtw_tuples=as_tuples(dtw_distance)
+    return [",".join(tuple_i) for tuple_i in dtw_tuples]
+
+def as_tuples(dtw_distance):
+    names=dtw_distance.keys()
+    return [ (name_i,name_j,str(dtw_distance[name_i][name_j]))
+                for name_i in names
+                    for name_j in names]
 
 def as_matrix(pairs_dict):
     insts=get_descs(pairs_dict,as_dict=False)
@@ -52,8 +54,8 @@ def as_matrix(pairs_dict):
 
 def as_instances(pairs):
     insts=get_descs(pairs)
-    train,test=insts.split()#dataset.instances.split_instances(insts)
-    train_names= train.names()#[inst_i.name for inst_i in train]
+    train,test=insts.split()
+    train_names= train.names()
     train_names.sort()
     def feat_helper(inst_i):
         name_i=inst_i.name
@@ -62,12 +64,6 @@ def as_instances(pairs):
     for inst_i in insts.raw():
         inst_i.data=feat_helper(inst_i)
     return insts
-
-def distance_vector(name_i,pairs):
-    sub_dict=pairs[name_i]
-    names=pairs.keys()
-    names.sort()
-    return [sub_dict[key_j]  for key_j in names]
 
 def make_dtw_feats(in_path='mra/pairs/corl_pairs',
                    out_path='mra/simple/corl_feats.txt'):
@@ -83,8 +79,6 @@ def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
     dataset.instances.to_txt(out_path,insts)
 
 if __name__ == "__main__":
-    pairs_ensemble= get_pairs_ensemble()
-    pairs_ensemble(in_path='mhad/deep_pairs',out_path='mhad/dtw_datasets')
-#    compute_pairs(in_path='mhad/seqs/corl',out_path='mhad/pairs/corls')
-#    make_dtw_feats(in_path='mhad/pairs/corls',out_path='mhad/simple/corls.txt')
-#    make_stats_feat(in_path='mhad/seqs/all',out_path='mhad/simple/basic.txt')
+    in_fun=utils.read_decorate(as_txt)
+    ens=ensemble.EnsembleFun(in_fun,utils.save_string)
+    ens("mhad/_deep_pairs","mhad/text_pairs")
