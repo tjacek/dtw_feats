@@ -62,6 +62,12 @@ def save_string(path,string):
     file_str.write(string)
     file_str.close()
 
+def read_lines(in_path,sep=','):
+    with open(in_path) as f:
+        lines = f.readlines()
+        return [ line_i.split(sep) 
+                    for line_i in lines]
+
 def str_to_vector(str,sep=","):
     return [float(cord_i)
                 for cord_i in str.split(sep) ]

@@ -1,5 +1,5 @@
 import numpy as np
-import utils,pairs
+import pairs,dataset.instances
 
 class Graph(object):
     def __init__(self, distances,desc):
@@ -18,6 +18,6 @@ class Graph(object):
                     for name_j in names])
 
 def read_dtw(pairs_path):
-    dtw_pairs=utils.read_object(pairs_path)    
-    insts=pairs.get_descs(dtw_pairs)
+    dtw_pairs=pairs.from_txt(pairs_path)#utils.read_object(pairs_path)    
+    insts=dataset.instances.get_descs(dtw_pairs)
     return dtw_pairs,insts

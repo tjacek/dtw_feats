@@ -2,6 +2,7 @@ import numpy as np
 import time,feats,utils,seqs.io,ensemble
 from metric import dtw_metric
 import dataset.instances
+from collections import defaultdict
 
 def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
@@ -77,6 +78,13 @@ def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
     feat_extractor=feats.GlobalFeatures()
     insts=[feat_extractor(action_i) for action_i in actions]
     dataset.instances.to_txt(out_path,insts)
+
+def from_txt(in_path):
+    raw_pairs=utils.read_lines(in_path)
+    pairs_dict=defaultdict(lambda:{})
+    for pair_i in raw_pairs:
+        pairs_dict[pair_i[0]][pair_i[1]]=float(pair_i[2])   
+    return pairs_dict
 
 if __name__ == "__main__":
     in_fun=utils.read_decorate(as_txt)
