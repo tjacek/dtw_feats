@@ -4,6 +4,38 @@ from metric import dtw_metric
 import dataset.instances
 from collections import defaultdict
 
+class DTWPairs(object):
+    def __init__(self,pairs):
+        self.pairs=pairs
+    
+    def __getitem__(self, key):
+        return self.pairs[key]
+
+    def get_descs(self):
+        return dataset.instances.get_descs(self.pairs.keys())
+
+    def get_vector(self,name_i,names):
+        return [ self.pairs[name_i][name_j] for name_j in names]
+ 
+    def as_matrix(self):
+        insts=self.get_descs() 
+        names=insts.names()
+        distance=[ self.get_vector(name_i,names) 
+                    for name_i in names]
+        X=np.array(distance)
+        y,persons=insts.cats(),insts.persons()
+        return X,y,persons
+
+    def as_instances(self):
+        insts=self.get_descs()
+        train,test=insts.split()
+        train_names= train.names()
+        def feat_helper(inst_i):
+            return self.get_vector(inst_i.name,train_names)
+        for inst_i in insts.raw():
+            inst_i.data=feat_helper(inst_i)
+       return insts
+
 def compute_pairs(in_path='mhad/skew',out_path='mhad/skew_pairs'):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
     print(in_path)
@@ -45,27 +77,6 @@ def as_tuples(dtw_distance):
                 for name_i in names
                     for name_j in names]
 
-def as_matrix(pairs_dict):
-    insts=get_descs(pairs_dict,as_dict=False)
-    distance=[ distance_vector(inst_i.name,pairs_dict) 
-                for inst_i in insts]
-    X=np.array(distance)
-    y,persons=insts.cats(),insts.persons()
-    return X,y,persons
-
-def as_instances(pairs):
-    insts=get_descs(pairs)
-    train,test=insts.split()
-    train_names= train.names()
-    train_names.sort()
-    def feat_helper(inst_i):
-        name_i=inst_i.name
-        return [pairs[name_i][name_j]
-                    for name_j in train_names]
-    for inst_i in insts.raw():
-        inst_i.data=feat_helper(inst_i)
-    return insts
-
 def make_dtw_feats(in_path='mra/pairs/corl_pairs',
                    out_path='mra/simple/corl_feats.txt'):
     dtw_pairs=utils.read_object(in_path)
@@ -84,7 +95,7 @@ def from_txt(in_path):
     pairs_dict=defaultdict(lambda:{})
     for pair_i in raw_pairs:
         pairs_dict[pair_i[0]][pair_i[1]]=float(pair_i[2])   
-    return pairs_dict
+    return DTWPairs(pairs_dict)
 
 if __name__ == "__main__":
     in_fun=utils.read_decorate(as_txt)
