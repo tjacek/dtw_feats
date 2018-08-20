@@ -19,5 +19,5 @@ class Graph(object):
 
 def read_dtw(pairs_path):
     dtw_pairs=pairs.from_txt(pairs_path)#utils.read_object(pairs_path)    
-    insts=dataset.instances.get_descs(dtw_pairs)
-    return dtw_pairs,insts
+    insts=dtw_pairs.get_descs() #dataset.instances.get_descs(dtw_pairs.)
+    return dtw_pairs.pairs,insts

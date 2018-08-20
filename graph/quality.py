@@ -1,11 +1,12 @@
 import numpy as np
 import graph,utils,pairs
 import itertools
+import dataset.instances
 
 class ClusterGraph(graph.Graph):
     def __init__(self, distances,desc):
-#        train,test=desc.split()
-        super(ClusterGraph, self).__init__( distances,desc)
+        train,test=desc.split()
+        super(ClusterGraph, self).__init__( distances,train)
     
     def quality(self):
         all_cats=self.by_cat()
@@ -37,15 +38,22 @@ class ClusterGraph(graph.Graph):
         return cat_names[index]
 
 def best_separation(in_path='mhad/deep_pairs',out_path='mhad/quality.txt'):
+    dtw_graphs=get_graphs(in_path)
+    quality=compute_quality(dtw_graphs)
+#    print(quality)
+#    print(np.sum( quality,axis=0))
+    best_cls_ids=np.argmin(quality,axis=1)
+    insts=select_clusters(best_cls_ids,dtw_graphs)
+    insts.to_txt(out_path)
+
+def get_graphs(in_path):
     paths=utils.bottom_files(in_path)
     dtw_graphs=[]
     for path_i in paths:
         print(path_i)
         dtw_pairs,insts=graph.read_dtw(path_i)
         dtw_graphs.append(ClusterGraph(dtw_pairs,insts))
-    best_cls_ids=best_cls(dtw_graphs)
-    insts=select_clusters(best_cls_ids,dtw_graphs)
-    insts.to_txt(out_path)
+    return dtw_graphs
 
 def select_clusters(best_cls_ids,dtw_graphs):
     full_names=dtw_graphs[0].distances.keys()
@@ -58,13 +66,11 @@ def select_clusters(best_cls_ids,dtw_graphs):
 
     feats=list( itertools.chain.from_iterable(feats))
     X=np.array(feats).T
-    insts=pairs.get_descs(full_names)
+    insts=dataset.instances.get_descs(full_names)
     for i,name_i in enumerate(full_names):
         insts[name_i].data=X[i]
     return insts
 
-def best_cls(dtw_graphs):
-    quality=np.array([graph_i.quality()
+def compute_quality(dtw_graphs):
+    return np.array([graph_i.quality()
                         for graph_i in dtw_graphs])
-    print(quality)
-    return np.argmin(quality,axis=0)
