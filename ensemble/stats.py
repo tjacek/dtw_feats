@@ -30,15 +30,16 @@ class IndepMetric(object):
                     for comp_vect_i in comp_vectors]
         indep_matrix=np.array([ indep_helper(pred_i) 
                                 for pred_i in all_preds])
-        np.fill_diagonal(indep_matrix, 0)
-        indep_matrix/=float(len(y_true))
-        return np.mean(indep_matrix,axis=0)
+#        np.fill_diagonal(indep_matrix, 0)
+#        indep_matrix/=float(len(y_true))
+        return indep_matrix#np.median(indep_matrix,axis=0)
        
 def show_stats(stats):
     for name_i,value_i in stats.items():
         if(isinstance(value_i,(int,float,long))):
             print("stats:%s %f" % (name_i,value_i))
-        else:
+            break
+        if(value_i.ndim==1):
             median_i=np.median(value_i)
             mean_i=np.mean(value_i)
             max_i=np.amax(value_i)
@@ -80,7 +81,7 @@ def compare_all(pred,list_of_preds,erorr=False):
                         for pred_i in list_of_preds])
     
 def compare_pred(a,b,erorr=False):
-    comp=np.array([ float(a_i==b_i) for a_i,b_i in zip(a,b)])
+    comp=np.array([ int(a_i==b_i) for a_i,b_i in zip(a,b)])
     if(erorr):
         comp=1-comp
     return comp

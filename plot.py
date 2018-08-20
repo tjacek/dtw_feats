@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib import offsetbox
 import numpy as np
 import random
+import pandas as pd,seaborn as sn
 from sets import Set
 
 class CatColors(object):
@@ -53,9 +54,11 @@ def plot_embedding(X,y,title=None,color_helper=None):
         plt.title(title)
     plt.show()
 
-def show_distance(D):
-    plt.imshow(D, zorder=2, cmap='Blues', interpolation='nearest')
-    plt.colorbar();
+def heat_map(conf_matrix):
+    dim=conf_matrix.shape
+    df_cm = pd.DataFrame(conf_matrix, range(dim[0]),range(dim[1]))
+    sn.set(font_scale=1.0)#for label size
+    sn.heatmap(df_cm, annot=True,annot_kws={"size": 8}, fmt='g')
     plt.show()
 
 def show_histogram(hist,title='hist',cumsum=True):
