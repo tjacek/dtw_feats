@@ -3,15 +3,6 @@ import utils,deep,deep.convnet,deep.train
 import ensemble,pairs,utils
 import theano.gpuarray
 
-def simple_exp(dataset_path='data/MSR',nn_path='data/nn',
-                compile=False,n_frames=4):
-    preproc=deep.ImgPreproc(n_frames)
-    X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
-    model_path=None if(compile) else nn_path
-    model=deep.convnet.get_model(n_cats,preproc,nn_path=model_path)
-    deep.train.train_super_model(X,y,model,num_iter=25)
-    model.get_model().save(nn_path)
-
 def ensemble_exp(compile=False,n_frames=4,n_iters=150):
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
@@ -39,7 +30,3 @@ def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
     return ensemble.EnsembleFun(in_fun,out_fun)
 
 ensemble_pairs(in_path='mhad/feats')
-#simple_exp(dataset_path='data/MSR',nn_path='data/nn',compile=False)
-#ensemble_exp(dataset_path='data/train',nn_path='data/models',compile=False)
-#ensemble.extract_deep(data_path='data/MSR',nn_path="data/models",out_path="data/feats")
-#ensemble.global_feats("mhad/feats","mhad/datasets")
