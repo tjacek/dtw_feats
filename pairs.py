@@ -34,7 +34,7 @@ class DTWPairs(object):
             return self.get_vector(inst_i.name,train_names)
         for inst_i in insts.raw():
             inst_i.data=feat_helper(inst_i)
-       return insts
+        return insts
 
 def make_pairwise_distance(actions):
     pairs_dict={ name_i:{name_i:0.0}
@@ -69,9 +69,10 @@ def as_tuples(dtw_distance):
                     for name_j in names]
 
 def make_dtw_feats():
-    dtw_pairs=utils.read_object
-    insts=as_instances(dtw_pairs)
-    dataset.instances.to_txt(out_path,insts)
+    def out_fun(out_path_i,result_i):
+        insts=result_i.as_instances()
+        insts.to_txt(out_path_i)
+    return ensemble.EnsembleFun(from_txt,out_fun)
 
 def from_txt(in_path):
     raw_pairs=utils.read_lines(in_path)
@@ -81,6 +82,7 @@ def from_txt(in_path):
     return DTWPairs(pairs_dict)
 
 if __name__ == "__main__":
-    in_fun=utils.read_decorate(as_txt)
-    ens=ensemble.EnsembleFun(in_fun,utils.save_string)
-    ens("mhad/_deep_pairs","mhad/text_pairs")
+#    in_fun=utils.read_decorate(as_txt)
+#    ens=ensemble.EnsembleFun(in_fun,utils.save_string)
+    ens=make_dtw_feats()
+    ens("mhad/text_pairs","mhad/dtw_datasets")
