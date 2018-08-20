@@ -9,8 +9,8 @@ class Experiment(object):
             self.build_dataset=ensemble.votes.EarlyPreproc(True,None,deep_feats)
         else:
             self.build_dataset=deep_feats
-        self.stats={'common_errors':IndepMetric(False),'common_prediction':IndepMetric(True),
-                    'individual_accuracy':true_pos,
+        self.stats={'common_errors':IndepMetric(True),'common_preds':IndepMetric(False),
+                    'diversity_rating':diversity_rating,'individual_accuracy':true_pos,
                     'ensemble_accuracy':ensemble_accuracy,'votes':vote_histogram}
 
     def __call__(self,deep_paths,basic_paths=None):
@@ -23,12 +23,16 @@ class IndepMetric(object):
         self.error=error
 
     def __call__(self,y_true,all_preds):    
-        error_matrix=common_preds(y_true,all_preds,self.error)
-        n_cls=len(all_preds)
-        for i in xrange(n_cls):
-            error_matrix[i][i]=0
-        n_cls=float(error_matrix.shape[0])
-        return np.sum(error_matrix,axis=0)/n_cls
+        def indep_helper(pred_i):   
+            mask_vector=compare_pred(y_true,pred_i,erorr=self.error)
+            comp_vectors=compare_all(pred_i,all_preds,erorr=False)
+            return [np.dot(mask_vector,comp_vect_i)  
+                    for comp_vect_i in comp_vectors]
+        indep_matrix=np.array([ indep_helper(pred_i) 
+                                for pred_i in all_preds])
+        np.fill_diagonal(indep_matrix, 0)
+        indep_matrix/=float(len(y_true))
+        return np.mean(indep_matrix,axis=0)
        
 def show_stats(stats):
     for name_i,value_i in stats.items():
@@ -39,8 +43,9 @@ def show_stats(stats):
             mean_i=np.mean(value_i)
             max_i=np.amax(value_i)
             min_i=np.amin(value_i)
-            all_stats=(name_i,median_i,mean_i,max_i,min_i)
-            print("stats:%s median:%f avg:%f max:%f min:%f" % all_stats) 
+            std_i=np.std(value_i)
+            all_stats=(name_i,median_i,mean_i,std_i,max_i,min_i)
+            print("stats:%s median:%f avg:%f std:%f max:%f min:%f" % all_stats) 
 
 def best_clf(stats,k=5,criterion='individual_accuracy'):
     clf_metric=stats[criterion]
@@ -50,15 +55,14 @@ def ensemble_accuracy(y_true,all_preds):
     y_pred=ensemble.votes.vote(all_preds)
     return accuracy_score(y_true,y_pred)
 
-def quality_rating(y_true,all_preds):
-    error_matrix=common_preds(y_true,all_preds)
-    n_cls=float(error_matrix.shape[0])
-    return np.sum(error_matrix,axis=0)/n_cls
+def diversity_rating(y_true,all_preds):
+    diversity=np.array([true_pos(pred_j,all_preds)
+                            for pred_j in all_preds])
+    diversity=np.mean(diversity,axis=0)
+    return diversity
 
 def vote_histogram(y_true,all_preds):
-    true_pos=[compare_pred(y_true,pred_i,erorr=False) 
-                for pred_i in all_preds]
-    true_pos=np.array(true_pos)
+    true_pos=compare_all(y_true,all_preds,erorr=False)
     votes=np.sum(true_pos,axis=0)
     n_cats=true_pos.shape[0]+1
     hist=np.zeros((n_cats,))
@@ -67,33 +71,16 @@ def vote_histogram(y_true,all_preds):
     hist/=np.sum(hist)    
     return hist
 
-def common_preds(y_true,all_preds,erorr=False):
-    true_pos= [compare_pred(y_true,pred_i,erorr=erorr) 
-                for pred_i in all_preds]
-    norm_const=[ float(sum(true_i)) for true_i in true_pos]
-    def pred_helper(j,pred_i,pred_j):
-        common_ij=compare_pred(pred_i,pred_j,erorr=True)
-        return np.dot(common_ij,true_pos[j])/  norm_const[j]
-    preds= [[ pred_helper(j,pred_i,pred_j)
-                for pred_i in all_preds]
-                    for j,pred_j in enumerate(all_preds)]
-    return np.array(preds)
-
 def true_pos(y_true,all_preds):
     return [accuracy_score(y_true,pred_i)
                 for pred_i in all_preds]
 
-def count_agree(single_pred,all_preds):
-    size=float(len(single_pred))
-    return [ sum(compare_pred(single_pred,pred_i))/size
-                for pred_i in all_preds]
-
+def compare_all(pred,list_of_preds,erorr=False):
+    return np.array([compare_pred(pred,pred_i,erorr=erorr) 
+                        for pred_i in list_of_preds])
+    
 def compare_pred(a,b,erorr=False):
-    comp=[ a_i==b_i for a_i,b_i in zip(a,b)]
-    comp=np.array(comp).astype(int)
+    comp=np.array([ float(a_i==b_i) for a_i,b_i in zip(a,b)])
     if(erorr):
         comp=1-comp
     return comp
-
-def cls_compare(y_true,all_preds):
-    return [count_agree(pred_i,all_preds) for pred_i in all_preds]
