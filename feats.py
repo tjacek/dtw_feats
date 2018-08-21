@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats
-import dataset.instances,seqs.io
+import dataset.instances,seqs.io,seqs,utils,plot
+import pandas as pd 
 
 class LocalFeatures(object):
     def __init__(self, feature_extractors):
@@ -61,6 +62,32 @@ def area(img_array,point_cloud):
     size=float(img_array.shape[0] * img_array.shape[1])
     return [n_points/size]
 
+def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
+    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_action(in_path)
+    feat_extractor=feats.GlobalFeatures()
+    insts=[feat_extractor(action_i) for action_i in actions]
+    dataset.instances.to_txt(out_path,insts)
+
+def plot_stats(in_path='mhad/simple/skew',out_path='mhad/imgs'):
+    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_action(in_path)
+    actions_by_cats=seqs.by_cat(actions)
+    utils.make_dir(out_path)
+    for cat_i in actions_by_cats.keys():
+        plots=get_feature_plot(actions_by_cats[cat_i])
+        for j,plot_j in enumerate(plots):
+            plot_path=out_path+'/'+str(cat_i)+"_"+str(j)
+            print(plot_path)
+            plot.save_plot(plot_j,plot_path)
+    
+def get_feature_plot(actions):
+    features=[ action_i.as_feature() for action_i in actions]
+    features=utils.separate(features)
+    return [pd.DataFrame(feature_i,index=range(len(feature_i))) 
+                for feature_i in features]
+
 if __name__ == "__main__":
-    transform=BasicFeatures()
-    seqs.io.transform_actions(in_path='mhad/time',out_path='mhad/all',transform=transform)
+    plot_stats(in_path='mhad/seqs/skew')
+#    transform=BasicFeatures()
+#    seqs.io.transform_actions(in_path='mhad/time',out_path='mhad/all',transform=transform)
