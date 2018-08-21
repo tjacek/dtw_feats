@@ -15,6 +15,7 @@ class Action(object):
         return len(self.img_seq)
     
     def __call__(self,fun,whole_seq=True):
+        print(self.name)
         if(whole_seq):
             new_seq=fun(self.img_seq)
         else:
@@ -38,3 +39,10 @@ class Action(object):
         norm_imgs=[ (img_i/norm) 
                     for img_i in self.img_seq]
         return [ (self.cat,img_i) for img_i in norm_imgs]
+
+def by_cat(actions):
+    cats=[action_i.cat for action_i in actions]
+    actions_by_cat={ cat_i:[] for cat_i in np.unique(cats)}
+    for action_i in actions:
+        actions_by_cat[action_i.cat].append(action_i)
+    return actions_by_cat    
