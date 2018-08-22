@@ -1,6 +1,30 @@
 import numpy as np
 import scipy.stats
-import dataset.instances,plot.ts
+import dataset.instances,plot.ts,seqs.io
+
+class FeatureTransform(object):
+    def __init__(self, alpha=0.5):
+        self.alpha=alpha
+
+    def __call__(self,img_seq):
+        features=get_features(img_seq)
+        new_features=[ self.transform(feature_i) 
+                        for feature_i in features]
+        return np.array(new_features).T
+    
+    def transform(self,feature_i):
+        current=feature_i[0]
+        smoothed_feature=[current]
+        beta=1.0-self.alpha
+        for x_i in feature_i[1:]:
+            current=self.alpha*x_i + beta*current
+            smoothed_feature.append(current)
+        return smoothed_feature
+
+def get_features(frames):
+    frames=np.array(frames)
+    frames=frames.T    
+    return frames.tolist()
 
 class LocalFeatures(object):
     def __init__(self, feature_extractors):
@@ -69,6 +93,7 @@ def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
     dataset.instances.to_txt(out_path,insts)
 
 if __name__ == "__main__":
-    plot.ts.plot_stats(in_path='mhad/seqs/skew')
-#    transform=BasicFeatures()
-#    seqs.io.transform_actions(in_path='mhad/time',out_path='mhad/all',transform=transform)
+#    plot.ts.plot_stats(in_path='mhad/seqs/skew')
+    transform=FeatureTransform()
+    seqs.io.transform_actions(in_path='mhad/seqs/raw/corl',out_path='mhad/seqs/smooth',transform=transform,
+        img_in=False,whole_seq=True)
