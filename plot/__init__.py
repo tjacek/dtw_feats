@@ -71,10 +71,3 @@ def show_histogram(hist,title='hist',cumsum=True):
     plt.bar(x,hist)
     fig.suptitle(title)
     plt.show()
-
-def save_plot(plot_i,out_path_i):
-    ax=plot_i.plot()
-    ax.get_figure()
-    plt.savefig(out_path_i)
-    plt.clf()
-    plt.close()
