@@ -14,11 +14,6 @@ class LocalFeatures(object):
             features+=extractor_j(img_i,point_cloud)
         return features
 
-class BasicFeatures(LocalFeatures):
-    def __init__(self):
-        all_features=[area,corl,std,skew]
-        super(BasicFeatures, self).__init__(all_features)  
-
 class GlobalFeatures(object):
     def __init__(self):
         self.feature_extractor=[avg,std,skew]
@@ -30,6 +25,9 @@ class GlobalFeatures(object):
             global_feats+=extractor_j(None,array_i)
         return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
+
+def basic_features():
+    return LocalFeatures([area,corl,std,skew])  
 
 def preproc_img(img_i,img_size=64):
     return img_i[:img_size]
