@@ -1,4 +1,5 @@
 import numpy as np
+import seqs.io 
 
 class FeaturePreproc(object):
     def __call__(self,img_seq):
@@ -23,18 +24,22 @@ class ExpSmooth(FeaturePreproc):
         smoothed_feature=[current]
         beta=1.0-self.alpha
         for x_i in feature_i[1:]:
-            current=self.alpha*x_i + beta*current
+            current= self.alpha*x_i + beta*current
             smoothed_feature.append(current)
         return smoothed_feature
 
-class DiffSmooth(FeaturePreproc):
+class DiffPreproc(FeaturePreproc):
+    def __init__(self,sign_only=False):
+        self.sign_only=sign_only
 
     def preproc(self,feature_i):
         current=feature_i[0]
         diff_feature=[current]
         for x_i in feature_i[1:]:
-            diff_feature.append(x_i-current)
-            current=x_i
+            diff_i=x_i-current
+            diff_i= float(diff_i>0) if(self.sign_only) else diff_i
+            diff_feature.append(diff_i)
+            current= x_i 
         return diff_feature
 
 def get_features(frames):
