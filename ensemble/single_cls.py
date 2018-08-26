@@ -1,4 +1,4 @@
-import dataset
+import dataset,plot
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
@@ -20,11 +20,19 @@ def show_result(y_true,y_pred):
     print("Accuracy %f " % accuracy_score(y_true,y_pred))
     cf=confusion_matrix(y_true, y_pred)
     cf_matrix=pd.DataFrame(cf,index=range(cf.shape[0]))
-    print(cf_matrix)
-
+#    print(cf_matrix)
+    plot.heat_map(cf_matrix)
+    
 def train_model(dataset_i):
     train,test=dataset_i.split()
     clf=LogisticRegression()
     clf = clf.fit(train.X, train.y)
     y_pred = clf.predict(test.X)
     return test.y,y_pred
+
+def show_errors(y_true,y_pred,names):
+    errors=[ true_i!=pred_i 
+                for true_i,pred_i in zip(y_true,y_pred)]
+    return [name_i 
+                for error_i,name_i in zip(errors,names)
+                    if(error_i)]
