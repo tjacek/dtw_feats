@@ -7,9 +7,7 @@ import pandas as pd
 def plot_stats(in_path='mhad/simple/skew',out_path='mhad/imgs'):
     read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
     actions=read_action(in_path)
-    print(len(actions))
-    actions=seqs.select.select(actions,1)
-    print(len(actions))
+    actions=select_actions(actions)
     actions_by_cats=seqs.by_cat(actions)
     utils.make_dir(out_path)
     for cat_i in actions_by_cats.keys():
@@ -18,13 +16,23 @@ def plot_stats(in_path='mhad/simple/skew',out_path='mhad/imgs'):
             plot_path=out_path+'/'+str(cat_i)+"_"+str(j)
             print(plot_path)
             save_plot(plot_j,plot_path)
-    
+
+def select_actions(actions):
+#    print(len(actions))
+#    actions=seqs.select.select(actions,0)
+    print(len(actions))
+    actions=seqs.person_rep(actions)
+    print(len(actions))
+    return actions
+
 def get_feature_plot(actions):
     features=[ action_i.as_feature() for action_i in actions]
+    action_names=[ action_i.name for action_i in actions]
     features=utils.separate(features)
     features=[ mask_features(feature_i) for feature_i in features]
     print(features[0].shape)
-    return [pd.DataFrame(feature_i,index=range(len(feature_i)))
+    return [pd.DataFrame(feature_i,columns=action_names,
+                index=range(len(feature_i)))
                 for feature_i in features]
 
 def mask_features(feature_i):

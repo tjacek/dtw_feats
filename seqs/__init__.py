@@ -45,4 +45,12 @@ def by_cat(actions):
     actions_by_cat={ cat_i:[] for cat_i in np.unique(cats)}
     for action_i in actions:
         actions_by_cat[action_i.cat].append(action_i)
-    return actions_by_cat    
+    return actions_by_cat
+
+def person_rep(actions):
+    reps={}
+    for action_i in actions:
+        action_id=str(action_i.cat)+str(action_i.person)
+        if(not action_id in reps):
+            reps[action_id]=action_i
+    return reps.values()   
