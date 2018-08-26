@@ -36,14 +36,15 @@ class DiffPreproc(FeaturePreproc):
         if(self.sign_only):
             return np.sign(np.diff(feature_i))
         return np.diff(feature_i)
-        #current=feature_i[0]
-        #diff_feature=[current]
-        #for x_i in feature_i[1:]:
-        #    diff_i=x_i-current
-        #    diff_i= float(diff_i>0) if(self.sign_only) else diff_i
-        #    diff_feature.append(diff_i)
-        #    current= x_i 
-        #return diff_feature
+
+class FourierSmooth(FeaturePreproc):
+    def __init__(self, n=5):
+        self.n = n
+
+    def preproc(self,feature_i):
+        rft = np.fft.rfft(feature_i)
+        rft[self.n:] = 0
+        return np.fft.irfft(rft)
 
 def get_features(frames):
     frames=np.array(frames)
