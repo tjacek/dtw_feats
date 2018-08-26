@@ -31,8 +31,12 @@ def train_model(dataset_i):
     return test.y,y_pred
 
 def show_errors(y_true,y_pred,names):
+    print("names %d" % len(names))
+    print("y_true %d" % len(y_true))
+    print("y_pred %d" % len(y_pred))
+
     errors=[ true_i!=pred_i 
                 for true_i,pred_i in zip(y_true,y_pred)]
-    return [name_i 
-                for error_i,name_i in zip(errors,names)
+    return [ (names[i],y_pred[i])
+                for i,error_i in enumerate(errors)
                     if(error_i)]
