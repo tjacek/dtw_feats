@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats
-import dataset.instances
+import dataset.instances,seqs.io
 
 class LocalFeatures(object):
     def __init__(self, feature_extractors):
@@ -15,8 +15,10 @@ class LocalFeatures(object):
         return features
 
 class GlobalFeatures(object):
-    def __init__(self):
-        self.feature_extractor=[avg,std,skew]
+    def __init__(self,feats):
+        if(type(feats)!=list):
+            feats=[feats]
+        self.feature_extractor=feats#[avg,std,skew]
 
     def __call__(self,action_i):
         array_i=action_i.as_array()
@@ -25,6 +27,13 @@ class GlobalFeatures(object):
             global_feats+=extractor_j(None,array_i)
         return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
+
+    def make_dataset(self,in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
+        read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+        actions=read_action(in_path)
+        insts=dataset.instances.InstsGroup([self(action_i) 
+                    for action_i in actions])
+        insts.to_txt(out_path)
 
 def basic_features():
     return LocalFeatures([area,corl,std,skew])  
@@ -59,9 +68,17 @@ def area(img_array,point_cloud):
     size=float(img_array.shape[0] * img_array.shape[1])
     return [n_points/size]
 
-def make_stats_feat(in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
-    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    actions=read_action(in_path)
-    feat_extractor=feats.GlobalFeatures()
-    insts=[feat_extractor(action_i) for action_i in actions]
-    dataset.instances.to_txt(out_path,insts)
+def extr_feat(dummy, img_array):
+    feats=[]
+    for feature_i in img_array.T:
+        diff_i=np.diff(feature_i)
+        extr_i=np.diff( np.sign(diff_i))
+        feats.append(count_values(extr_i,2.0))
+        feats.append(count_values(extr_i,-2.0))
+    return feats
+
+def count_values(extr_i,value=2.0):
+    min_i=np.copy(extr_i)
+    min_i[min_i!=value]=0.0
+    min_i[min_i==value]=1.0
+    return np.sum(min_i,axis=0)  
