@@ -31,7 +31,7 @@ class Action(object):
     def as_array(self):
         return np.array(self.img_seq)
 
-    def as_feature(self):
+    def as_features(self):
         action_array=self.as_array().T
         return [ feature_i for feature_i in action_array]
 
