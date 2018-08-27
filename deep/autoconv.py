@@ -134,7 +134,7 @@ def reconstruct_actions(in_path,nn_path,out_path,n_frames=2):
     preproc=deep.ImgPreproc(n_frames)
     nn_reader=deep.reader.NNReader(preproc)
     ae_model=nn_reader(nn_path)
-    ae_transform=lambda(x_i): ae_model.reconstructed(x_i)
+    ae_transform=lambda x_i: ae_model.reconstructed(x_i)
     seqs.io.transform_actions(in_path,out_path,ae_transform,
                                 img_in=True,img_out=True,whole_seq=True)
 
