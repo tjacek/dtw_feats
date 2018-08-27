@@ -21,10 +21,15 @@ class GlobalFeatures(object):
         self.feature_extractor=feats#[avg,std,skew]
 
     def __call__(self,action_i):
-        array_i=action_i.as_array()
+        features_i=action_i.as_features()
         global_feats=[]
-        for extractor_j in self.feature_extractor:
-            global_feats+=extractor_j(None,array_i)
+        for extractor_k in self.feature_extractor:
+            for feature_j in features_i:
+                fusion_jk=extractor_k(None,feature_j)
+                if(type(fusion_jk)==list):
+                    global_feats+=fusion_jk
+                else:
+                    global_feats.append(fusion_jk)
         return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
 
@@ -68,22 +73,15 @@ def area(img_array,point_cloud):
     size=float(img_array.shape[0] * img_array.shape[1])
     return [n_points/size]
 
-def autocorl_feat(dummy, img_array):
-    def auto_helper(feature_i):
-        diff_i=np.diff(feature_i)
-        return np.mean([autocorr(diff_i,j) 
+def autocorl_feat(dummy,feature_i):
+    diff_i=np.diff(feature_i)
+    return np.mean([autocorr(diff_i,j) 
                 for j in range(1,len(feature_i)-2)])
-    return [ auto_helper(feature_i)
-                for feature_i in img_array.T]
 
-def extr_feat(dummy, img_array):
-    feats=[]
-    for feature_i in img_array.T:
-        diff_i=np.diff(feature_i)
-        extr_i=np.diff( np.sign(diff_i))
-        feats.append(count_values(extr_i,2.0))
-        feats.append(count_values(extr_i,-2.0))
-    return feats
+def extr_feat(dummy, feature_i):
+    diff_i=np.diff(feature_i)
+    extr_i=np.diff( np.sign(diff_i))
+    return [count_values(extr_i,2.0),count_values(extr_i,-2.0)]
 
 def count_values(extr_i,value=2.0):
     min_i=np.copy(extr_i)
