@@ -68,6 +68,14 @@ def area(img_array,point_cloud):
     size=float(img_array.shape[0] * img_array.shape[1])
     return [n_points/size]
 
+def autocorl_feat(dummy, img_array):
+    def auto_helper(feature_i):
+        diff_i=np.diff(feature_i)
+        return np.mean([autocorr(diff_i,j) 
+                for j in range(1,len(feature_i)-2)])
+    return [ auto_helper(feature_i)
+                for feature_i in img_array.T]
+
 def extr_feat(dummy, img_array):
     feats=[]
     for feature_i in img_array.T:
@@ -81,4 +89,7 @@ def count_values(extr_i,value=2.0):
     min_i=np.copy(extr_i)
     min_i[min_i!=value]=0.0
     min_i[min_i==value]=1.0
-    return np.sum(min_i,axis=0)  
+    return np.sum(min_i,axis=0) 
+
+def autocorr(x, t=1):
+    return np.corrcoef(np.array([x[0:len(x)-t], x[t:len(x)]]))[0][1]
