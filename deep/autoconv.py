@@ -5,7 +5,7 @@ import theano.tensor as T
 import deep,convnet
 from lasagne.regularization import regularize_layer_params, l2, l1
 from lasagne.layers.conv import TransposedConv2DLayer
-import deep.convnet
+import deep.convnet,seqs.io
 
 class ConvAutoencoder(deep.NeuralNetwork):
     def __init__(self,hyperparams,out_layer,preproc,in_var,
@@ -20,10 +20,11 @@ class ConvAutoencoder(deep.NeuralNetwork):
                                updates=updates,allow_input_downcast=True)
 
     def reconstructed(self,in_img):
-        img4D=self.preproc.apply(in_img)
+        img4D=self.preproc(in_img)
         raw_rec=self.__reconstructed__(img4D)
-        img2D=tools.postproc3D(raw_rec)
-        return imgs.Image(in_img.name,img2D,in_img.org_dim)
+        img_seq=self.preproc.postproc(raw_rec)
+        print(img_seq[0].shape)
+        return img_seq
 
     def __call__(self,in_img):
         img4D=self.preproc.apply(in_img)
@@ -127,7 +128,15 @@ def default_ae(num_hidden=100,n_frames=2):
             'n_filters3':8, 
             'filter_size1':(3, 3),
             'pool_size1':(2,2),
-            'num_hidden':num_hidden}   
+            'num_hidden':num_hidden}
+
+def reconstruct_actions(in_path,nn_path,out_path,n_frames=2):
+    preproc=deep.ImgPreproc(n_frames)
+    nn_reader=deep.reader.NNReader(preproc)
+    ae_model=nn_reader(nn_path)
+    ae_transform=lambda(x_i): ae_model.reconstructed(x_i)
+    seqs.io.transform_actions(in_path,out_path,ae_transform,
+                                img_in=True,img_out=True,whole_seq=True)
 
 def get_model(preproc,nn_path=None, params=None,model_p=0.5):
     if(nn_path is None):

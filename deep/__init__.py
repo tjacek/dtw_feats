@@ -61,6 +61,10 @@ class ImgPreproc(object):
             raise Exception("incorrect img size")
         return x/self.dim
 
+    def postproc(self,imgs):
+        return [np.concatenate(img_i,axis=0)
+                    for img_i in imgs]
+
 def get_dataset(in_path,preproc):
     X,y=read_dataset(in_path)
     y=np.array(y)

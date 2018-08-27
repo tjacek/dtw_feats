@@ -38,5 +38,7 @@ def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     deep.train.train_unsuper_model(X,ae_model,num_iter=n_iters)
     ae_model.get_model().save(nn_path)
 
-train_autoencoder('mhad/test','mhad/ae')
+deep.autoconv.reconstruct_actions(in_path='mhad/test',
+                                nn_path='mhad/ae',out_path='mhad/rec')
+#train_autoencoder('mhad/test','mhad/ae')
 #ensemble_pairs(in_path='mhad/feats')
