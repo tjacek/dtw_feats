@@ -62,10 +62,10 @@ class ImgPreproc(object):
         return x/self.dim
 
 def get_dataset(in_path,preproc):
-    X,y=deep.read_dataset(in_path)
+    X,y=read_dataset(in_path)
     y=np.array(y)
     y-= np.min(y)
-    n_cats=deep.count_cats(y)
+    n_cats=count_cats(y)
     X=np.array([preproc(x_i) for x_i in X])
     return X,y,n_cats
 
