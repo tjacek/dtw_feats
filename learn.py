@@ -30,11 +30,13 @@ def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
         utils.save_string(out_path_i,lines_i)
     return ensemble.EnsembleFun(in_fun,out_fun)
 
-def train_autoencoder(dataset_path, n_frames=2,n_iters=5):
+def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.get_dataset(dataset_path,preproc)
-    ae_model=deep.autoconv.get_model(preproc=preproc)
+    read_path=  nn_path if(read) else None
+    ae_model=deep.autoconv.get_model(preproc=preproc,nn_path=read_path)
     deep.train.train_unsuper_model(X,ae_model,num_iter=n_iters)
+    ae_model.get_model().save(nn_path)
 
-train_autoencoder(dataset_path='mhad/test')
+train_autoencoder('mhad/test','mhad/ae')
 #ensemble_pairs(in_path='mhad/feats')

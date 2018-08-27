@@ -10,9 +10,8 @@ class NNReader(object):
             self.preproc=deep.ImgPreproc(preproc)
         else:    
             self.preproc=preproc
-        self.types = {'Convet':deep.convnet.compile_convnet}
-#                      'Autoencoder':deep.ae.compile_autoencoder,
-#                      'ConvAutoencoder': deep.autoconv.compile_conv_ae,
+        self.types = {'Convet':deep.convnet.compile_convnet,
+                      'ConvAutoencoder': deep.autoconv.compile_conv_ae}
 #                      'LSTM':deep.lstm.compile_lstm}
 
     def __call__(self,in_path, drop_p=0.0,get_hyper=False):
