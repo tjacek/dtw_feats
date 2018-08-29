@@ -4,9 +4,12 @@ import dataset.instances,seqs.io
 
 class LocalFeatures(object):
     def __init__(self, feature_extractors):
+        if(type(feature_extractors)!=list):
+            feature_extractors=[feature_extractors]
         self.feature_extractors=feature_extractors
 
     def __call__(self,img_i):
+        print(np.amax(img_i))
         img_i=preproc_img(img_i)
         point_cloud=extract_points(img_i)
         features=[]
@@ -53,19 +56,6 @@ def extract_points(img_i):
             point_d=np.array([x,y,depth])
             points.append(point_d)
     return np.array(points)
-
-def avg(img_array,action_array):
-    return list(np.mean(action_array,axis=0))
-
-def std(img_array,pcloud):
-    return list(np.std(pcloud,axis=0))
-
-def skew(img_array,pcloud):
-    return list(scipy.stats.skew(pcloud,axis=0))
-
-def hist(img_array,pcloud):
-    img_array[img_array]=1.0
-    return np.sum(img_array,axis=0)
 
 def corl(img_array,pcloud):
     def corl_helper(i,j):
