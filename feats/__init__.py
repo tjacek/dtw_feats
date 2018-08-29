@@ -81,16 +81,5 @@ def autocorl_feat(dummy,feature_i):
     return np.mean([autocorr(diff_i,j) 
                 for j in range(1,len(feature_i)-2)])
 
-def extr_feat(dummy, feature_i):
-    diff_i=np.diff(feature_i)
-    extr_i=np.diff( np.sign(diff_i))
-    return [count_values(extr_i,2.0),count_values(extr_i,-2.0)]
-
-def count_values(extr_i,value=2.0):
-    min_i=np.copy(extr_i)
-    min_i[min_i!=value]=0.0
-    min_i[min_i==value]=1.0
-    return np.sum(min_i,axis=0) 
-
 def autocorr(x, t=1):
     return np.corrcoef(np.array([x[0:len(x)-t], x[t:len(x)]]))[0][1]

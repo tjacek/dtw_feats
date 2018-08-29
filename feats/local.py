@@ -2,6 +2,15 @@ import numpy as np
 import cv2
 import feats,utils,seqs.io 
 
+class FeatPipeline(object):
+    def __init__(self, functions):
+    	self.functions=functions
+
+    def __call__(img_array,action_array):
+        for fun_i in self.functions:
+        	img_array=fun_i(img_array)
+		return img_array
+
 def action_imgs(in_path,out_path,local_feats):
     if(type(local_feats)!=feats.LocalFeatures):
         local_feats=feats.LocalFeatures(local_feats)
@@ -11,7 +20,7 @@ def action_imgs(in_path,out_path,local_feats):
                     for action_i in actions]
     utils.make_dir(out_path)
     for action_i in new_actions:
-        out_i=out_path+'/'+action_i.name
+        out_i=out_path+'/'+action_i.name+".png"
         img_i=action_i.as_array()
         cv2.imwrite(out_i,img_i)
 
@@ -28,3 +37,12 @@ def hist_x(img_array,pcloud):
     img_array[img_array!=0]=1.0
     return list(np.sum(img_array,axis=0))
 
+def count_mins(feature_i):
+    extr=local_extr(feature_i)
+    n_min=extr[extr==2].shape[0]
+    n_max=extr[extr==(-2)].shape[0]
+    return [n_min,n_max]
+
+def local_extr(feature_i):
+    diff_i=np.diff(feature_i)
+    return np.diff( np.sign(diff_i))
