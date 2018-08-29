@@ -63,6 +63,10 @@ def std(img_array,pcloud):
 def skew(img_array,pcloud):
     return list(scipy.stats.skew(pcloud,axis=0))
 
+def hist(img_array,pcloud):
+    img_array[img_array]=1.0
+    return np.sum(img_array,axis=0)
+
 def corl(img_array,pcloud):
     def corl_helper(i,j):
         return scipy.stats.pearsonr(pcloud[:,i],pcloud[:,j])[0]
@@ -72,6 +76,15 @@ def area(img_array,point_cloud):
     n_points=point_cloud.shape[0]
     size=float(img_array.shape[0] * img_array.shape[1])
     return [n_points/size]
+
+def rapid_change(dummy,feature_i):
+    feature_i=feature_i.astype(float)
+    feature_i=np.diff(feature_i)
+    min_i=np.amin(feature_i)
+    max_j=np.amax(feature_i)
+    feature_i=(feature_i-min_i)/max_j
+    feature_i*feature_i
+    return np.mean(feature_i)
 
 def autocorl_feat(dummy,feature_i):
     diff_i=np.diff(feature_i)
