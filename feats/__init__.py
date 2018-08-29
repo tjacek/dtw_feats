@@ -1,38 +1,20 @@
 import numpy as np
 import scipy.stats
 import dataset.instances,seqs.io
+import feats.local,feats.global
 
-class LocalFeatures(object):
-    def __init__(self, feature_extractors):
-        if(type(feature_extractors)!=list):
-            feature_extractors=[feature_extractors]
-        self.feature_extractors=feature_extractors
+class Features(object):
+    def __init__(self,feature_extractor):
+        if(type(feature_extractor)!=list):
+            feature_extractor=[feature_extractor]
+        self.feature_extractor=feats
 
-    def __call__(self,img_i):
-        print(np.amax(img_i))
-        img_i=preproc_img(img_i)
-        point_cloud=extract_points(img_i)
-        features=[]
-        for extractor_j in self.feature_extractors:
-            features+=extractor_j(img_i,point_cloud)
-        return features
-
-class GlobalFeatures(object):
-    def __init__(self,feats):
-        if(type(feats)!=list):
-            feats=[feats]
-        self.feature_extractor=feats#[avg,std,skew]
-
+class GlobalFeatures(Features):
     def __call__(self,action_i):
         features_i=action_i.as_features()
         global_feats=[]
         for extractor_k in self.feature_extractor:
-            for feature_j in features_i:
-                fusion_jk=extractor_k(None,feature_j)
-                if(type(fusion_jk)==list):
-                    global_feats+=fusion_jk
-                else:
-                    global_feats.append(fusion_jk)
+            GlobalFeatures+=extractor_k(None,features_i)
         return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
 
@@ -43,8 +25,15 @@ class GlobalFeatures(object):
                     for action_i in actions])
         insts.to_txt(out_path)
 
-def basic_features():
-    return LocalFeatures([area,corl,std,skew])  
+class LocalFeatures(Features):
+    def __call__(self,img_i):
+        print(np.amax(img_i))
+        img_i=preproc_img(img_i)
+        point_cloud=extract_points(img_i)
+        features=[]
+        for extractor_j in self.feature_extractors:
+            features+=extractor_j(img_i,point_cloud)
+        return features
 
 def preproc_img(img_i,img_size=64):
     return img_i[:img_size]
@@ -57,29 +46,20 @@ def extract_points(img_i):
             points.append(point_d)
     return np.array(points)
 
-def corl(img_array,pcloud):
-    def corl_helper(i,j):
-        return scipy.stats.pearsonr(pcloud[:,i],pcloud[:,j])[0]
-    return [corl_helper(0,1) ,corl_helper(0,2),corl_helper(1,2)]
+class FeatPipeline(object):
+    def __init__(self, functions):
+        self.functions=functions
 
-def area(img_array,point_cloud):
-    n_points=point_cloud.shape[0]
-    size=float(img_array.shape[0] * img_array.shape[1])
-    return [n_points/size]
+    def __call__(img_array,action_array):
+        for fun_i in self.functions:
+            img_array=fun_i(img_array)
+        return list(img_array)
 
-def rapid_change(dummy,feature_i):
-    feature_i=feature_i.astype(float)
-    feature_i=np.diff(feature_i)
-    min_i=np.amin(feature_i)
-    max_j=np.amax(feature_i)
-    feature_i=(feature_i-min_i)/max_j
-    feature_i*feature_i
-    return np.mean(feature_i)
+class FourierSmooth(object):
+    def __init__(self, n=5):
+        self.n = n
 
-def autocorl_feat(dummy,feature_i):
-    diff_i=np.diff(feature_i)
-    return np.mean([autocorr(diff_i,j) 
-                for j in range(1,len(feature_i)-2)])
-
-def autocorr(x, t=1):
-    return np.corrcoef(np.array([x[0:len(x)-t], x[t:len(x)]]))[0][1]
+    def __call__(self,feature_i):
+        rft = np.fft.rfft(feature_i)
+        rft[self.n:] = 0
+        return np.fft.irfft(rft)
