@@ -1,4 +1,6 @@
-import feats,feats.local,feats.global
+import feats,feats.glob,seqs.io
+import utils,cv2
+from feats.local import *
 
 def action_imgs(in_path,out_path,local_feats):
     if(type(local_feats)!=feats.LocalFeatures):
@@ -12,3 +14,13 @@ def action_imgs(in_path,out_path,local_feats):
         out_i=out_path+'/'+action_i.name+".png"
         img_i=action_i.as_array()
         cv2.imwrite(out_i,img_i)
+
+def get_histogram_feats( extr=False):
+    raw_hist=[hist_x,hist_y,hist_xz]
+    return [smooth_feat(hist_i,extr) for hist_i in raw_hist]	
+
+def smooth_feat(feat_i,extr=False):
+    fun_list=[feat_i,feats.FourierSmooth()]
+    if(extr):
+        fun_list.append(feats.local.count_mins)
+    return feats.FeatPipeline(fun_list)

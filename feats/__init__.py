@@ -1,13 +1,12 @@
 import numpy as np
 import scipy.stats
 import dataset.instances,seqs.io
-import feats.local,feats.global
 
 class Features(object):
-    def __init__(self,feature_extractor):
-        if(type(feature_extractor)!=list):
-            feature_extractor=[feature_extractor]
-        self.feature_extractor=feats
+    def __init__(self,feature_extractors):
+        if(type(feature_extractors)!=list):
+            feature_extractors=[feature_extractors]
+        self.feature_extractors=feature_extractors
 
 class GlobalFeatures(Features):
     def __call__(self,action_i):
@@ -27,7 +26,6 @@ class GlobalFeatures(Features):
 
 class LocalFeatures(Features):
     def __call__(self,img_i):
-        print(np.amax(img_i))
         img_i=preproc_img(img_i)
         point_cloud=extract_points(img_i)
         features=[]
@@ -50,10 +48,11 @@ class FeatPipeline(object):
     def __init__(self, functions):
         self.functions=functions
 
-    def __call__(img_array,action_array):
-        for fun_i in self.functions:
-            img_array=fun_i(img_array)
-        return list(img_array)
+    def __call__(self,img_array,action_array):
+        result=self.functions[0](img_array,action_array)
+        for fun_i in self.functions[1:]:
+            result=fun_i(result)
+        return list(result)
 
 class FourierSmooth(object):
     def __init__(self, n=5):

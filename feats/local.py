@@ -1,6 +1,5 @@
 import numpy as np
-import cv2
-import feats,feats.preproc,utils,seqs.io 
+import feats
 
 def avg(img_array,action_array):
     return list(np.mean(action_array,axis=0))
@@ -18,12 +17,25 @@ def area(img_array,point_cloud):
 
 def hist_x(img_array,pcloud):
     img_array[img_array!=0]=1.0
-    fs=feats.FourierSmooth()
-    return list(fs(np.sum(img_array,axis=0)))
+    return list(np.sum(img_array,axis=0))
 
 def hist_y(img_array,pcloud):
     img_array[img_array!=0]=1.0
-    return list(fs(np.sum(img_array,axis=1)))
+    return list(np.sum(img_array,axis=1))
+
+class HistZ(object):
+    def __init__(self,x=False,dim=(64,256)):
+        self.proj = int(x)
+        self.dim=dim
+
+    def __call__(self,img_array,pcloud):
+        hist_i=np.shape(self.dim)
+        for point_i in pcloud:
+            x_i,z_i=int(point_i[0]),int(point_i[2])
+            hist_i[x_i][z_i]+=1.0
+        hist_i=np.sum(hist_i,axis=0)
+        print(hist_i.shape)
+        return hist_i
 
 def count_mins(feature_i):
     extr=local_extr(feature_i)
