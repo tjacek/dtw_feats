@@ -17,7 +17,7 @@ class GlobalFeatures(Features):
         return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
 
-    def make_dataset(self,in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
+    def apply(self,in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
         read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
         actions=read_action(in_path)
         insts=dataset.instances.InstsGroup([self(action_i) 
@@ -32,6 +32,10 @@ class LocalFeatures(Features):
         for extractor_j in self.feature_extractors:
             features+=extractor_j(img_i,point_cloud)
         return features
+    
+    def apply(self,in_path,out_path):
+        seqs.io.transform_actions(in_path,out_path,self,
+            img_in=True,img_out=False,whole_seq=False)
 
 def preproc_img(img_i,img_size=64):
     return img_i[:img_size]
