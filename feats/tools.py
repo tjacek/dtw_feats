@@ -1,6 +1,7 @@
-import feats,feats.glob,seqs.io
+import feats,seqs.io
 import utils,cv2
 from feats.local import *
+from feats.glob import *
 
 def action_imgs(in_path,out_path,local_feats):
     if(type(local_feats)!=feats.LocalFeatures):
@@ -15,8 +16,13 @@ def action_imgs(in_path,out_path,local_feats):
         img_i=action_i.as_array()
         cv2.imwrite(out_i,img_i)
 
+def quality_feats():
+    local_feats=[GlobalExtractor(np.amax),
+                 GlobalExtractor(np.median),GlobalExtractor(np.min)]
+    return feats.GlobalFeatures(local_feats)
+
 def get_histogram_feats( extr=False):
-    raw_hist=[hist_x,hist_y,hist_xz]
+    raw_hist=[hist_x,hist_y,HistZ(0,1),HistZ(1,1)]
     return [smooth_feat(hist_i,extr) for hist_i in raw_hist]	
 
 def smooth_feat(feat_i,extr=False):
