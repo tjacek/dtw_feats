@@ -16,6 +16,11 @@ def action_imgs(in_path,out_path,local_feats):
         img_i=action_i.as_array()
         cv2.imwrite(out_i,img_i)
 
+def stats_feats():
+    raw_funs=[np.mean,np.std,scipy.stats.skew]
+    return feats.GlobalFeatures([GlobalExtractor(fun_i) 
+                    for fun_i in raw_funs])
+
 def quality_feats():
     local_feats=[GlobalExtractor(np.amax),
                  GlobalExtractor(np.median),GlobalExtractor(np.min)]
