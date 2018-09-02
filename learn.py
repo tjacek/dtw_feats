@@ -1,7 +1,9 @@
 import numpy as np
-import utils,deep,deep.convnet
+import utils
+import deep,deep.convnet
 import deep.train,deep.autoconv
-import ensemble,pairs,utils
+import deep.tools
+import ensemble,pairs
 import theano.gpuarray
 
 def ensemble_exp(compile=False,n_frames=4,n_iters=150):
@@ -47,7 +49,8 @@ def train_convnet(out_path,dataset_path,
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
-deep.autoconv.reconstruct_actions(in_path='mhad/test',
-                                nn_path='mhad/ae',out_path='mhad/rec')
+deep.tools.deep_seqs(in_path='../mhad/four/full',nn_path='../mhad/four/conv',
+                out_path='../mhad/four/seqs',n_frames=4)
+#deep.autoconv.reconstruct_actions(in_path='mhad/test',
+#                                nn_path='mhad/ae',out_path='mhad/rec')
 #train_autoencoder('mhad/test','mhad/ae')
-#ensemble_pairs(in_path='mhad/feats')

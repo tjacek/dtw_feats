@@ -1,8 +1,6 @@
-#import sys,os
-#sys.path.append(os.path.abspath('../cluster_images'))
 import deep
 import pickle
-import deep.convnet 
+import deep.convnet,deep.autoconv 
 
 class NNReader(object):
     def __init__(self,preproc=None):
