@@ -3,7 +3,7 @@ import plot,utils
 import seqs.select 
 import sklearn.datasets
 import ensemble.single_cls
-from sets import Set
+#from sets import Set
 
 class InstsGroup(object):
     def __init__(self,instances):
@@ -21,7 +21,7 @@ class InstsGroup(object):
         return self.instances.values()
 
     def names(self):
-        names=self.instances.keys()
+        names=list(self.instances.keys())
         names.sort()
         return names
     

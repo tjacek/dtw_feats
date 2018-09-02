@@ -2,6 +2,7 @@ import feats,seqs.io
 import utils,cv2
 from feats.local import *
 from feats.glob import *
+import scipy.stats
 
 def action_imgs(in_path,out_path,local_feats):
     if(type(local_feats)!=feats.LocalFeatures):

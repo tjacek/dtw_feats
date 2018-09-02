@@ -38,7 +38,7 @@ class Dataset(object):
     def to_instances(self):
         n_insts=len(self)
         insts=[]
-        for i in xrange(n_insts):
+        for i in range(n_insts):
             x_i,y_i,person_i,name_i=self.X[i],self.y[i],self.persons[i],self.names[i]
             inst_i=dataset.instances.Instance(x_i,y_i,person_i,name_i)
             insts.append(inst_i)

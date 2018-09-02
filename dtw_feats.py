@@ -1,8 +1,15 @@
 import time
 import numpy as np
+import feats.tools
 import metric,graph,pairs,utils,plot,feats
 import seqs.io,seqs.concat
 from sklearn.manifold import TSNE
+
+def make_stat_feats(in_path):
+    name=in_path.split('/')[-1]
+    out_path=in_path.replace(name,'dataset.txt')
+    global_feats=feats.tools.stats_feats()
+    global_feats.apply(in_path,out_path)
 
 def concat_actions(in_path1='seqs/max_z',in_path2='seqs/all',out_path='seqs/full'):
     read_actions=seqs.io.ActionReader(as_dict=True)
@@ -31,10 +38,7 @@ def tsne_embd(X,y,title='tsne',color_helper=None):
     embd=TSNE(n_components=2,perplexity=30).fit_transform(X)
     plot.plot_embedding(embd,y,title=title,color_helper=color_helper)
 
-#seqs.concat.simple_concat(in_path1="data/proj",
-#                  in_path2="data/time",
-#                  out_path="data/MSR",img_seq=True)
 #concat_actions()
 #compute_pairs()
-show_dtw_feats()
+make_stat_feats('../mhad/rec/seqs')
 #show_global_feats()
