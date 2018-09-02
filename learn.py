@@ -38,6 +38,15 @@ def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     deep.train.train_unsuper_model(X,ae_model,num_iter=n_iters)
     ae_model.get_model().save(nn_path)
 
+def train_convnet(out_path,dataset_path,
+                        compile=False,n_frames=4,n_iters=1000):
+    model_path=None if(compile) else out_path
+    preproc=deep.ImgPreproc(n_frames)
+    X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
+    model_j=deep.convnet.get_model(n_cats,preproc,nn_path=model_path)
+    deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
+    model_j.get_model().save(out_path)
+
 deep.autoconv.reconstruct_actions(in_path='mhad/test',
                                 nn_path='mhad/ae',out_path='mhad/rec')
 #train_autoencoder('mhad/test','mhad/ae')

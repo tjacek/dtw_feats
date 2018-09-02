@@ -23,6 +23,7 @@ class ActionReader(object):
     def parse_action(self,action_path):
         name,cat,person=self.get_action_desc(action_path)       
         img_seq= self.read_seq(action_path) #read_text_action(action_path)
+        print(name)
         return seqs.Action(img_seq,name,cat,person)
 
 class ActionWriter(object):
