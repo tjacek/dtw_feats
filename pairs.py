@@ -57,8 +57,8 @@ def make_pairwise_distance(actions):
 
 def get_pairs_ensemble():
     def pair_helper(in_path):
-        dtw_pairs=utils.read_object(in_path)
-        return as_instances(dtw_pairs)
+        dtw_pairs=from_txt(in_path)
+        return dtw_pairs.as_instances()
     out_fun=lambda out_path,insts:insts.to_txt(out_path)
     return  ensemble.EnsembleFun(pair_helper,out_fun)
 
@@ -86,7 +86,5 @@ def from_txt(in_path):
     return DTWPairs(pairs_dict)
 
 if __name__ == "__main__":
-#    in_fun=utils.read_decorate(as_txt)
-#    ens=ensemble.EnsembleFun(in_fun,utils.save_string)
-    ens=make_dtw_feats()
-    ens("mhad/text_pairs","mhad/dtw_datasets")
+    ens=get_pairs_ensemble()
+    ens.single_call("../mhad/rec/pairs.txt","../mhad/rec/dtw_datasets.txt")
