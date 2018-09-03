@@ -1,19 +1,13 @@
 import numpy as np
 import seqs,seqs.io 
 
-def simple_concat(in_path1="../../AArtyk/time/train",
-                  in_path2="../../AArtyk/time/train",
-                  out_path="test",img_seq=True):
-    read_actions=seqs.io.build_action_reader(img_seq=img_seq,as_dict=True)
+def apply_concat(in_path1='seqs/max_z',in_path2='seqs/all',out_path='seqs/full'):
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
     actions1=read_actions(in_path1)
     actions2=read_actions(in_path2)
-    print(len(actions1.keys()))
-    print(len(actions2.keys()))
- 
-#    dim=2 if img_seq else 1
-    new_actions=concat_actions(actions1,actions2,dim=1)
-    save_actions=seqs.io.ActionWriter(img_seq=True)  
-    save_actions(new_actions,out_path)
+    unified_actions=concat_actions(actions1,actions2)
+    save_actions=actions.io.ActionWriter(img_seq=False)
+    save_actions(unified_actions,out_path) 
 
 def concat_actions(actions1,actions2,dim=1): 
     names=actions1.keys()
