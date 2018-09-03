@@ -35,11 +35,10 @@ class IndepMetric(object):
         return indep_matrix#np.median(indep_matrix,axis=0)
        
 def show_stats(stats):
-    for name_i,value_i in stats.items():
+    for name_i,value_i in stats.items(): 
         if(isinstance(value_i,(int,float,long))):
             print("stats:%s %f" % (name_i,value_i))
-            break
-        if(value_i.ndim==1):
+        elif(value_i.ndim==1):
             median_i=np.median(value_i)
             mean_i=np.mean(value_i)
             max_i=np.amax(value_i)
@@ -73,8 +72,8 @@ def vote_histogram(y_true,all_preds):
     return hist
 
 def true_pos(y_true,all_preds):
-    return [accuracy_score(y_true,pred_i)
-                for pred_i in all_preds]
+    return np.array([accuracy_score(y_true,pred_i)
+                        for pred_i in all_preds])
 
 def compare_all(pred,list_of_preds,erorr=False):
     return np.array([compare_pred(pred,pred_i,erorr=erorr) 
