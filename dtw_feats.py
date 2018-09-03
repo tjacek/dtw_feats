@@ -5,6 +5,14 @@ import metric,graph,pairs,utils,plot,feats
 import seqs.io,seqs.concat
 from sklearn.manifold import TSNE
 
+def make_dtw_pairs(in_path):
+    name=in_path.split('/')[-1]
+    out_path=in_path.replace(name,'pairs.txt')
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
+    actions=read_actions(in_path)
+    dtw_pairs=pairs.make_pairwise_distance(actions)
+    dtw_pairs.save(out_path)
+
 def make_stat_feats(in_path):
     name=in_path.split('/')[-1]
     out_path=in_path.replace(name,'dataset.txt')
@@ -40,5 +48,5 @@ def tsne_embd(X,y,title='tsne',color_helper=None):
 
 #concat_actions()
 #compute_pairs()
-make_stat_feats('../mhad/rec/seqs')
+make_dtw_pairs('../mhad/four/seqs')
 #show_global_feats()

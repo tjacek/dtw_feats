@@ -36,10 +36,14 @@ class DTWPairs(object):
             inst_i.data=feat_helper(inst_i)
         return insts
 
+    def save(self,out_path):
+        text_pairs=as_txt(self.pairs)
+        utils.save_string(out_path,text_pairs)
+
 def make_pairwise_distance(actions):
     pairs_dict={ name_i:{name_i:0.0}
                     for name_i in actions.keys()}
-    names=actions.keys()
+    names=list(actions.keys())
     n_names=len(actions.keys())
     for i in range(1,n_names):
         print(i)
@@ -49,7 +53,7 @@ def make_pairwise_distance(actions):
             distance=dtw_metric(action_i.img_seq,action_j.img_seq)
             pairs_dict[action_i.name][action_j.name]=distance
             pairs_dict[action_j.name][action_i.name]=distance
-    return pairs_dict
+    return DTWPairs(pairs_dict)
 
 def get_pairs_ensemble():
     def pair_helper(in_path):
