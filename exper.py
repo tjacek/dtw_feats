@@ -3,6 +3,10 @@ import scipy.special
 import ensemble.votes,ensemble.single_cls
 import ensemble.stats,ensemble.multi_alg,plot
 
+def simple_exp(in_path,basic_path,restr=None):
+    exp1=ensemble.votes.VotingEnsemble(basic_feats=None,deep_feats=None,restr=restr)
+    exp1(basic_path,in_path)
+
 def cls_stats(in_path,basic_paths=None,multi_alg=True):
     if(multi_alg):
         multi_alg=ensemble.multi_alg.MultiAlgEnsemble()
@@ -46,10 +50,10 @@ def binomial_dist(n):
             
 
 
-basic_path=['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt']
+basic_path=['mhad/simple/basic.txt','../mhad/rec/dtw_dataset.txt'] #'mhad/simple/max_z_feats.txt']
 #['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
 #['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
 adapt_path='mhad/datasets'
- 
+simple_exp(in_path=None,basic_path=basic_path,restr=None)
 #cls_stats(in_path=adapt_path,basic_paths=basic_path,multi_alg=False)
-binomial_dist(20)
+#binomial_dist(20)
