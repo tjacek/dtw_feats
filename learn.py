@@ -41,10 +41,12 @@ def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     ae_model.get_model().save(nn_path)
 
 def train_convnet(out_path,dataset_path,
-                        compile=False,n_frames=4,n_iters=1000):
+                        compile=False,n_frames=4,n_iters=1000,n_binarize=None):
     model_path=None if(compile) else out_path
     preproc=deep.ImgPreproc(n_frames)
-    X,y,n_cats=deep.convnet.get_dataset(dataset_path,preproc)
+    X,y,n_cats=deep.tools.get_dataset(dataset_path,preproc)
+    if(n_binarize):
+        y=binarize(y,n_binarize)
     model_j=deep.convnet.get_model(n_cats,preproc,nn_path=model_path)
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
