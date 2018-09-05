@@ -3,8 +3,9 @@ import scipy.special
 import ensemble.votes,ensemble.single_cls
 import ensemble.stats,ensemble.multi_alg,plot
 
-def simple_exp(in_path,basic_path,restr=None):
-    exp1=ensemble.votes.VotingEnsemble(basic_feats=None,deep_feats=None,restr=restr)
+def simple_exp(in_path,basic_path,restr=None,feats=(250,100)):
+    basic_feats,deep_feats=feats if(feats) else (None,None)
+    exp1=ensemble.votes.VotingEnsemble(basic_feats=basic_feats,deep_feats=deep_feats,restr=restr)
     exp1(basic_path,in_path)
 
 def cls_stats(in_path,basic_paths=None,multi_alg=True):
@@ -16,8 +17,8 @@ def cls_stats(in_path,basic_paths=None,multi_alg=True):
     stats=exp1(in_path,basic_paths)
     ensemble.stats.show_stats(stats)
     desc=get_desc(basic_paths,multi_alg)
-    vote_hist=stats['votes']
-    plot.show_histogram(vote_hist,desc,cumsum=True)
+    vote_hist=stats['individual_accuracy']
+    plot.show_histogram(vote_hist,desc,cumsum=False)
     print("gini indec %f" % gini_index(vote_hist))
 
 def get_desc(basic,multi_alg):
@@ -47,13 +48,11 @@ def binomial_dist(n):
     dist=[ bin_coff[k] * (p**k)*((1.0-p)**(n-k)) 
                 for k in range(n)]
     plot.show_histogram(dist,'binomial',cumsum=True)
-            
 
-
-basic_path=['mhad/simple/basic.txt','../mhad/rec/dtw_dataset.txt'] #'mhad/simple/max_z_feats.txt']
+basic_path=['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt'] 
 #['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
 #['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
-adapt_path='mhad/datasets'
-simple_exp(in_path=None,basic_path=basic_path,restr=None)
+adapt_path='mra/datasets'
+simple_exp(in_path=adapt_path,basic_path=basic_path)
 #cls_stats(in_path=adapt_path,basic_paths=basic_path,multi_alg=False)
 #binomial_dist(20)
