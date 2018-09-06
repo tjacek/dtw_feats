@@ -22,11 +22,14 @@ class Action(object):
             new_seq=[ fun(img_i) for img_i in self.img_seq]
         return Action(new_seq,self.name,self.cat,self.person)	
     
+    def clone(self,img_seq):
+        return Action(img_seq,self.name,self.cat,self.person)
+
     def dim(self):
         frame=self.img_seq[0]
         if(type(frame)==list):
             return len(frame)
-        return frame.shape
+        return frame.shape[0]
 
     def as_array(self):
         return np.array(self.img_seq)

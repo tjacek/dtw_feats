@@ -3,8 +3,11 @@ import seqs.io
 import feats
 
 class FeaturePreproc(object):
+    def __init__(self,preproc):
+        self.preproc=preproc
+
     def __call__(self,img_seq):
-        features=get_features(img_seq)
+        features=feats.get_features(img_seq)
         new_features=[ self.preproc(feature_i) 
                         for feature_i in features]
         return np.array(new_features).T
@@ -13,22 +16,19 @@ class FeaturePreproc(object):
         seqs.io.transform_actions(in_path,out_path,
             transform=self,img_in=False,whole_seq=True)
 
-    def preproc(self):
-        raise NotImplementedError()
-
-class ExpSmooth(FeaturePreproc):
+class ExpSmooth(object):
     def __init__(self, alpha=0.5):
         self.alpha=alpha
 
-    def preproc(self,feature_i):
+    def __call__(self,feature_i):
         beta=1.0-self.alpha
         return self.alpha*feature_i[1:]+beta*feature_i[:-1]
 
-class DiffPreproc(FeaturePreproc):
+class DiffPreproc(object):
     def __init__(self,sign_only=False):
         self.sign_only=sign_only
 
-    def preproc(self,feature_i):
+    def __call__(self,feature_i):
         if(self.sign_only):
             return np.sign(np.diff(feature_i))
         return np.diff(feature_i)
@@ -41,3 +41,7 @@ class FourierSmooth(object):
         rft = np.fft.rfft(feature_i)
         rft[self.n:] = 0
         return np.fft.irfft(rft)
+
+def fourier_magnitude(feature_i):
+    rft = np.fft.rfft(feature_i)
+    return np.sqrt(rft*rft.conjugate()).real

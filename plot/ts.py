@@ -5,10 +5,7 @@ import seqs,seqs.select,seqs.io
 import pandas as pd 
 
 def plot_stats(in_path='mhad/simple/skew',out_path='mhad/imgs'):
-    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    actions=read_action(in_path)
-    actions=select_actions(actions)
-    actions_by_cats=seqs.by_cat(actions)
+    actions_by_cats=get_actions(in_path)
     utils.make_dir(out_path)
     for cat_i in actions_by_cats.keys():
         plots=get_feature_plot(actions_by_cats[cat_i])
@@ -17,18 +14,20 @@ def plot_stats(in_path='mhad/simple/skew',out_path='mhad/imgs'):
             print(plot_path)
             save_plot(plot_j,plot_path)
 
-def select_actions(actions):
-#    print(len(actions))
-#    actions=seqs.select.select(actions,0)
-    print(len(actions))
+def get_actions(in_path):
+    read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_action(in_path)
     actions=seqs.person_rep(actions)
-    print(len(actions))
-    return actions
+    return seqs.by_cat(actions)
 
 def get_feature_plot(actions):
-    features=[ action_i.as_feature() for action_i in actions]
+    n_feats=actions[0].dim()
+    features=[ action_i.as_features() for action_i in actions]
     action_names=[ action_i.name for action_i in actions]
-    features=utils.separate(features)
+#    features=utils.separate(features)
+    features=[[feature_i[feat_index]  
+                for feature_i  in features]
+                    for feat_index in range(n_feats)]
     features=[ mask_features(feature_i) for feature_i in features]
     print(features[0].shape)
     return [pd.DataFrame(feature_i,columns=action_names,
