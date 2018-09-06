@@ -21,13 +21,8 @@ class ExpSmooth(FeaturePreproc):
         self.alpha=alpha
 
     def preproc(self,feature_i):
-        current=feature_i[0]
-        smoothed_feature=[current]
         beta=1.0-self.alpha
-        for x_i in feature_i[1:]:
-            current= self.alpha*x_i + beta*current
-            smoothed_feature.append(current)
-        return smoothed_feature
+        return self.alpha*feature_i[1:]+beta*feature_i[:-1]
 
 class DiffPreproc(FeaturePreproc):
     def __init__(self,sign_only=False):
