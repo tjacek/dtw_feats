@@ -1,5 +1,6 @@
 import numpy as np
 import seqs.io 
+import feats
 
 class FeaturePreproc(object):
     def __call__(self,img_seq):
@@ -37,16 +38,11 @@ class DiffPreproc(FeaturePreproc):
             return np.sign(np.diff(feature_i))
         return np.diff(feature_i)
 
-class FourierSmooth(FeaturePreproc):
+class FourierSmooth(object):
     def __init__(self, n=5):
         self.n = n
 
-    def preproc(self,feature_i):
+    def __call__(self,feature_i):
         rft = np.fft.rfft(feature_i)
         rft[self.n:] = 0
         return np.fft.irfft(rft)
-
-def get_features(frames):
-    frames=np.array(frames)
-    frames=frames.T    
-    return frames.tolist()

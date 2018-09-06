@@ -58,11 +58,7 @@ class FeatPipeline(object):
             result=fun_i(result)
         return list(result)
 
-class FourierSmooth(object):
-    def __init__(self, n=5):
-        self.n = n
-
-    def __call__(self,feature_i):
-        rft = np.fft.rfft(feature_i)
-        rft[self.n:] = 0
-        return np.fft.irfft(rft)
+def get_features(frames):
+    frames=np.array(frames)
+    frames=frames.T    
+    return frames.tolist()

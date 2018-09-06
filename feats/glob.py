@@ -5,7 +5,7 @@ class GlobalExtractor(object):
         self.fun=fun
 
     def __call__(self,img_array):
-        features=get_features(img_array)
+        features=feats.get_features(img_array)
         return [self.fun(feature_i) for feature_i in features]
 
 def rapid_change(feature_i):
@@ -26,8 +26,3 @@ def standarize(feature_i):
     min_i=np.amin(feature_i)
     max_j=np.amax(feature_i)
     feature_i=(feature_i-min_i)/max_j
-
-def get_features(frames):
-    frames=np.array(frames)
-    frames=frames.T    
-    return frames.tolist()
