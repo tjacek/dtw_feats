@@ -28,6 +28,9 @@ def atoi(text):
 def natural_keys(text):
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
+def get_name(path_i):
+    return path_i.split('/')[-1]
+
 def extract_numbers(text):
     str_numb=re.findall(r'\d+',text)
     return [int(n) for n in str_numb]
