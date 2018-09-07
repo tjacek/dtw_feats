@@ -11,7 +11,7 @@ class Experiment(object):
             self.build_dataset=deep_feats
         self.stats={'common_errors':IndepMetric(True),'common_preds':IndepMetric(False),
                     'diversity_rating':diversity_rating,'individual_accuracy':true_pos,
-                    'ensemble_accuracy':ensemble_accuracy,'votes':vote_histogram}
+                    'ensemble_accuracy':ensemble_accuracy,'votes':vote_matrix}
 
     def __call__(self,deep_paths,basic_paths=None):
         y_true,all_preds=self.build_dataset.all_predictions(basic_paths,deep_paths)
@@ -56,15 +56,22 @@ def ensemble_accuracy(y_true,all_preds):
 def diversity_rating(y_true,all_preds):
     diversity=np.array([true_pos(pred_j,all_preds)
                             for pred_j in all_preds])
-    diversity=np.mean(diversity,axis=0)
-    return diversity
+    return np.mean(diversity,axis=0)
 
 def vote_histogram(y_true,all_preds):
     true_pos=compare_all(y_true,all_preds,erorr=False)
     votes=np.sum(true_pos,axis=0)
     n_cats=true_pos.shape[0]
-    hist=np.histogram(votes,bins=np.arange( n_cats),density=True)
+    hist=np.histogram(votes,bins=np.arange(n_cats),density=True)
     return hist[0]
+
+def vote_matrix(y_true,all_preds):
+    n_cats=max(y_true)+1
+    cf=np.zeros((n_cats,n_cats))
+    for pred_i in all_preds:
+        for true_j,pred_ij in zip(y_true,pred_i):
+            cf[true_j][pred_ij]+=1
+    return cf#/float(n_cats)            
 
 def true_pos(y_true,all_preds):
     return np.array([accuracy_score(y_true,pred_i)

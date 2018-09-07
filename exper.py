@@ -17,9 +17,10 @@ def cls_stats(in_path,basic_paths=None,multi_alg=True):
     stats=exp1(in_path,basic_paths)
     ensemble.stats.show_stats(stats)
     desc=get_desc(basic_paths,multi_alg)
-    vote_hist=stats['individual_accuracy']
-    plot.show_histogram(vote_hist,desc,cumsum=False)
-    print("gini indec %f" % gini_index(vote_hist))
+    plot.heat_map(stats['votes'])
+#    vote_hist=stats['individual_accuracy']
+#    plot.show_histogram(vote_hist,desc,cumsum=False)
+#    print("gini indec %f" % gini_index(vote_hist))
 
 def get_desc(basic,multi_alg):
     alg="multi algorithm" if(multi_alg) else "deep"
@@ -49,10 +50,10 @@ def binomial_dist(n):
                 for k in range(n)]
     plot.show_histogram(dist,'binomial',cumsum=True)
 
-basic_path=['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt'] 
+basic_path=['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt'] 
 #['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
 #['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
-adapt_path='mra/datasets'
-simple_exp(in_path=adapt_path,basic_path=basic_path)
-#cls_stats(in_path=adapt_path,basic_paths=basic_path,multi_alg=False)
+adapt_path='mhad/datasets'
+#simple_exp(in_path=adapt_path,basic_path=basic_path)
+cls_stats(in_path=adapt_path,basic_paths=basic_path,multi_alg=False)
 #binomial_dist(20)
