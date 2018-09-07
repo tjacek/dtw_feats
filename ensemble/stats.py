@@ -30,9 +30,7 @@ class IndepMetric(object):
                     for comp_vect_i in comp_vectors]
         indep_matrix=np.array([ indep_helper(pred_i) 
                                 for pred_i in all_preds])
-#        np.fill_diagonal(indep_matrix, 0)
-#        indep_matrix/=float(len(y_true))
-        return indep_matrix#np.median(indep_matrix,axis=0)
+        return indep_matrix
        
 def show_stats(stats):
     for name_i,value_i in stats.items(): 
@@ -64,12 +62,9 @@ def diversity_rating(y_true,all_preds):
 def vote_histogram(y_true,all_preds):
     true_pos=compare_all(y_true,all_preds,erorr=False)
     votes=np.sum(true_pos,axis=0)
-    n_cats=true_pos.shape[0]+1
-    hist=np.zeros((n_cats,))
-    for vote_i in votes:
-        hist[vote_i]+=1.0
-    hist/=np.sum(hist)    
-    return hist
+    n_cats=true_pos.shape[0]
+    hist=np.histogram(votes,bins=np.arange( n_cats),density=True)
+    return hist[0]
 
 def true_pos(y_true,all_preds):
     return np.array([accuracy_score(y_true,pred_i)
