@@ -64,3 +64,14 @@ def deep_seqs(in_path,nn_path,out_path,n_frames=4):
     nn_transform=deep_reader(nn_path)
     seqs.io.transform_actions(in_path,out_path,transform=nn_transform,
                       img_in=True,img_out=False,whole_seq=False)
+
+def check_nn(nn_path,dataset_path,n_frames):
+    preproc=ImgPreproc(n_frames)
+    deep_reader= deep.reader.NNReader(preproc)
+    convnet=deep_reader(nn_path)
+    X,true_y=read_dataset(in_path)
+    pred_y=[convnet.get_category(x_i) for x_i in X]
+    hist=np.zeros((count_cats(true_y),count_cats(pred_y)))
+    for true_i,pred_i in zip(true_y,pred_y):
+        hist[true_i][pred_i]+=1
+    return hist
