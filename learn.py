@@ -1,8 +1,8 @@
 import numpy as np
-import utils
+import utils,time
 import deep,deep.convnet
 import deep.train,deep.autoconv
-import deep.tools
+import deep.tools,pairs
 import ensemble,pairs,seqs.io
 import theano.gpuarray
 
@@ -30,18 +30,18 @@ def extract_deep(dataset_path,n_frames=4):
                       img_in=True,img_out=False,whole_seq=False)
     return ensemble.EnsembleFun(deep_helper,out_fun)
 
-def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
+def ensemble_pairs():
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
     def in_fun(in_path_i):
-        actions=read_actions(in_path)
+        print(in_path_i)
+        actions=read_actions(in_path_i)
         t0=time.time()
-        result_i=make_pairwise_distance(actions)
+        result_i=pairs.make_pairwise_distance(actions)
         print("pairs computation %d" % (time.time()-t0))    
         return result_i
     def out_fun(out_path_i,result_i):
-        lines_i=as_txt(result_i)
-        utils.save_string(out_path_i,lines_i)
-    return ensemble.EnsembleFun(in_fun,out_fun)
+        result_i.save(out_path_i)
+    return ensemble.EnsembleFun(in_fun,out_fun,'dirs')
 
 def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     preproc=deep.ImgPreproc(n_frames)
@@ -62,8 +62,10 @@ def train_convnet(out_path,dataset_path,
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
-ens=extract_deep(dataset_path='../../mhad/data/full')
-ens('../../mhad/models','../../mhad/seqs')
+#ens=extract_deep(dataset_path='../../mhad/data/full')
+#ens('../../mhad/models','../../mhad/seqs')
+ens=ensemble_pairs()
+ens('../../mhad/seqs','../../mhad/pairs')
 #ens=ensemble_exp(dataset_path='../../mhad/data/train',compile=True,n_frames=4,n_iters=1000)
 #ens(in_path='../../mhad/data/train',out_path='../../mhad/models')
 #deep.tools.deep_seqs(in_path='../mhad/four/full',nn_path='../mhad/four/conv',

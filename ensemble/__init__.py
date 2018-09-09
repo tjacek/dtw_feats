@@ -9,6 +9,7 @@ class EnsembleFun(object):
 
     def __call__(self,in_path,out_path=None):
         model_paths=self.get_paths(in_path)
+        print(model_paths)
         if(out_path):
             utils.make_dir(out_path)
         all_result=[]
@@ -24,6 +25,8 @@ class EnsembleFun(object):
     def get_paths(self,in_path):
         if(type(self.n_paths)==int):
             return [ in_path+'/nn'+str(i) for i in range(self.n_paths)]
+        if(self.n_paths=='dirs'):
+            return utils.bottom_dirs(in_path)
         return utils.bottom_files(in_path)
 
 def global_feats(in_path,out_path):
