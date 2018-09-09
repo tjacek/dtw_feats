@@ -29,14 +29,11 @@ class EnsembleFun(object):
             return utils.bottom_dirs(in_path)
         return utils.bottom_files(in_path)
 
-def global_feats(in_path,out_path):
-    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    feat_extractor=feats.GlobalFeatures()
+def global_feats(global_features):
     def in_fun(in_path_i): 
-        actions=read_actions(in_path_i)
-        return [str(feat_extractor(action_i)) 
-                    for action_i in actions]
-    out_fun=utils.save_string(out_i,lines)
+        return in_path_i
+    def out_fun(out_i,in_i):
+        global_features.apply(in_i,out_i)
     return EnsembleFun(in_fun,out_fun)
 
 def get_out_path(in_path,dir_path):
