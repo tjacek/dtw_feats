@@ -58,13 +58,6 @@ def count_cats(y):
     cats=np.unique(y)
     return cats.shape[0]
 
-def deep_seqs(in_path,nn_path,out_path,n_frames=4):
-    preproc=ImgPreproc(n_frames)
-    deep_reader= deep.reader.NNReader(preproc)
-    nn_transform=deep_reader(nn_path)
-    seqs.io.transform_actions(in_path,out_path,transform=nn_transform,
-                      img_in=True,img_out=False,whole_seq=False)
-
 def check_nn(nn_path,dataset_path,n_frames):
     preproc=ImgPreproc(n_frames)
     deep_reader= deep.reader.NNReader(preproc)

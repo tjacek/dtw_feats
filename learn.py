@@ -3,7 +3,7 @@ import utils
 import deep,deep.convnet
 import deep.train,deep.autoconv
 import deep.tools
-import ensemble,pairs
+import ensemble,pairs,seqs.io
 import theano.gpuarray
 
 def ensemble_exp(dataset_path,compile=False,n_frames=4,n_iters=150):
@@ -20,6 +20,15 @@ def ensemble_exp(dataset_path,compile=False,n_frames=4,n_iters=150):
     def out_fun(nn_path_j,model_j):
         model_j.get_model().save(nn_path_j)
     return ensemble.EnsembleFun(in_fun,out_fun,n_paths=n_cats)
+
+def extract_deep(dataset_path,n_frames=4):
+    deep_reader= deep.reader.NNReader(n_frames)
+    def deep_helper(path_i):
+        return deep_reader(path_i)
+    def out_fun(out_i,deep_nn):    
+        seqs.io.transform_actions(dataset_path,out_i,transform=deep_nn,
+                      img_in=True,img_out=False,whole_seq=False)
+    return ensemble.EnsembleFun(deep_helper,out_fun)
 
 def ensemble_pairs(in_path='mhad/feats',out_path='mhad/deep_pairs'):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
@@ -53,8 +62,10 @@ def train_convnet(out_path,dataset_path,
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
-ens=ensemble_exp(dataset_path='../../mhad/data/train',compile=True,n_frames=4,n_iters=1000)
-ens(in_path='../../mhad/data/train',out_path='../../mhad/models')
+ens=extract_deep(dataset_path='../../mhad/data/full')
+ens('../../mhad/models','../../mhad/seqs')
+#ens=ensemble_exp(dataset_path='../../mhad/data/train',compile=True,n_frames=4,n_iters=1000)
+#ens(in_path='../../mhad/data/train',out_path='../../mhad/models')
 #deep.tools.deep_seqs(in_path='../mhad/four/full',nn_path='../mhad/four/conv',
 #                out_path='../mhad/four/seqs',n_frames=4)
 #deep.autoconv.reconstruct_actions(in_path='mhad/test',

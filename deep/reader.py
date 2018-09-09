@@ -5,7 +5,7 @@ import deep.convnet,deep.autoconv
 class NNReader(object):
     def __init__(self,preproc=None):
         if(type(preproc)==int):
-            self.preproc=deep.ImgPreproc(preproc)
+            self.preproc=deep.tools.ImgPreproc(preproc)
         else:    
             self.preproc=preproc
         self.types = {'Convet':deep.convnet.compile_convnet,

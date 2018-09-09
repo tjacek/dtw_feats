@@ -26,18 +26,6 @@ class EnsembleFun(object):
             return [ in_path+'/nn'+str(i) for i in range(self.n_paths)]
         return utils.bottom_files(in_path)
 
-def extract_deep(nn_path):
-    read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
-    save_actions=seqs.io.ActionWriter(img_seq=False)
-    actions=read_actions(data_path)
-    nn_reader=deep.reader.NNReader(4)
-    def deep_helper(path_i):
-        model_i=nn_reader(path_i)
-        return [ action_i(model_i,whole_seq=False)
-                    for action_i in actions]
-    out_fun=lambda out_path_i,result_i:save_actions(result_i,out_path_i)
-    return EnsembleFun(deep_helper,out_fun)
-
 def global_feats(in_path,out_path):
     read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
     feat_extractor=feats.GlobalFeatures()
