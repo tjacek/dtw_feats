@@ -34,7 +34,7 @@ def global_feats(global_features):
         return in_path_i
     def out_fun(out_i,in_i):
         global_features.apply(in_i,out_i)
-    return EnsembleFun(in_fun,out_fun)
+    return EnsembleFun(in_fun,out_fun,'dirs')
 
 def get_out_path(in_path,dir_path):
     name= in_path.split('/')[-1]
