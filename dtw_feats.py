@@ -14,12 +14,13 @@ def make_dtw_pairs(in_path):
     dtw_pairs=pairs.make_pairwise_distance(actions)
     dtw_pairs.save(out_path)
 
-def make_stat_feats(in_path,out_path):
-    #name=in_path.split('/')[-1]
-    #out_path=in_path.replace(name,'dataset.txt')
+def make_stat_feats(in_path,out_path,single=False):
     stats_feats=feats.tools.stats_feats()
     ens=ensemble.global_feats(stats_feats)
-    ens(in_path,out_path)
+    if(single):
+        ens(in_path,out_path)
+    else:
+        ens.single_call(in_path,out_path)
 
 def preproc_feats(in_path,out_path):
     preproc_fun=feats.preproc.fourier_magnitude

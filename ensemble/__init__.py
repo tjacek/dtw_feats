@@ -29,6 +29,11 @@ class EnsembleFun(object):
             return utils.bottom_dirs(in_path)
         return utils.bottom_files(in_path)
 
+    def single_call(self,in_path,out_path=None):
+        result=self.in_fun(in_path)
+        if(self.out_fun):
+            self.out_fun(out_path,result)
+
 def global_feats(global_features):
     def in_fun(in_path_i): 
         return in_path_i
