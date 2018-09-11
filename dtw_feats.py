@@ -8,18 +8,12 @@ from sklearn.manifold import TSNE
 
 def make_dtw_pairs(in_path,out_path,single=False):
     ens=learn.ensemble_pairs()
-    if(single):
-        ens(in_path,out_path)
-    else:
-        ens.single_call(in_path,out_path)
+    ens(in_path,out_path,single)
 
 def make_stat_feats(in_path,out_path,single=False):
     stats_feats=feats.tools.stats_feats()
     ens=ensemble.global_feats(stats_feats)
-    if(single):
-        ens(in_path,out_path)
-    else:
-        ens.single_call(in_path,out_path)
+    ens(in_path,out_path,single)
 
 def preproc_feats(in_path,out_path):
     preproc_fun=feats.preproc.fourier_magnitude

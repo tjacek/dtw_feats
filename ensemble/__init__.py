@@ -7,7 +7,13 @@ class EnsembleFun(object):
         self.out_fun=out_fun
         self.n_paths=n_paths
 
-    def __call__(self,in_path,out_path=None):
+    def __call__(self,in_path,out_path=None,single=False):
+        if(single):
+            self.single_call(in_path,out_path)
+        else:
+            self.ensemble_call(in_path,out_path)
+            
+    def ensemble_call(self,in_path,out_path=None):
         model_paths=self.get_paths(in_path)
         print(model_paths)
         if(out_path):
@@ -21,6 +27,11 @@ class EnsembleFun(object):
                 out_path_i=get_out_path(path_i,out_path)
                 self.out_fun(out_path_i,result_i)
         return all_result
+    
+    def single_call(self,in_path,out_path=None):
+        result=self.in_fun(in_path)
+        if(self.out_fun):
+            self.out_fun(out_path,result)
 
     def get_paths(self,in_path):
         if(type(self.n_paths)==int):
@@ -28,11 +39,6 @@ class EnsembleFun(object):
         if(self.n_paths=='dirs'):
             return utils.bottom_dirs(in_path)
         return utils.bottom_files(in_path)
-
-    def single_call(self,in_path,out_path=None):
-        result=self.in_fun(in_path)
-        if(self.out_fun):
-            self.out_fun(out_path,result)
 
 def global_feats(global_features):
     def in_fun(in_path_i): 
