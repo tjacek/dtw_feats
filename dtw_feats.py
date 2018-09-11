@@ -1,18 +1,17 @@
 import time
 import numpy as np
-import feats.tools
+import feats,feats.preproc,feats.tools
 import metric,graph,pairs,utils
-import feats,feats.preproc,plot,ensemble
-import seqs.io,seqs.concat,plot.ts
+import ensemble,learn
+import seqs.io,plot,plot.ts
 from sklearn.manifold import TSNE
 
-def make_dtw_pairs(in_path):
-    name=in_path.split('/')[-1]
-    out_path=in_path.replace(name,'pairs.txt')
-    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=True)
-    actions=read_actions(in_path)
-    dtw_pairs=pairs.make_pairwise_distance(actions)
-    dtw_pairs.save(out_path)
+def make_dtw_pairs(in_path,out_path,single=False):
+    ens=learn.ensemble_pairs()
+    if(single):
+        ens(in_path,out_path)
+    else:
+        ens.single_call(in_path,out_path)
 
 def make_stat_feats(in_path,out_path,single=False):
     stats_feats=feats.tools.stats_feats()
