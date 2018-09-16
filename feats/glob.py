@@ -8,6 +8,9 @@ class GlobalExtractor(object):
         features=feats.get_features(img_array)
         return [self.fun(feature_i) for feature_i in features]
 
+def simple_smoothnes(feature_i):
+    return np.sd(np.diff(feature_i))/ np.mean(feature_i)
+
 def rapid_change(feature_i):
     feature_i=feature_i.astype(float)
     feature_i=np.diff(feature_i)
