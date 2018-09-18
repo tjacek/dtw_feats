@@ -1,5 +1,14 @@
 import numpy as np
-import pywt
+import pywt,feat.glob
+
+class SpeedFeature(object):
+    def __init__(self,n,wavelet='db1'):
+        self.n=n
+        self.wavelet=wavelet
+
+    def __call__(self,feature_i):
+        aprox=pywt.dwt(feature_i,self.wavelet)[0]
+        return feat.glob.simple_smoothnes(feature_i)
 
 class WaveletPreproc(object):
     def __init__(self,det=0,wavelet_type='db1'):
