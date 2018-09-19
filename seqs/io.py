@@ -5,7 +5,7 @@ import cv2,os
 class ActionReader(object):
     def __init__(self,read_dirs,read_seq,as_dict=False):
         self.as_dict=as_dict
-        self.get_action_desc=cp_dataset
+        self.get_action_desc=ut_dataset
         self.get_action_paths=read_dirs
         self.read_seq=read_seq  	
     
@@ -93,4 +93,12 @@ def cp_dataset(action_path):
     if(len(raw)>2):
         name= "a%i_s%i_e%i" % (raw[0],raw[1],raw[2])
         return name,raw[0],raw[1]
-    raise Exception("Wrong dataset format " + action_name +" " + str(len(raw)))    
+    raise Exception("Wrong dataset format " + action_name +" " + str(len(raw)))
+
+def ut_dataset(action_path):
+    print(action_path)
+    raw=action_path.split('/')
+    name=raw[-1]
+    cat=raw[-2]
+    person=utils.extract_numbers(name)[0]
+    return name,cat,int(person)

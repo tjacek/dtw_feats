@@ -2,7 +2,7 @@ import numpy as np
 import seqs,seqs.io,seqs.select 
 
 def inspect_dataset(in_path,img_seq=False):
-    actions=get_actions(in_path,img_seq=img_seq,select=None)
+    actions=get_actions(in_path,img_seq=img_seq,select=1)
     print(len(actions))
     show_stats(action_sizes(actions))
     show_stats(cat_sizes(actions))
@@ -22,7 +22,8 @@ def cat_sizes(actions):
     return [ len(cat_i) for cat_i in actions_by_cat]
 
 def show_stats(array):
+    print("total %d" % np.sum(array))
     print("median %d" % np.median(array))
     print("mean %d" % np.mean(array))
 
-inspect_dataset(in_path='mra/seqs/corl',img_seq=False)
+inspect_dataset(in_path='mra/frames/proj',img_seq=True)
