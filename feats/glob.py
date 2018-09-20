@@ -1,12 +1,11 @@
-import numpy as np,feats
+import numpy as np
+import feats,feats.preproc
+import scipy.stats
 
-class GlobalExtractor(object):
-    def __init__(self,fun):
-        self.fun=fun
-
-    def __call__(self,img_array):
-        features=feats.get_features(img_array)
-        return [self.fun(feature_i) for feature_i in features]
+def freq_skewnes(feature_i):
+    magnitude=feats.preproc.fourier_magnitude(feature_i)
+    print(magnitude.shape)
+    return list(scipy.stats.skew(magnitude))
 
 def simple_smoothnes(feature_i):
     return np.sd(np.diff(feature_i))/ np.mean(feature_i)
