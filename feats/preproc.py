@@ -45,3 +45,6 @@ class FourierSmooth(object):
 def fourier_magnitude(feature_i):
     rft = np.fft.rfft(feature_i)
     return np.sqrt(rft*rft.conjugate()).real
+
+def norm_scale(feature_i):
+    return (feature_i/np.amax(feature_i))
