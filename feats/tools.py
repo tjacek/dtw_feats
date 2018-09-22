@@ -4,18 +4,28 @@ from feats.local import *
 from feats.glob import *
 import scipy.stats
 
-def action_imgs(in_path,out_path):#,local_feats):
-    if(type(local_feats)!=feats.LocalFeatures):
-        local_feats=feats.LocalFeatures(local_feats)
-    read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
-    actions=read_actions(in_path)
-    new_actions=[action_i(local_feats,whole_seq=False) 
-                    for action_i in actions]
-    utils.make_dir(out_path)
-    for action_i in new_actions:
-        out_i=out_path+'/'+action_i.name+".png"
-        img_i=action_i.as_array()
-        cv2.imwrite(out_i,img_i)
+class ActionImgs(object):        
+    def __call__(in_path,out_path):#,local_feats):
+        read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
+        actions=read_actions(in_path)
+        utils.make_dir(out_path)
+        for action_i in new_actions:
+            out_i=out_path+'/'+action_i.name+".png"
+            cv2.imwrite(out_i,self.get_img(action_i))
+
+class TimeActionImgs(object):
+    def __init__(self,local_feats):
+        if(type(local_feats)!=feats.LocalFeatures):
+            local_feats=feats.LocalFeatures(local_feats)
+        self.local_feats=local_feats
+
+    def get_img(self,action_i):
+        dummy_action=action_i(self.local_feats,whole_seq=False) 
+        return dummy_action.as_array()
+
+#def timeless_img(action_i):
+#    features=action_i.as_features()
+#    x,y=features[0],features[1]
 
 def stats_feats():
     raw_funs=[np.mean,np.std,scipy.stats.skew]
