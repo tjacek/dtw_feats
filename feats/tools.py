@@ -4,7 +4,7 @@ from feats.local import *
 from feats.glob import *
 import scipy.stats
 
-def action_imgs(in_path,out_path,local_feats):
+def action_imgs(in_path,out_path):#,local_feats):
     if(type(local_feats)!=feats.LocalFeatures):
         local_feats=feats.LocalFeatures(local_feats)
     read_actions=seqs.io.build_action_reader(img_seq=True,as_dict=False)
