@@ -1,5 +1,6 @@
 import numpy as np
 import utils,cv2
+import seqs
 
 class ActionImgs(object):        
     def __call__(self,in_path,out_path):#,local_feats):
@@ -21,9 +22,10 @@ class TimeActionImgs(ActionImgs):
         return dummy_action.as_array()
 
 class TimelessActionImgs(ActionImgs):
-    def __init__(self,size=(65,65),indexes=(0,1)):
+    def __init__(self,size=(65,65),indexes=(0,1),blur=3):
         self.size=size
         self.index=indexes
+        self.blur= (blur,blur) if(blur) else None
 
     def get_img(self,action_i):
         features=action_i.as_features()
@@ -32,5 +34,8 @@ class TimelessActionImgs(ActionImgs):
         action_img=np.zeros(self.size)
         for i in range(time_len):
             x_i,y_i=int(x[i]),int(y[i]) 
-            action_img[x_i][y_i]=100
+            action_img[x_i][y_i]=1
+        if(self.blur):
+            action_img=cv2.blur(action_img,self.blur)
+        action_img[action_img!=0]=100
         return action_img
