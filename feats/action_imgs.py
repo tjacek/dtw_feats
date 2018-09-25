@@ -1,6 +1,7 @@
 import numpy as np
 import utils,cv2
 import seqs
+from skimage.transform import hough_line
 
 class ActionImgs(object):        
     def __call__(self,in_path,out_path):#,local_feats):
@@ -22,10 +23,11 @@ class TimeActionImgs(ActionImgs):
         return dummy_action.as_array()
 
 class TimelessActionImgs(ActionImgs):
-    def __init__(self,size=(65,65),indexes=(0,1),blur=3):
+    def __init__(self,size=(65,65),indexes=(0,1),blur=3,hough=True):
         self.size=size
         self.index=indexes
         self.blur= (blur,blur) if(blur) else None
+        self.hough=hough
 
     def get_img(self,action_i):
         features=action_i.as_features()
@@ -37,5 +39,8 @@ class TimelessActionImgs(ActionImgs):
             action_img[x_i][y_i]=1
         if(self.blur):
             action_img=cv2.blur(action_img,self.blur)
+        if(self.hough):
+            h, theta, d = hough_line(action_img)
+            return h
         action_img[action_img!=0]=100
         return action_img
