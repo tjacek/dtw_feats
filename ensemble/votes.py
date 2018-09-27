@@ -19,7 +19,8 @@ class VotingEnsemble(object):
         print(deep_paths)
         print(str(self.build_dataset))
         names=self.build_dataset.test_names()
-        print(ensemble.single_cls.show_errors(y_true,y_pred,names))
+        if(names):
+            print(ensemble.single_cls.show_errors(y_true,y_pred,names))
         ensemble.single_cls.show_result(y_true,y_pred)
 
 def vote(all_votes):
@@ -56,8 +57,10 @@ class BuildDataset(object):
         return y_true,all_preds
 
     def test_names(self):
-        train,test=self.basic_dataset.split()
-        return test.names
+        if(self.basic_dataset):
+            train,test=self.basic_dataset.split()
+            return test.names
+        return None
 
 class LatePreproc(BuildDataset):
     def __init__(self,norm=True,n_feats=100,restr=None):   
