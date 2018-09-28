@@ -1,6 +1,18 @@
 import numpy as np
 import feats,feats.preproc
 import scipy.stats
+from feats.action_imgs import TimelessActionImgs
+
+class HoughDispersion(object):
+    def __init__(self,size=(65,65),indexes=(0,1),blur=3):
+        self.action_img=TimelessActionImgs(size=size,indexes=indexes,blur=blur,hough=True)
+
+    def __call__(self,action_i):
+        img_i=self.action_img.get_img(action_i)
+        #img_i=img_i.astype(float)
+        #img_i/=np.sum(img_i)
+        return [np.max(img_i)]
+#        return [np.std(img_i)]  
 
 def freq_skewnes(feature_i):
     magnitude=feats.preproc.fourier_magnitude(feature_i)

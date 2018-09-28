@@ -10,10 +10,10 @@ class Features(object):
 
 class GlobalFeatures(Features):
     def __call__(self,action_i):
-        img_i=action_i.as_array()
+#        img_i=action_i.as_array()
         global_feats=[]
         for extractor_j in self.feature_extractors:
-            global_feats+=extractor_j(img_i)
+            global_feats+=extractor_j(action_i)
         return dataset.instances.Instance(global_feats,action_i.cat,
                             action_i.person,action_i.name) 
 
