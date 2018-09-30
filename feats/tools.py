@@ -1,6 +1,6 @@
 import feats,seqs.io
 import utils,cv2
-from feats.local import *
+import feats.local
 from feats.glob import *
 import scipy.stats
 
@@ -11,10 +11,9 @@ def stats_feats():
     raw_funs=[np.mean,np.std,scipy.stats.skew]
     return feats.GlobalFeatures(raw_funs)
 
-def quality_feats():
-    local_feats=[GlobalExtractor(np.amax),
-                 GlobalExtractor(np.median),GlobalExtractor(np.min)]
-    return feats.GlobalFeatures(local_feats)
+def extrem_feats():
+    glob_feats=SeriesFeature(extrm_count)
+    return feats.GlobalFeatures(glob_feats)
 
 def get_histogram_feats( extr=False):
     raw_hist=[hist_x,hist_y,HistZ(0,1),HistZ(1,1)]

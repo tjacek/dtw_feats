@@ -11,7 +11,7 @@ def make_dtw_pairs(in_path,out_path,single=False):
     ens(in_path,out_path,single)
 
 def make_stat_feats(in_path,out_path,single=False):
-    stats_feats=feats.tools.hough_feats()
+    stats_feats=feats.tools.extrem_feats()
     stats_feats.apply(in_path,out_path)
 
 def preproc_feats(in_path,out_path):
@@ -30,7 +30,7 @@ def tsne_embd(X,y,title='tsne',color_helper=None):
     plot.plot_embedding(embd,y,title=title,color_helper=color_helper)
 
 #feats.action_imgs.TimelessActionImgs(hough="ellipse")('../mhad/max_z','../mhad/imgs')
-make_stat_feats(in_path='../mhad/max_z',out_path='../mhad/basic/hough.txt')
+make_stat_feats(in_path='../mhad/max_z',out_path='../mhad/basic/extr.txt')
 #preproc_feats(in_path='mhad/seqs/raw/max_z',out_path='mhad/seqs/fourrier/max_z')
 #make_dtw_pairs('../mhad/four/seqs')
 #plot.ts.plot_stats(in_path='mhad/seqs/fourrier/max_z',out_path='mhad/seqs/fourrier')

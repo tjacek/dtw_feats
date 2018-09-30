@@ -57,8 +57,3 @@ class FeatPipeline(object):
         for fun_i in self.functions[1:]:
             result=fun_i(result)
         return list(result)
-
-def get_features(frames):
-    frames=np.array(frames)
-    frames=frames.T    
-    return frames.tolist()
