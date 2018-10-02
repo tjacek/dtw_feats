@@ -10,5 +10,10 @@ def local_extr(feature_i):
     diff_i=np.diff(feature_i)
     return np.diff( np.sign(diff_i))
 
+def relative_location(array_i,value):
+    pos=np.where(array_i==value)[0][0]
+    size=array_i.shape[0]
+    return float(pos)/float(size)
+
 def get_location(array_i,value):
     return np.where(array_i==value)

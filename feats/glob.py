@@ -37,8 +37,13 @@ def freq_skewnes(feature_i):
     print(magnitude.shape)
     return list(scipy.stats.skew(magnitude))
 
+def optim_position(feature_i):
+    min_i=feats.extrema.relative_location(feature_i,np.amax(feature_i))
+    max_i=feats.extrema.relative_location(feature_i,np.amin(feature_i))
+    return [min_i,max_i]
+
 def simple_smoothnes(feature_i):
-    return np.sd(np.diff(feature_i))/ np.mean(feature_i)
+    return np.std(np.diff(feature_i))/ np.mean(feature_i)
 
 def rapid_change(feature_i):
     feature_i=feature_i.astype(float)
