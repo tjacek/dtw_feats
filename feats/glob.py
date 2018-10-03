@@ -42,8 +42,12 @@ def optim_position(feature_i):
     max_i=feats.extrema.relative_location(feature_i,np.amin(feature_i))
     return [min_i,max_i]
 
-def simple_smoothnes(feature_i):
-    return np.std(np.diff(feature_i))/ np.mean(feature_i)
+def total_smoothnes(feature_i):
+    feature_i-= np.min(feature_i)-1
+    diff_i=np.diff(feature_i)
+    size=float(feature_i.shape[0])
+    total_smooth=np.sum(diff_i/feature_i[:-1])
+    return total_smooth/size
 
 def rapid_change(feature_i):
     feature_i=feature_i.astype(float)
