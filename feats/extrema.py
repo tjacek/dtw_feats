@@ -15,5 +15,8 @@ def relative_location(array_i,value):
     size=array_i.shape[0]
     return float(pos)/float(size)
 
+def get_window(indexes,feature_i,k):
+    return [ feature_i[(j-k):(j+k)] for j in indexes] 
+
 def get_location(array_i,value):
     return np.where(array_i==value)
