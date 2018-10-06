@@ -2,6 +2,7 @@ import numpy as np
 import feats,feats.preproc,feats.extrema
 import scipy.stats
 from feats.action_imgs import TimelessActionImgs
+from sklearn.linear_model import LinearRegression
 
 class SeriesFeature(object):
     def __init__(self,fun):
@@ -32,15 +33,17 @@ def extrm_count(feature_i):
     smooth_feat=feats.preproc.FourierSmooth()(feature_i)
     return feats.extrema.count_mins(smooth_feat)
 
-def freq_skewnes(feature_i):
-    magnitude=feats.preproc.fourier_magnitude(feature_i)
-    print(magnitude.shape)
-    return list(scipy.stats.skew(magnitude))
-
 def optim_position(feature_i):
     min_i=feats.extrema.relative_location(feature_i,np.amax(feature_i))
     max_i=feats.extrema.relative_location(feature_i,np.amin(feature_i))
     return [min_i,max_i]
+
+def local_smoothnes(feature_i):
+    feature_i=feats.preproc.FourierSmooth()(feature_i)
+    pos_i=feats.extrema.get_location(feature_i)
+    windows=feats.extrema.get_window(pos_i,feature_i,k=5)
+    return np.amax([total_smoothnes(window_i) 
+                    for window_i in windows])
 
 def total_smoothnes(feature_i):
     feature_i-= np.min(feature_i)-1
@@ -48,6 +51,13 @@ def total_smoothnes(feature_i):
     size=float(feature_i.shape[0])
     total_smooth=np.sum(diff_i/feature_i[:-1])
     return total_smooth/size
+
+#def b(feature_i):
+
+def freq_skewnes(feature_i):
+    magnitude=feats.preproc.fourier_magnitude(feature_i)
+    print(magnitude.shape)
+    return list(scipy.stats.skew(magnitude))
 
 def rapid_change(feature_i):
     feature_i=feature_i.astype(float)

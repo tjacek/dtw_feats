@@ -29,5 +29,6 @@ def get_window(indexes,feature_i,k=5):
         return feature_i[start:(j+k)]
     return [ window_helper(j) for j in indexes] 
 
-def get_location(array_i,value):
-    return np.where(array_i==value)
+def get_location(feature_i):
+    extr_i=np.abs(local_extr(feature_i))
+    return np.where(extr_i==2)[0]
