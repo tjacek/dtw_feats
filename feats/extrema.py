@@ -1,4 +1,5 @@
 import numpy as np 
+from sklearn.linear_model import LinearRegression
 
 def count_mins(feature_i):
     extr=local_extr(feature_i)
@@ -32,3 +33,11 @@ def get_window(indexes,feature_i,k=5):
 def get_location(feature_i):
     extr_i=np.abs(local_extr(feature_i))
     return np.where(extr_i==2)[0]
+
+#def relative_residuals(piece_i):
+
+def fit_linear(piece_i):
+    x_i=np.arange(piece_i.shape[0])
+    reg=LinearRegression()
+    reg.fit(x_i, piece_i)
+    return reg.predict(x_i)
