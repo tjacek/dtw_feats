@@ -2,7 +2,6 @@ import numpy as np
 import feats,feats.preproc,feats.extrema
 import scipy.stats
 from feats.action_imgs import TimelessActionImgs
-from sklearn.linear_model import LinearRegression
 
 class SeriesFeature(object):
     def __init__(self,fun):
@@ -52,7 +51,13 @@ def total_smoothnes(feature_i):
     total_smooth=np.sum(diff_i/feature_i[:-1])
     return total_smooth/size
 
-#def b(feature_i):
+def piecewise_linearity(feature_i):
+    feature_i=feats.preproc.FourierSmooth()(feature_i)
+    pos_i=feats.extrema.get_location(feature_i)
+    pieces=feats.extrema.split_series(feature_i,pos_i)
+    res=[feats.extrema.relative_residuals(piece_i)
+                for piece_i in pieces]
+    return np.mean(res)
 
 def freq_skewnes(feature_i):
     magnitude=feats.preproc.fourier_magnitude(feature_i)

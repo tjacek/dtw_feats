@@ -34,10 +34,17 @@ def get_location(feature_i):
     extr_i=np.abs(local_extr(feature_i))
     return np.where(extr_i==2)[0]
 
-#def relative_residuals(piece_i):
+def relative_residuals(piece_i):
+    if(piece_i.shape[0]==0):
+        return 0.0
+    piece_i=piece_i.reshape( -1,1)
+    pred_i=fit_linear(piece_i)
+    res_i= np.abs(piece_i-pred_i)
+    return np.mean(res_i)/np.mean(piece_i)
 
 def fit_linear(piece_i):
-    x_i=np.arange(piece_i.shape[0])
+    print(piece_i.shape)
+    x_i=np.arange(piece_i.shape[0]).reshape(-1,1)
     reg=LinearRegression()
     reg.fit(x_i, piece_i)
     return reg.predict(x_i)
