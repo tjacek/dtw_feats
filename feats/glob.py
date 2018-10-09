@@ -55,8 +55,9 @@ def piecewise_linearity(feature_i):
     feature_i=feats.preproc.FourierSmooth()(feature_i)
     pos_i=feats.extrema.get_location(feature_i)
     pieces=feats.extrema.split_series(feature_i,pos_i)
-    res=[feats.extrema.relative_residuals(piece_i)
-                for piece_i in pieces]
+    res=[]
+    for piece_i in pieces:
+        res+=feats.extrema.relative_residuals(piece_i)        
     return np.mean(res)
 
 def freq_skewnes(feature_i):
