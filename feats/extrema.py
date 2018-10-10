@@ -36,7 +36,7 @@ def get_location(feature_i):
 
 def relative_residuals(piece_i):
     if(piece_i.shape[0]==0):
-        return 0.0
+        return [0.0]
     piece_i=piece_i.reshape( -1,1)
     pred_i=fit_linear(piece_i)
     res_i= np.abs(piece_i-pred_i)
