@@ -58,6 +58,9 @@ def piecewise_linearity(feature_i):
     res=[]
     for piece_i in pieces:
         res+=feats.extrema.relative_residuals(piece_i)        
+    res=np.array(res)
+#    res/=np.mean(feature_i)
+    res=np.sqrt(np.sum(res*res))
     return np.mean(res)
 
 def freq_skewnes(feature_i):

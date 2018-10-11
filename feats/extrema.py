@@ -39,11 +39,10 @@ def relative_residuals(piece_i):
         return [0.0]
     piece_i=piece_i.reshape( -1,1)
     pred_i=fit_linear(piece_i)
-    res_i= np.abs(piece_i-pred_i)
+    res_i= (piece_i-pred_i)#.T[0]
     return list(res_i)#np.mean(res_i) /np.mean(piece_i)
 
 def fit_linear(piece_i):
-    print(piece_i.shape)
     x_i=np.arange(piece_i.shape[0]).reshape(-1,1)
     reg=LinearRegression()
     reg.fit(x_i, piece_i)
