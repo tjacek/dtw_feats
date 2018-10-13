@@ -59,9 +59,24 @@ def piecewise_linearity(feature_i):
     for piece_i in pieces:
         res+=feats.extrema.relative_residuals(piece_i)        
     res=np.array(res)
-#    res/=np.mean(feature_i)
     res=np.sqrt(np.sum(res*res))
     return np.mean(res)
+
+def optim_type(feature_i):
+    feature_i=feats.preproc.FourierSmooth()(feature_i)
+    extr_i=feats.extrema.local_extr(feature_i)
+    print(extr_i)
+    mins=np.where(extr_i==2)[0]
+    maxs=np.where(extr_i==(-2))[0]
+    print(mins.shape)
+    print(maxs.shape)
+    if(mins.shape[0]==0):
+        return [0.0,0.0]
+    if(maxs.shape[0]==0):
+        return [1.0,1.0]
+    first=float( mins[0]>maxs[0])
+    last=float( mins[-1]>maxs[-1])
+    return [first,last]
 
 def freq_skewnes(feature_i):
     magnitude=feats.preproc.fourier_magnitude(feature_i)
