@@ -2,7 +2,12 @@ import numpy as np
 import seqs.io 
 import feats
 
-class FeaturePreproc(object):
+class Preproc(object):
+    def transform(self,in_path,out_path):
+        seqs.io.transform_actions(in_path,out_path,
+            transform=self,img_in=False,whole_seq=True)
+
+class FeaturePreproc(Preproc):
     def __init__(self,preproc):
         self.preproc=preproc
 
@@ -12,9 +17,14 @@ class FeaturePreproc(object):
                         for feature_i in features]
         return np.array(new_features).T
 
-    def transform(self,in_path,out_path):
-        seqs.io.transform_actions(in_path,out_path,
-            transform=self,img_in=False,whole_seq=True)
+class DistancePreproc(Preproc):
+    def __call__(self,img_seq):
+        mean_i=np.mean(img_seq)
+        dist_i=np.array([np.linalg.norm(point_i-mean_i) 
+                            for point_i in img_seq])
+        dist_i=np.expand_dims(dist_i,1)
+        print(dist_i.shape)
+        return np.array(dist_i)
 
 class ExpSmooth(object):
     def __init__(self, alpha=0.5):
