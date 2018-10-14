@@ -74,3 +74,6 @@ def read_lines(in_path,sep=','):
 def str_to_vector(str,sep=","):
     return [float(cord_i)
                 for cord_i in str.split(sep) ]
+
+def all_equal(items,value):
+    return all(x == items[0] for x in items)

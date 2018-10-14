@@ -5,7 +5,7 @@ import cv2,os
 class ActionReader(object):
     def __init__(self,read_dirs,read_seq,as_dict=False):
         self.as_dict=as_dict
-        self.get_action_desc=ut_dataset
+        self.get_action_desc=cp_dataset
         self.get_action_paths=read_dirs
         self.read_seq=read_seq  	
     
@@ -62,7 +62,10 @@ def as_action_dict(actions):
     return { action_i.name:action_i for action_i in actions} 
 
 def read_text_action(action_path):
-    return list(np.genfromtxt(action_path, delimiter=','))
+    raw=np.genfromtxt(action_path, delimiter=',')
+    if(len(raw.shape)==1):
+        return [[cord_i] for cord_i in list(raw)]
+    return list(raw)
 
 def read_img_action(action_path):
     img_names=os.listdir(action_path)
