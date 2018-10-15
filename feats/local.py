@@ -1,14 +1,22 @@
 import numpy as np
 import feats
 
-def avg(img_array,action_array):
-    return list(np.mean(action_array,axis=0))
+class AxisFeat(object):
+    def __init__(self,fun,axis=0):
+        self.fun=fun
+        self.axis=axis
 
-def std(img_array,pcloud):
-    return list(np.std(pcloud,axis=0))
+    def __call__(self,img_array,pcloud):
+        return list(self.fun(pcloud,axis=self.axis))
 
-def skew(img_array,pcloud):
-    return list(scipy.stats.skew(pcloud,axis=0))
+#def avg(img_array,action_array):
+#    return list(np.mean(action_array,axis=0))
+
+#def std(img_array,pcloud):
+#    return list(np.std(pcloud,axis=0))
+
+#def skew(img_array,pcloud):
+#    return list(scipy.stats.skew(pcloud,axis=0))
 
 def area(img_array,point_cloud):
     n_points=point_cloud.shape[0]
