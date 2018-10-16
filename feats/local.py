@@ -1,5 +1,6 @@
 import numpy as np
 import feats
+import scipy.stats
 
 class AxisFeat(object):
     def __init__(self,fun,axis=0):
@@ -7,7 +8,9 @@ class AxisFeat(object):
         self.axis=axis
 
     def __call__(self,img_array,pcloud):
-        return list(self.fun(pcloud,axis=self.axis))
+        dim_i=pcloud[:,self.axis]
+        print(dim_i.shape)
+        return [self.fun(dim_i)]
 
 #def avg(img_array,action_array):
 #    return list(np.mean(action_array,axis=0))
