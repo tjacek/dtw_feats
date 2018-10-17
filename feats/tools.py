@@ -13,7 +13,7 @@ def basic_feats():
 
 def stats_feats():
     raw_funs=[np.mean,np.std,scipy.stats.skew]
-    return feats.GlobalFeatures(raw_funs)
+    return feats.GlobalFeatures(series_decorator(raw_funs))
 
 def hough_feats():
     return feats.GlobalFeatures(HoughDispersion())
@@ -40,3 +40,6 @@ def smooth_feat(feat_i,extr=False):
     if(extr):
         fun_list.append(feats.extrema.count_mins)
     return feats.FeatPipeline(fun_list)
+
+def series_decorator(raw_feats):
+    return [ SeriesFeature(feat_i) for feat_i in raw_feats]
