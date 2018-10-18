@@ -8,6 +8,7 @@ class SeriesFeature(object):
         self.fun=fun
 
     def __call__(self,action_i):
+        print(action_i)
         all_feats=[]
         for feat_i in action_i.as_features():
             result=self.fun(feat_i)

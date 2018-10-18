@@ -12,19 +12,15 @@ def basic_feats():
     return feats.LocalFeatures(all_feats)
 
 def stats_feats():
-    raw_funs=[np.mean,np.std,scipy.stats.skew]
-    return feats.GlobalFeatures(series_decorator(raw_funs))
+    raw_funs=series_decorator([np.mean,np.std,scipy.stats.skew])
+    return feats.GlobalFeatures(raw_funs)
+
+def optim_feats():
+    glob_feats=series_decorator([optim_position,extrm_count])
+    return feats.GlobalFeatures(glob_feats)
 
 def hough_feats():
     return feats.GlobalFeatures(HoughDispersion())
-
-def quan_feats():
-    raw_funs=[SeriesFeature(np.max),SeriesFeature(np.median),SeriesFeature(np.mean)]
-    return feats.GlobalFeatures(raw_funs)
-
-def extrem_feats():
-    glob_feats=SeriesFeature(optim_position)
-    return feats.GlobalFeatures(glob_feats)
 
 def smooth_feats():
     glob_feats=[SeriesFeature(optim_type)]  #,SeriesFeature(local_smoothnes)]

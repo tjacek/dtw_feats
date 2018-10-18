@@ -2,9 +2,9 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 def count_mins(feature_i):
-    extr=local_extr(feature_i)
-    n_min= get_location(extr,2)[0].shape[0]
-    n_max= get_location(extr,-2)[0].shape[0]
+    extr_i=local_extr(feature_i)
+    n_min= np.where(extr_i==2)[0].shape[0]#get_location(extr,2)[0].shape[0]
+    n_max= np.where(extr_i==(-2))[0].shape[0]#get_location(extr,-2)[0].shape[0]
     return [n_min,n_max]
 
 def local_extr(feature_i):
