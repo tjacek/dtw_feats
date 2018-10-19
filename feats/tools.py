@@ -19,12 +19,12 @@ def optim_feats():
     glob_feats=series_decorator([optim_position,extrm_count])
     return feats.GlobalFeatures(glob_feats)
 
+def smooth_feats():
+    glob_feats=[SeriesFeature(local_smoothnes)] 
+    return feats.GlobalFeatures(glob_feats)
+
 def hough_feats():
     return feats.GlobalFeatures(HoughDispersion())
-
-def smooth_feats():
-    glob_feats=[SeriesFeature(optim_type)]  #,SeriesFeature(local_smoothnes)]
-    return feats.GlobalFeatures(glob_feats)
 
 def histogram_feats( extr=True):
     raw_hist=[hist_x,hist_y,HistZ(0,1),HistZ(1,1)]
