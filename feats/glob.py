@@ -52,6 +52,11 @@ def total_smoothnes(feature_i):
     total_smooth=np.sum(diff_i/feature_i[:-1])
     return total_smooth/size
 
+def sym_look(feature_i):
+    scale=np.max(feature_i)-np.min(feature_i)
+    asym=np.abs(np.mean(feature_i)-np.median(feature_i) )
+    return asym/scale
+
 def piecewise_linearity(feature_i):
     feature_i=feats.preproc.FourierSmooth()(feature_i)
     pos_i=feats.extrema.get_location(feature_i)
