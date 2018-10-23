@@ -1,3 +1,4 @@
+
 import numpy as np
 import scipy.stats
 import dataset.instances,seqs.io
@@ -10,7 +11,6 @@ class Features(object):
 
 class GlobalFeatures(Features):
     def __call__(self,action_i):
-#        img_i=action_i.as_array()
         global_feats=[]
         for extractor_j in self.feature_extractors:
             global_feats+=extractor_j(action_i)

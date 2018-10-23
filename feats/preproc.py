@@ -3,7 +3,7 @@ import seqs.io
 import feats
 
 class Preproc(object):
-    def transform(self,in_path,out_path):
+    def apply(self,in_path,out_path):
         seqs.io.transform_actions(in_path,out_path,
             transform=self,img_in=False,whole_seq=True)
 
@@ -12,7 +12,7 @@ class FeaturePreproc(Preproc):
         self.preproc=preproc
 
     def __call__(self,img_seq):
-        features=feats.get_features(img_seq)
+        features= np.array(img_seq).T #feats.get_features(img_seq)
         new_features=[ self.preproc(feature_i) 
                         for feature_i in features]
         return np.array(new_features).T
@@ -23,7 +23,6 @@ class DistancePreproc(Preproc):
         dist_i=np.array([np.linalg.norm(point_i-mean_i) 
                             for point_i in img_seq])
         dist_i=np.expand_dims(dist_i,1)
-        print(dist_i.shape)
         return np.array(dist_i)
 
 class ExpSmooth(object):
