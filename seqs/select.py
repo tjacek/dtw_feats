@@ -1,13 +1,22 @@
 import seqs.io
 
+class ValueSelector(object):
+    def __init__(self,n,data_type=True):
+        self.data_type = data_type
+        self.n=n
+
+    def __call__(self.action_i):
+        i=get_data(action_i,self.data_type)
+        return i==self.n 
+
 class ModuloSelector(object):
-    def __init__(self,n,unpack=None,k=2):
+    def __init__(self,n,data_type=True,k=2):
         self.k=k
         self.n=n
-        self.unpack=unpack_person if(unpack is None) else unpack
+        self.data_type=data_type
 
-    def __call__(self,i):
-        i=self.unpack(i)
+    def __call__(self,action_i):
+        i=get_data(action_i,self.data_type)
         return (i % self.k)==self.n        
 
 def select_actions(in_path,out_path,selector=1, img_seq=True):
@@ -24,8 +33,5 @@ def select(actions,selector):
                 for action_i in actions
                     if(selector(action_i))]
 
-def unpack_cat(action_i):
-    return action_i.cat 
-
-def unpack_person(action_i):
-    return action_i.person	
+def get_data(action_i,data_type=True):
+    return action_i.cat if(data_type) else action_i.person 
