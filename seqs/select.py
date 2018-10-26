@@ -5,7 +5,7 @@ class ValueSelector(object):
         self.data_type = data_type
         self.n=n
 
-    def __call__(self.action_i):
+    def __call__(self,action_i):
         i=get_data(action_i,self.data_type)
         return i==self.n 
 
