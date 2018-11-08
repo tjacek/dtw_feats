@@ -1,9 +1,9 @@
 import numpy as np
 import utils,time
-import deep,deep.convnet
+import deep,deep.convnet,deep.lstm
 import deep.train,deep.autoconv
 import deep.tools,pairs
-import ensemble,pairs,seqs.io
+import ensemble,pairs,seqs.io,seqs
 import theano.gpuarray
 
 def ensemble_exp(dataset_path,compile=False,n_frames=4,n_iters=150):
@@ -43,6 +43,16 @@ def ensemble_pairs():
         result_i.save(out_path_i)
     return ensemble.EnsembleFun(in_fun,out_fun,'dirs')
 
+def train_lstm(seq_path,p=0.5):
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_actions(seq_path)
+    train,test=seqs.split(actions)
+    print(train[0].person)
+    hyper_params=deep.lstm.get_hyper_params(train_dataset)
+    hyper_params['p']=p
+    hyper_params['n_hidden']= actions[0].dim()
+    model=deep.lstm.compile_lstm(hyper_params)
+
 def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.get_dataset(dataset_path,preproc)
@@ -62,10 +72,11 @@ def train_convnet(out_path,dataset_path,
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
+train_lstm("../LSTM/all")
 #ens=extract_deep(dataset_path='../../mhad/data/full')
 #ens('../../mhad/models','../../mhad/seqs')
-ens=ensemble_pairs()
-ens('../../mhad/seqs','../../mhad/pairs')
+#ens=ensemble_pairs()
+#ens('../../mhad/seqs','../../mhad/pairs')
 #ens=ensemble_exp(dataset_path='../../mhad/data/train',compile=True,n_frames=4,n_iters=1000)
 #ens(in_path='../../mhad/data/train',out_path='../../mhad/models')
 #deep.tools.deep_seqs(in_path='../mhad/four/full',nn_path='../mhad/four/conv',

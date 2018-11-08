@@ -1,5 +1,6 @@
 import numpy as np 
 import utils
+import seqs.select
 
 class Action(object):
     def __init__(self,img_seq,name,cat,person):
@@ -42,6 +43,17 @@ class Action(object):
         norm_imgs=[ (img_i/norm) 
                     for img_i in self.img_seq]
         return [ (self.cat,img_i) for img_i in norm_imgs]
+
+def split(actions,selector=None):
+    train,test=[],[]
+    if(not selector):
+        selector=seqs.select.ModuloSelector(1)
+    for action_i in actions:
+        if(selector(action_i)):
+            train.append(action_i)
+        else:
+            test.append(action_i)
+    return train,test
 
 def by_cat(actions):
     cats=[action_i.cat for action_i in actions]
