@@ -1,5 +1,21 @@
 import numpy as np
 
+def train_seq(model,dataset,epochs=100):
+    x,n_batches=get_batch(dataset['x'])
+    y,n_batches=get_batch(dataset['y'])
+    print(dataset.keys())
+    mask,n_batches=get_batch(dataset['mask'])
+    for j in range(epochs):
+        cost=[]
+        for i,x_i in enumerate(x):
+            y_i=y[i]
+            mask_i=mask[i]
+            loss_i=model.train(x_i,y_i,mask_i)
+            cost.append(loss_i)
+        sum_j=sum(cost)/float(len(cost))
+        print(str(j) + ' ' + str(sum_j))
+    return model
+
 def train_super_model(X,y,model,
                       batch_size=100,num_iter=500):
     print("Num iters " + str(num_iter))

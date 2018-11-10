@@ -9,9 +9,9 @@ class LSTM(deep.NeuralNetwork):
                      in_var,mask_var,target_var,
                      pred,loss,updates):
         super(LSTM,self).__init__(hyperparams,out_layer)
-        self.predict= theano.function([in_var,mask_var],pred)
-        self.train = theano.function([in_var, target_var,mask_var],loss, updates=updates)
-        self.loss = theano.function([in_var,target_var,mask_var], loss)
+        self.predict= theano.function([in_var,mask_var],pred,allow_input_downcast=True)
+        self.train = theano.function([in_var, target_var,mask_var],loss, updates=updates,allow_input_downcast=True)
+        self.loss = theano.function([in_var,target_var,mask_var], loss,allow_input_downcast=True)
 
     def get_category(self,x,mask):
         return np.argmax(self.get_distribution(x,mask))
