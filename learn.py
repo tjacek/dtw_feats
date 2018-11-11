@@ -43,16 +43,6 @@ def ensemble_pairs():
         result_i.save(out_path_i)
     return ensemble.EnsembleFun(in_fun,out_fun,'dirs')
 
-def train_lstm(seq_path,p=0.5):
-    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
-    actions=read_actions(seq_path)
-    train,test=seqs.split(actions)
-    print(train[0].person)
-    hyper_params=deep.lstm.get_hyper_params(train_dataset)
-    hyper_params['p']=p
-    hyper_params['n_hidden']= actions[0].dim()
-    model=deep.lstm.compile_lstm(hyper_params)
-
 def train_autoencoder(dataset_path,nn_path,n_frames=2,n_iters=5,read=True):
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.get_dataset(dataset_path,preproc)
@@ -71,6 +61,16 @@ def train_convnet(out_path,dataset_path,
     model_j=deep.convnet.get_model(n_cats,preproc,nn_path=model_path)
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
+
+def train_lstm(seq_path,p=0.25):
+    train,test=deep.tools.lstm_dataset(seq_path)
+    print(train['params'])
+    hyper_params=deep.lstm.get_hyper_params(train)
+    hyper_params['p']=p
+#    hyper_params['n_hidden']= train[0].dim()
+    model=deep.lstm.compile_lstm(hyper_params)
+    deep.train.train_seq(model,train,epochs=300)
+    deep.tools.check_lstm(model,test)
 
 train_lstm("../LSTM/all")
 #ens=extract_deep(dataset_path='../../mhad/data/full')

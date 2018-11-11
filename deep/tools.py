@@ -1,6 +1,9 @@
 import numpy as np
 import seqs,seqs.io
 import deep.reader
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
 
 class ImgPreproc(object):
     def __init__(self,dim):
@@ -88,7 +91,7 @@ def make_dataset(actions,masked=False):
     x=[np.array(action_i.img_seq)
         for action_i in actions]
     x=np.array(x)
-    y=[int(action_i.cat) for action_i in actions]
+    y=[int(action_i.cat)-1 for action_i in actions]
     names=[action_i.name for action_i in actions]
     persons=[action_i.person for action_i in actions]
 #    y=[ e(y_i) for y_i in y]
@@ -111,10 +114,10 @@ def masked_dataset(dataset):
     return new_dataset#SeqDataset(new_dataset)
 
 def make_mask(x,n_batch,max_seq):
-    mask = np.zeros((n_batch, max_seq),dtype=float)
+    mask = np.zeros((n_batch, max_seq),dtype=int)
     for i,seq_i in enumerate(x):
         seq_i_len=seq_i.shape[0]
-        mask[i][:seq_i_len]=1.0
+        mask[i][:seq_i_len]=1
     return mask
 
 def make_masked_seq(x,max_seq,seq_dim):
@@ -126,4 +129,13 @@ def make_masked_seq(x,max_seq,seq_dim):
         new_seq_i=np.zeros((max_seq,seq_dim))
         new_seq_i[:seq_i_len]=seq_i[:seq_i_len]
         return new_seq_i
-    return [masked_seq(seq_i) for seq_i in x]   
+    return [masked_seq(seq_i) for seq_i in x]
+
+def check_lstm(model,test_dataset):
+    x=test_dataset['x']
+    y_true=test_dataset['y']
+    mask=test_dataset['mask']
+    y_pred=[model.get_category(x_i,mask[i])
+              for i,x_i in enumerate(x)]
+    print(classification_report(y_true, y_pred,digits=4))
+    print("Accuracy %f " % accuracy_score(y_true,y_pred))
