@@ -9,8 +9,8 @@ class NNReader(object):
         else:    
             self.preproc=preproc
         self.types = {'Convet':deep.convnet.compile_convnet,
-                      'ConvAutoencoder': deep.autoconv.compile_conv_ae}
-#                      'LSTM':deep.lstm.compile_lstm}
+                      'ConvAutoencoder': deep.autoconv.compile_conv_ae,
+                      'LSTM':deep.lstm.compile_lstm}
 
     def __call__(self,in_path, drop_p=0.0,get_hyper=False):
         model=self.__unpickle__(in_path) 

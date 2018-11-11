@@ -62,17 +62,22 @@ def train_convnet(out_path,dataset_path,
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
-def train_lstm(seq_path,p=0.25):
+def train_lstm(seq_path,out_path,p=0.25,compile=False):
     train,test=deep.tools.lstm_dataset(seq_path)
-    print(train['params'])
-    hyper_params=deep.lstm.get_hyper_params(train)
-    hyper_params['p']=p
-#    hyper_params['n_hidden']= train[0].dim()
-    model=deep.lstm.compile_lstm(hyper_params)
-    deep.train.train_seq(model,train,epochs=300)
+    print(train['params'])  
+    if(compile):
+        hyper_params=deep.lstm.get_hyper_params(train)
+        hyper_params['p']=p
+        model=deep.lstm.compile_lstm(hyper_params)
+    else:
+        nn_reader=deep.reader.NNReader()
+        model= nn_reader(out_path,p)
+    deep.train.train_seq(model,train,epochs=10)
+    model.get_model().save(out_path)
     deep.tools.check_lstm(model,test)
 
-train_lstm("../LSTM/all")
+
+train_lstm("../LSTM/all","../LSTM/nn")
 #ens=extract_deep(dataset_path='../../mhad/data/full')
 #ens('../../mhad/models','../../mhad/seqs')
 #ens=ensemble_pairs()
