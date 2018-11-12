@@ -50,10 +50,17 @@ def binomial_dist(n):
                 for k in range(n)]
     plot.show_histogram(dist,'binomial',cumsum=True)
 
-basic_path=['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt'] 
+#basic_path=['../mra/stats.txt','../mra/optim.txt','../mra/sym.txt','../mra/smooth.txt']#'../mra/optim.txt','../mra/smooth.txt']
+
+basic_path=['../mhad/basic/basic.txt']#,'../mhad/basic/extr.txt','../mhad/basic/optim.txt','../mhad/basic/sym.txt','../mhad/basic/smooth.txt']
+#,'../mhad/basic/smooth.txt']
+#'mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']#,
+# '../mhad/basic/optim.txt','../mhad/basic/extr.txt','../mhad/basic/smooth.txt']
+
+#'../mhad/basic/extr.txt','../mhad/basic/smooth.txt',            '../mhad/basic/optim.txt']
 #['mhad/simple/basic.txt','mhad/simple/max_z_feats.txt','mhad/simple/corls.txt']
 #['mra/simple/basic.txt','mra/simple/max_z_feats.txt','mra/simple/corl_feats.txt']
 adapt_path='mhad/datasets'
-#simple_exp(in_path=adapt_path,basic_path=basic_path)
-cls_stats(in_path=adapt_path,basic_paths=basic_path,multi_alg=False)
+simple_exp(in_path=adapt_path,basic_path=basic_path,feats=(250,100))
+#cls_stats(in_path=adapt_path,basic_paths=None,multi_alg=False)
 #binomial_dist(20)

@@ -1,6 +1,7 @@
 import numpy as np
 import seqs,seqs.io
 import deep.reader
+import dataset.instances
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -139,3 +140,32 @@ def check_lstm(model,test_dataset):
               for i,x_i in enumerate(x)]
     print(classification_report(y_true, y_pred,digits=4))
     print("Accuracy %f " % accuracy_score(y_true,y_pred))
+
+def extract_features(in_path,nn_path,out_path):
+    nn_reader=deep.reader.NNReader()
+    model= nn_reader(nn_path,0.0)
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_actions(in_path)
+    data_seq=make_dataset(actions,masked=True)
+    X,y=data_seq['x'],data_seq['y']
+    mask,persons,names=data_seq['mask'],data_seq['persons'],data_seq['names']
+    feats=[ model.get_distribution(X[i],mask[i]) for i,seq_i in enumerate(X)]
+    insts=[ dataset.instances.Instance(feat_i,y[i],persons[i],names[i]) 
+                for i,feat_i in enumerate(feats)]
+    insts=dataset.instances.InstsGroup(insts)
+    insts.to_txt(out_path)
+
+
+#    def __call__(self,action_i):
+#        global_feats=[]
+#        for extractor_j in self.feature_extractors:
+#            global_feats+=extractor_j(action_i)
+#        return dataset.instances.Instance(global_feats,action_i.cat,
+#                            action_i.person,action_i.name) 
+
+#    def apply(self,in_path='mra/seqs/all',out_path='mra/simple/basic.txt'):
+#        read_action=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+#        actions=read_action(in_path)
+#        insts=dataset.instances.InstsGroup([self(action_i) 
+#                    for action_i in actions])
+#        insts.to_txt(out_path)
