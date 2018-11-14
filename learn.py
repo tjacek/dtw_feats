@@ -4,7 +4,7 @@ import deep,deep.convnet,deep.lstm
 import deep.train,deep.autoconv
 import deep.tools,pairs
 import ensemble,pairs,seqs.io,seqs
-import theano.gpuarray
+import theano.gpuarray,seqs.concat
 
 def ensemble_exp(dataset_path,compile=False,n_frames=4,n_iters=150):
     preproc=deep.tools.ImgPreproc(n_frames)
@@ -62,8 +62,14 @@ def train_convnet(out_path,dataset_path,
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
-def train_lstm(seq_path,out_path,p=0.25,compile=False):
+def train_lstm(seq_path,out_path,j=None,p=0.0,compile=False):
     train,test=deep.tools.lstm_dataset(seq_path)
+    if(j):
+        train['y']=deep.tools.binarize(train['y'],j)
+        test['y']=deep.tools.binarize(test['y'],j)
+        train['params']['n_cats']=2
+        print(train['params']['n_cats']) 
+        test['params']['n_cats']=2
     print(train['params'])  
     if(compile):
         hyper_params=deep.lstm.get_hyper_params(train)
@@ -72,12 +78,23 @@ def train_lstm(seq_path,out_path,p=0.25,compile=False):
     else:
         nn_reader=deep.reader.NNReader()
         model= nn_reader(out_path,p)
-    deep.train.train_seq(model,train,epochs=10)
+    deep.train.train_seq(model,train,epochs=300)
     model.get_model().save(out_path)
     deep.tools.check_lstm(model,test)
 
+def ens_lstm(in_path,out_path,n=27):
+    in_paths=[in_path+'/nn'+str(i) for i in range(n)]
+    out_paths=[out_path+'/nn'+str(i) for i in range(n)]
+    for i in range(n):
+        in_i= in_path+'/nn'+str(i)
+        out_i=out_path+'/nn'+str(i)
+        train_lstm(in_i,out_i,j=i,p=0.0,compile=True)
 
-train_lstm("../LSTM/all","../LSTM/nn")
+ens_lstm("../LSTM/unified","../LSTM/models")
+#deep.tools.extract_features("../LSTM/all","../LSTM/nn","../LSTM/prob.txt")
+
+#concat_ens('../LSTM/feats','../LSTM/unified')
+
 #ens=extract_deep(dataset_path='../../mhad/data/full')
 #ens('../../mhad/models','../../mhad/seqs')
 #ens=ensemble_pairs()
