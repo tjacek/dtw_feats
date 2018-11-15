@@ -1,6 +1,6 @@
 import numpy as np 
 import utils
-import seqs.select
+import seqs.select,seqs.io
 
 class Action(object):
     def __init__(self,img_seq,name,cat,person):
@@ -43,6 +43,24 @@ class Action(object):
         norm_imgs=[ (img_i/norm) 
                     for img_i in self.img_seq]
         return [ (self.cat,img_i) for img_i in norm_imgs]
+
+def norm_actions(out_path,in_path):
+    read_actions=seqs.io.build_action_reader(img_seq=False,as_dict=False)
+    actions=read_actions(in_path)
+    feats=[]
+    for action_i in actions:
+        feats+=action_i.img_seq
+    feats=np.array(feats)
+    mean_feats=np.mean(feats,axis=0)
+    std_feats=np.std(feats,axis=0)
+    for action_i in actions:
+        img_seq_i=action_i.as_array()
+        img_seq_i-=mean_feats
+        img_seq_i/=std_feats
+        action_i.img_seq=list(img_seq_i)
+    save_actions=seqs.io.ActionWriter(img_seq=False)
+    save_actions(actions,out_path)
+    return actions
 
 def split(actions,selector=None):
     train,test=[],[]
