@@ -64,7 +64,7 @@ def train_convnet(out_path,dataset_path,
 
 def train_lstm(seq_path,out_path,j=None,p=0.0,compile=False):
     train,test=deep.tools.lstm_dataset(seq_path)
-    if(j):
+    if(type(j)==int):
         train['y']=deep.tools.binarize(train['y'],j)
         test['y']=deep.tools.binarize(test['y'],j)
         train['params']['n_cats']=2
@@ -90,7 +90,7 @@ def ens_lstm(in_path,out_path,n=27):
         out_i=out_path+'/nn'+str(i)
         train_lstm(in_i,out_i,j=i,p=0.0,compile=True)
 
-ens_lstm("../LSTM/unified","../LSTM/models")
+ens_lstm("../LSTM/norm_unified","../LSTM/norm_models")
 #deep.tools.extract_features("../LSTM/all","../LSTM/nn","../LSTM/prob.txt")
 
 #concat_ens('../LSTM/feats','../LSTM/unified')
