@@ -7,11 +7,12 @@ import deep
 class LSTM(deep.NeuralNetwork):
     def __init__(self,hyperparams,out_layer,
                      in_var,mask_var,target_var,
-                     pred,loss,updates):
-        super(LSTM,self).__init__(hyperparams,out_layer)
+                     features_pred,pred,loss,updates):
+        super(LSTM,self).__init__(hyperparams,out_layer)        
         self.predict= theano.function([in_var,mask_var],pred,allow_input_downcast=True)
         self.train = theano.function([in_var, target_var,mask_var],loss, updates=updates,allow_input_downcast=True)
         self.loss = theano.function([in_var,target_var,mask_var], loss,allow_input_downcast=True)
+        self.__features__=theano.function([in_var,mask_var],features_pred)
         self.out_layer=out_layer
 
     def get_category(self,x,mask):
@@ -26,18 +27,19 @@ class LSTM(deep.NeuralNetwork):
         return self.hyperparams['seq_dim']
 
 def compile_lstm(hyper_params,preproc=None):
-    l_out,input_vars=make_LSTM(hyper_params)
+    l_out,input_vars,hid_layer=make_LSTM(hyper_params)
     prediction = lasagne.layers.get_output(l_out)
     params = lasagne.layers.get_all_params(l_out, trainable=True)
     loss = lasagne.objectives.categorical_crossentropy(prediction,input_vars['target_var'])
     loss = loss.mean()
-    
+    features_pred = lasagne.layers.get_output(hid_layer)
     prediction_det = lasagne.layers.get_output(l_out, deterministic=True)
 
     updates =lasagne.updates.adagrad(loss,params, hyper_params['learning_rate'])
+
     return LSTM(hyper_params,l_out,
                      input_vars['in_var'],input_vars['mask_var'],input_vars['target_var'],
-                     prediction_det,loss,updates)
+                     features_pred,prediction_det,loss,updates)
 
 def make_LSTM(hyper_params):
     print(hyper_params)
@@ -67,7 +69,7 @@ def make_LSTM(hyper_params):
     l_out = lasagne.layers.DenseLayer(
         l_drop, num_units=n_cats, nonlinearity=lasagne.nonlinearities.softmax) 
     input_vars=make_input_vars(l_in,l_mask)
-    return l_out,input_vars
+    return l_out,input_vars,l_sum 
 
 def make_input_vars(l_in,l_mask):
     in_var=l_in.input_var
@@ -79,7 +81,7 @@ def get_hyper_params(masked_dataset):
     hyper_params=masked_dataset['params']
     hyper_params['n_hidden']=100
     hyper_params['grad_clip']=100
-    hyper_params['learning_rate']=0.01
+    hyper_params['learning_rate']=0.001
     hyper_params['momentum']=0.7
     hyper_params['p']=0.5
     return hyper_params

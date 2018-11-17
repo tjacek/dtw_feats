@@ -57,12 +57,12 @@ def train_convnet(out_path,dataset_path,
     preproc=deep.ImgPreproc(n_frames)
     X,y,n_cats=deep.tools.get_dataset(dataset_path,preproc)
     if(n_binarize):
-        y=deep.tools.binarize(y,n_binarize)
+        y=deep.tools.binarize(y,n,mask_var_binarize)
     model_j=deep.convnet.get_model(n_cats,preproc,nn_path=model_path)
     deep.train.train_super_model(X,y,model_j,num_iter=n_iters)
     model_j.get_model().save(out_path)
 
-def train_lstm(seq_path,out_path,j=None,p=0.0,compile=False):
+def train_lstm(seq_path,out_path,j=None,p=0.0,compile=True):
     train,test=deep.tools.lstm_dataset(seq_path)
     if(type(j)==int):
         train['y']=deep.tools.binarize(train['y'],j)
@@ -88,9 +88,19 @@ def ens_lstm(in_path,out_path,n=27):
     for i in range(n):
         in_i= in_path+'/nn'+str(i)
         out_i=out_path+'/nn'+str(i)
-        train_lstm(in_i,out_i,j=i,p=0.0,compile=True)
+        train_lstm(in_i,out_i,j=i,p=0.0,compile=False)
 
 ens_lstm("../LSTM/norm_unified","../LSTM/norm_models")
+
+def ens_extract(in_path,nn_path,out_path,n=27):
+    in_paths=[in_path+'/nn'+str(i) for i in range(n)]
+    nn_paths=[nn_path+'/nn'+str(i) for i in range(n)]
+    out_paths=[out_path+'/nn'+str(i) for i in range(n)]
+    for i in range(n):
+        print(nn_paths[i])
+        deep.tools.extract_features(in_paths[i],nn_paths[i],out_paths[i])
+
+#ens_extract(in_path='../LSTM/norm_unified',nn_path='../LSTM/norm_models',out_path='../LSTM/lstm_feats')
 #deep.tools.extract_features("../LSTM/all","../LSTM/nn","../LSTM/prob.txt")
 
 #concat_ens('../LSTM/feats','../LSTM/unified')
