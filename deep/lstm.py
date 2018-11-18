@@ -15,6 +15,11 @@ class LSTM(deep.NeuralNetwork):
         self.__features__=theano.function([in_var,mask_var],features_pred)
         self.out_layer=out_layer
 
+    def __call__(self,x,mask):
+        x=np.expand_dims(x,axis=0)
+        mask=np.expand_dims(mask,axis=0)
+        return self.__features__(x,mask).flatten()
+
     def get_category(self,x,mask):
         return np.argmax(self.get_distribution(x,mask))
 
