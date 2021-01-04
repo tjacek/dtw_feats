@@ -1,7 +1,7 @@
+import numpy as np
 import learn,feats
 #import __learn as learn
 #import __feats as feats
-
 
 def read_dataset(common_path,deep_path):
     if(not common_path):
@@ -14,11 +14,25 @@ def read_dataset(common_path,deep_path):
                 for data_i in deep_data]
     return datasets
 
-def simple_exp(common_path,deep_path):
-	datasets=read_dataset(common_path,deep_path)[0]
-	result=learn.train_model(datasets,binary=False,clf_type="LR")
+def voting(results,binary=True):
+    votes=np.array([ result_i.as_numpy() 
+                for result_i in results])
+    votes=np.sum(votes,axis=0)
+    return learn.Result(results[0].y_true,votes,results[0].names)
+
+def ensemble(common_path,binary_path,binary=True,clf="SVC"):
+    datasets=read_dataset(common_path,binary_path)
+    results=[learn.train_model(data_i,clf_type=clf,binary=binary)
+                for data_i in datasets]
+    result=voting(results)
+    print(result.get_acc()) 
+
+def simple_exp(common_path,deep_path,clf="SVC"):
+	dataset=read_dataset(common_path,deep_path)[0]
+	result=learn.train_model(dataset,clf_type=clf)
 	print(result.get_acc())
 
 #common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
 common_path="good/ae_basic"
-simple_exp(common_path,None)
+binary_path="good/ens"
+ensemble(common_path,binary_path,clf="SVC")

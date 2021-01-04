@@ -38,7 +38,7 @@ class Result(object):
 def train_model(data,binary=False,clf_type="LR",acc_only=False):
     if(type(data)==str):	
         data=feats.read(data)[0]
-#    data.norm()
+    data.norm()
     print(data.dim())
     print(len(data))
     train,test=data.split()
