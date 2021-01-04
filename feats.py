@@ -25,7 +25,8 @@ class Feats(dict):
 	def get_labels(self,names=None):
 		if(names is None):
 			names=self.names()
-		return [ int(name_i.split("_")[0])-1 for name_i in names]
+		return [ name_i.get_cat() for name_i in names]
+	#int(name_i.split("_")[0])-1 for name_i in names]
 
 	def __add__(self,feat_i):
 		names=common_names(self.keys(),feat_i.keys())
@@ -70,10 +71,8 @@ def read_single(in_path):
         raw=line_i.split('#')
         if(len(raw)>1):
             data_i,info_i=raw[0],raw[-1]
-            info_i= files.clean_str(info_i)
+            info_i= files.Name(info_i).clean()#files.clean_str(info_i)
             feat_dict[info_i]=np.fromstring(data_i,sep=',')
-#    if(as_dict):
-#        return feat_dict
     return Feats(feat_dict)
 
 def read_unified(paths):
