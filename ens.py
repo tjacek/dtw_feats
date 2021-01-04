@@ -1,4 +1,6 @@
 import learn,feats
+#import __learn as learn
+#import __feats as feats
 
 def read_dataset(common_path,deep_path):
     if(not common_path):
@@ -13,8 +15,11 @@ def read_dataset(common_path,deep_path):
 
 def simple_exp(common_path,deep_path):
 	datasets=read_dataset(common_path,deep_path)[0]
+	datasets.save("new")
+#	raise Exception("OK")
 	acc=learn.train_model(datasets,binary=True,clf_type="LR",acc_only=True)
 	print(acc)
 
-common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
+#common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
+common_path="good/ae_basic"
 simple_exp(common_path,None)

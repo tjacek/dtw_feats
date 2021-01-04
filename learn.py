@@ -6,16 +6,18 @@ import clf,files,feats
 def train_model(data,binary=False,clf_type="LR",acc_only=False):
     if(type(data)==str):	
         data=feats.read(data)[0]
-    data.norm()
+#    data.norm()
     print(data.dim())
+    print(len(data))
     train,test=data.split()
     model= clf.get_cls(clf_type)
-    model.fit(train.X,train.get_labels())
-    y_true=test.get_labels()
+    X_train,y_train= train.get_X(),train.get_labels()
+    model.fit(X_train,y_train)
+    X_test,y_true=test.get_X(),test.get_labels()
     if(binary):
-        y_pred=model.predict(test.X)
+        y_pred=model.predict(X_test)
     else:
-        y_pred=model.predict_proba(test.X)
+        y_pred=model.predict_proba(X_test)
     if(acc_only):
         return accuracy_score(y_true,y_pred)
     else:
