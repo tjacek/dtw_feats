@@ -1,6 +1,8 @@
 import numpy as np
 import feats
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import classification_report,accuracy_score
+import pickle
 import clf,files,feats
 
 class Result(object):
@@ -35,6 +37,18 @@ class Result(object):
         y_true,y_pred=self.as_labels()
         print(classification_report(y_true, y_pred,digits=4))
 
+    def metrics(self):
+        y_true,y_pred=self.as_labels()
+        return precision_recall_fscore_support(y_true,y_pred,average='weighted')
+
+    def save(self,out_path):
+        with open(out_path, 'wb') as out_file:
+            pickle.dump(self, out_file)
+
+def read(in_path):
+    with open(in_path, 'rb') as handle:
+        return pickle.load(handle)
+
 def train_model(data,binary=False,clf_type="LR",acc_only=False):
     if(type(data)==str):	
         data=feats.read(data)[0]
@@ -51,10 +65,6 @@ def train_model(data,binary=False,clf_type="LR",acc_only=False):
     else:
         y_pred=model.predict_proba(X_test)
     return Result(y_true,y_pred,test.names())
-#    if(acc_only):
-#        return accuracy_score(y_true,y_pred)
-#    else:
-#        return y_true,y_pred,test.info
 
 def voting(results,binary):
     votes=get_prob(results)

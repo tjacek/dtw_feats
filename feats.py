@@ -26,7 +26,6 @@ class Feats(dict):
 		if(names is None):
 			names=self.names()
 		return [ name_i.get_cat() for name_i in names]
-	#int(name_i.split("_")[0])-1 for name_i in names]
 
 	def __add__(self,feat_i):
 		names=common_names(self.keys(),feat_i.keys())

@@ -26,13 +26,16 @@ def ensemble(common_path,binary_path,binary=True,clf="SVC"):
                 for data_i in datasets]
     result=voting(results)
     print(result.get_acc()) 
+    return result
 
 def simple_exp(common_path,deep_path,clf="SVC"):
 	dataset=read_dataset(common_path,deep_path)[0]
 	result=learn.train_model(dataset,clf_type=clf)
 	print(result.get_acc())
 
+if __name__ == "__main__":
 #common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
-common_path="good/ae_basic"
-binary_path="good/ens"
-ensemble(common_path,binary_path,clf="SVC")
+    common_path="good/ae_basic"
+    binary_path="good/ens"
+    result=ensemble(common_path,binary_path,clf="LR")
+    result.save("out")
