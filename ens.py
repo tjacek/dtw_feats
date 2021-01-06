@@ -28,14 +28,21 @@ def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     print(result.get_acc()) 
     return result
 
-def simple_exp(common_path,deep_path,clf="SVC"):
-	dataset=read_dataset(common_path,deep_path)[0]
+def simple_exp(common_path,binary_path,clf="SVC"):
+	dataset=read_dataset(common_path,binary_path)[0]
 	result=learn.train_model(dataset,clf_type=clf)
 	print(result.get_acc())
 
+def show_acc(common_path,binary_path,binary=True,clf="SVC"):
+    datasets=read_dataset(common_path,binary_path)
+    results=[learn.train_model(data_i,clf_type=clf,binary=binary)
+                for data_i in datasets]
+    return [ result_i.get_acc() for result_i in results]
+
 if __name__ == "__main__":
 #common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
-    common_path="good/ae_basic"
-    binary_path="good/ens"
-    result=ensemble(common_path,binary_path,clf="LR")
-    result.save("out")
+    common_path=["../3DHOI/common/simple/basic/feats","../3DHOI/common/agum/basic/feats"]
+    binary_path=None#"..//ens/feats"
+#    result=ensemble(common_path,binary_path,clf="LR")
+    data=[common_path,"../3DHOI/lstm/feats"]
+    simple_exp(common_path,binary_path,clf="LR")
