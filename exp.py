@@ -41,7 +41,7 @@ def get_desc(common_path):
 	return common_path.split("/")[-2]
 
 def find_path(in_path):
-	paths=files.bottom_files(in_path,full_paths=True)
+	paths=files.all_files(in_path)
 	common_paths=[]
 	binary_paths=[]
 	for path_i in paths:
@@ -53,20 +53,28 @@ def find_path(in_path):
 	print(common_paths)
 	print(binary_paths)
 
-#common_path="good/ae_basic"
-#binary_path="good/ens"
+def find_dtw(in_path,dtw_type="dtw"):
+	paths=[path_i for path_i in files.all_dicts(in_path)
+				if(path_i.split("/")[-1]=="dtw")]
+	dtw_feats=[]
+	for path_i in paths:
+		dtw_i=["%s/%s" % (feat_j,dtw_type) 
+				for feat_j in files.top_files(path_i)]
+		dtw_feats.append(dtw_i)
+	print(dtw_feats)
+	return dtw_feats
 
-dtw=["../ICSS_exp/MSR/dtw/max_z/person","../ICSS_exp/MSR/dtw/corl/person"]
-common_path="../ICSS_exp/MSR/common/stats/feats"
-binary_path="../ICSS_exp/MSR/ens/lstm_gen/feats"
-#dtw.append(common_path)
-#ens_exp(dtw,binary_path,"MSR5")
-#
-dtw=['../ICSS_exp/3D_HOI/dtw/corl/dtw','../ICSS_exp/3D_HOI/dtw/max_z/dtw']
-dtw1=['../ICSS_exp/3D_HOI/dtw/corl/dtw','../ICSS_exp/3D_HOI/dtw/max_z/dtw','../ICSS_exp/3D_HOI/common/1D_CNN_AE/feats']
-common=['../ICSS_exp/3D_HOI/common/1D_CNN_AE/feats',dtw,dtw1]
+def dtw_exp(dtw,deep,binary,out_path):
+	for deep_i in deep:
+		single_exp(dtw,binary,out_path)
+		single_exp(deep_i,binary,out_path)
+		single_exp(dtw+deep,binary,out_path)
 
-#multi_exp(common,"../ICSS_exp/3D_HOI/ens/lstm/feats","test")
-#find_path("../ICSS_exp/3D_HOI")
-#ens_exp(common_path,binary_path,"test")
-show_result("test")
+#find_path('../ICSS_exp/MSR')
+#find_dtw('../ICSS_exp/MSR')
+
+deep=['../ICSS_exp/MSR/common/1D_CNN/feats', '../ICSS_exp/MSR/common/stats/feats']
+binary='../ICSS_exp/MSR/ens/lstm_gen/feats'
+dtw=['../ICSS_exp/MSR/dtw/corl/person', '../ICSS_exp/MSR/dtw/max_z/person']
+dtw_exp(dtw,deep,binary,"MSR2")
+show_result("MSR2")
