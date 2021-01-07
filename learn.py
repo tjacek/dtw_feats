@@ -40,8 +40,7 @@ class Result(object):
             hard_i=np.zeros((n_cats,))
             hard_i[np.argmax(y_i)]=1
             hard_pred.append(hard_i)
-        y_pred=np.array(hard_pred)
-        return Result(self.y_true,y_pred,self.names)
+        return np.array(hard_pred)
    
     def get_acc(self):
         y_true,y_pred=self.as_labels()

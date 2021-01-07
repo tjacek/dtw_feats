@@ -13,18 +13,16 @@ def single_exp(common_path,binary_path,out_path):
 		ens_i=binary_path.split("/")[-2]
 		out_i="%s/%s,%s,%s" % (out_path,desc_i,ens_i,clf_i)
 		print(out_i)
-		result=ens.ensemble(common_path,binary_path,binary=False,clf=clf_i)
-		result.save(out_i)
+		votes=ens.make_votes(common_path,binary_path,clf=clf_i)#ens.ensemble(common_path,binary_path,binary=False,clf=clf_i)
+		votes.save(out_i)
+		print(votes.voting().get_acc())
 
 def show_result(in_path):
 	print("common,binary,Hard,clf,Hard voting,accuracy,precision,recall,fscore")
 	for path_i in files.top_files(in_path):
 		result_i=learn.read(path_i)
 		for binary_i in [True,False]:
-			if(binary_i):
-				show_single(path_i,result_i.as_hard_votes(),binary_i)
-			else:
-				show_single(path_i,result_i,binary_i)
+			show_single(path_i,result_i.voting(binary_i),binary_i)
 
 def show_single(path_i,result_i,binary_i):
 	metrics_i=result_i.metrics()
@@ -65,10 +63,10 @@ def find_dtw(in_path,dtw_type="dtw"):
 	return dtw_feats
 
 def dtw_exp(dtw,deep,binary,out_path):
+	single_exp(dtw,binary,out_path)
 	for deep_i in deep:
-		single_exp(dtw,binary,out_path)
 		single_exp(deep_i,binary,out_path)
-		single_exp(dtw+deep,binary,out_path)
+		single_exp(dtw+[deep_i],binary,out_path)
 
 #find_path('../ICSS_exp/MSR')
 #find_dtw('../ICSS_exp/MSR')
