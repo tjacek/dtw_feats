@@ -11,6 +11,10 @@ class Result(object):
         self.y_pred=y_pred
         self.names=names
 
+    def n_cats(self):
+        votes=self.as_numpy()
+        return votes.shape[1]
+
     def as_numpy(self):
         if(self.y_pred.ndim==2):
             return self.y_pred
@@ -29,6 +33,16 @@ class Result(object):
             pred=self.y_pred
         return self.y_true,pred
 
+    def as_hard_votes(self):
+        hard_pred=[]
+        n_cats=self.n_cats()
+        for y_i in self.y_pred:
+            hard_i=np.zeros((n_cats,))
+            hard_i[np.argmax(y_i)]=1
+            hard_pred.append(hard_i)
+        y_pred=np.array(hard_pred)
+        return Result(self.y_true,y_pred,self.names)
+   
     def get_acc(self):
         y_true,y_pred=self.as_labels()
         return accuracy_score(y_true,y_pred)

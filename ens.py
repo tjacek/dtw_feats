@@ -41,8 +41,8 @@ def show_acc(common_path,binary_path,binary=True,clf="SVC"):
 
 if __name__ == "__main__":
 #common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
-    common_path=["../3DHOI/common/simple/basic/feats","../3DHOI/common/agum/basic/feats"]
+    common_path="../ICSS_exp/MSR/common/basic/feats"#,"../3DHOI/common/agum/basic/feats"]
     binary_path=None#"..//ens/feats"
 #    result=ensemble(common_path,binary_path,clf="LR")
-    data=[common_path,"../3DHOI/lstm/feats"]
+    data=[common_path,"../ICSS_exp/MSR/lstm_gen/feats"]
     simple_exp(common_path,binary_path,clf="LR")
