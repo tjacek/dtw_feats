@@ -28,12 +28,22 @@ def show_single(path_i,result_i,binary_i):
 	line_i="%s,%s,%s" % (prefix_i,str(binary_i),metrics_i)
 	print(line_i)
 
+def find_path(in_path):
+	paths=files.bottom_files(in_path,full_paths=True)
+	feat_paths=[]
+	for path_i in paths:
+		if(path_i.split("/")[-1]=="feats"):
+			feat_paths.append(path_i)
+	print(feat_paths)
+
 #common_path="good/ae_basic"
 #binary_path="good/ens"
 
 dtw=["../ICSS_exp/MSR/dtw/max_z/person","../ICSS_exp/MSR/dtw/corl/person"]
 common_path="../ICSS_exp/MSR/common/stats/feats"
 binary_path="../ICSS_exp/MSR/ens/lstm_gen/feats"
-dtw.append(common_path)
-ens_exp(dtw,binary_path,"MSR5")
-show_result("MSR5")
+#dtw.append(common_path)
+#ens_exp(dtw,binary_path,"MSR5")
+#show_result("MSR5")
+
+find_path("../ICSS_exp/MSR")
