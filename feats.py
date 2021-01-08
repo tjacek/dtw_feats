@@ -71,7 +71,9 @@ def read_single(in_path):
         if(len(raw)>1):
             data_i,info_i=raw[0],raw[-1]
             info_i= files.Name(info_i).clean()#files.clean_str(info_i)
-            feat_dict[info_i]=np.fromstring(data_i,sep=',')
+            x_i=np.fromstring(data_i,sep=',')
+            x_i=np.nan_to_num(x_i,nan=0.0,posinf=0.0, neginf=0.0)
+            feat_dict[info_i]=x_i
     return Feats(feat_dict)
 
 def read_unified(paths):
