@@ -39,8 +39,8 @@ def read_dataset(common_path,deep_path):
                 for data_i in deep_data]
     return datasets
 
-def ensemble(common_path,binary_path,clf="SVC"):
-    votes=make_votes(common_path,binary_path,binary,clf)
+def ensemble(common_path,binary_path,binary=True,clf="SVC"):
+    votes=make_votes(common_path,binary_path,clf)
     result=votes.voting(binary)
     print(result.get_acc()) 
     return result
@@ -57,9 +57,8 @@ def show_acc(common_path,binary_path,binary=True,clf="SVC"):
     return [ result_i.get_acc() for result_i in results]
 
 if __name__ == "__main__":
-#common_path=["old2/agum/basic/feats","old2/simple/basic/feats"]
-    common_path="../ICSS_exp/MSR/common/stats/feats"#,"../3DHOI/common/agum/basic/feats"]
-    binary_path=None#"..//ens/feats"
-#    result=ensemble(common_path,binary_path,clf="LR")
-    data=[common_path,"../ICSS_exp/MSR/lstm_gen/feats"]
-    simple_exp(common_path,binary_path,clf="LR")
+    deep=['../ICSS_exp/MSR/common/stats/feats']
+    binary='../ICSS_exp/MSR/ens/lstm/feats'
+    dtw=['../ICSS_exp/MSR/dtw/corl/dtw', '../ICSS_exp/MSR/dtw/max_z/dtw']
+    result=ensemble(dtw+deep,binary,clf="LR",binary=False)
+    result.get_cf("cf/MSR")
