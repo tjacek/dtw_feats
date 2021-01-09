@@ -18,6 +18,9 @@ class Votes(object):
         votes=np.sum(votes,axis=0)
         return learn.Result(self.results[0].y_true,votes,self.results[0].names)
 
+    def indv_acc(self):
+        return [ result_i.get_acc() for result_i in self.results]
+    
     def save(self,out_path):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)
@@ -41,6 +44,7 @@ def read_dataset(common_path,deep_path):
 
 def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     votes=make_votes(common_path,binary_path,clf)
+    print(votes.indv_acc())
     result=votes.voting(binary)
     print(result.get_acc()) 
     return result
@@ -61,4 +65,3 @@ if __name__ == "__main__":
     binary='../ICSS_exp/MSR/ens/lstm/feats'
     dtw=['../ICSS_exp/MSR/dtw/corl/dtw', '../ICSS_exp/MSR/dtw/max_z/dtw']
     result=ensemble(dtw+deep,binary,clf="LR",binary=False)
-    result.get_cf("cf/MSR")
