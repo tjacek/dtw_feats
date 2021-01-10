@@ -1,5 +1,5 @@
 import numpy as np
-import ens,feats,learn,files
+import ens,feats,learn,files,exp
 
 def basic_selection(common_path,binary_path,clf="SVC"):
     datasets=ens.read_dataset(common_path,binary_path)
@@ -23,8 +23,16 @@ def validate_acc(data_i):
 	result=learn.train_model(new_data,binary=False,clf_type="LR")
 	return result.get_acc()
 
-deep=['../ICSS_exp/MSR/common/stats/feats']
-binary='../ICSS_exp/MSR/ens/lstm/feats'
-dtw=['../ICSS_exp/MSR/dtw/corl/dtw', '../ICSS_exp/MSR/dtw/max_z/dtw']
-result=basic_selection(dtw+deep,binary,clf="LR")
-print(result.voting().get_acc())
+def selection_exp(dtw,deep,binary,out_path):
+	fun=basic_selection
+	exp.single_exp(None,binary,out_path,fun)
+	exp.single_exp(dtw,binary,out_path,fun)
+	for deep_i in deep:
+		exp.single_exp(deep_i,binary,out_path,fun)
+		exp.single_exp(dtw+[deep_i],binary,out_path,fun)
+
+deep=['../ICSS_exp/3DHOI/common/stats/feats','../ICSS_exp/3DHOI/common/1D_CNN/feats']
+binary='../ICSS_exp/3DHOI/ens/lstm/feats'
+dtw=['../ICSS_exp/3DHOI/dtw/corl/dtw', '../ICSS_exp/3DHOI/dtw/max_z/dtw']
+selection_exp(dtw,deep,binary,"selection/3DHOI")
+#print(result.voting().get_acc())

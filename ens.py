@@ -8,6 +8,9 @@ class Votes(object):
     def __init__(self,results):
         self.results=results
 
+    def __len__(self):
+        return len(self.results)
+
     def voting(self,binary=False):
         if(binary):
             votes=np.array([ result_i.as_hard_votes() 
@@ -61,7 +64,7 @@ def show_acc(common_path,binary_path,binary=True,clf="SVC"):
     return [ result_i.get_acc() for result_i in results]
 
 if __name__ == "__main__":
-    deep=['../ICSS_exp/MSR/common/stats/feats']
-    binary='../ICSS_exp/MSR/ens/lstm/feats'
-    dtw=['../ICSS_exp/MSR/dtw/corl/dtw', '../ICSS_exp/MSR/dtw/max_z/dtw']
+    deep=['../ICSS_exp/3DHOI/common/stats/feats']
+    binary='../ICSS_exp/3DHOI/ens/lstm/feats'
+    dtw=['../ICSS_exp/3DHOI/dtw/corl/dtw', '../ICSS_exp/MHAD/dtw/max_z/dtw']
     result=ensemble(dtw+deep,binary,clf="LR",binary=False)

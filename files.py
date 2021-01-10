@@ -17,28 +17,11 @@ def top_files(path):
     paths=sorted(paths,key=natural_keys)
     return paths
 
-#def bottom_files(path,full_paths=True):
-#    all_paths=[]
-#    for root, directories, filenames in os.walk(path):
-#        if(not directories):
-#            for filename_i in filenames:
-#                path_i= root+'/'+filename_i if(full_paths) else filename_i
-#                all_paths.append(path_i)
-#    all_paths.sort(key=natural_keys)        
-#    return all_paths
-
 def all_files(path):
     dicts=[]
     for root, directories, filenames in os.walk(path):
         dicts+=top_files(root)
     return dicts
-
-#def bottom_dict(path):
-#    bottom_dict=[]
-#    for root, directories, filenames in os.walk(path):
-#        if(not directories):
-#            bottom_dict.append(root)
-#    return bottom_dict
 
 def all_dicts(path):
     dicts=[]
@@ -79,3 +62,9 @@ def split(dict,selector=None):
 def person_selector(name_i):
     person_i=int(name_i.split('_')[1])
     return person_i%2==1
+
+def to_csv(lines,out_path):
+    csv="\n".join(lines)
+    file1 = open(out_path,"w")   
+    file1.write(csv) 
+    file1.close()
