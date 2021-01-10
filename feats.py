@@ -14,6 +14,10 @@ class Feats(dict):
 		train,test=files.split(self)
 		return Feats(train),Feats(test)
 
+	def as_dataset(self):
+		names=self.names()
+		return self.get_X(names),self.get_labels(names),names
+
 	def names(self):
 		return sorted(self.keys(),key=files.natural_keys) 
 	
