@@ -1,17 +1,23 @@
 import os.path
 import files,ens,learn
-#import pickle
 
-def multi_exp(common_path,binary_path,out_path):
-	for common_i in common_path:
-		single_exp(common_i,binary_path,out_path)
+def dtw_exp(dtw,deep,binary,out_path):
+	single_exp(None,binary,out_path)
+	single_exp(dtw,binary,out_path)
+	single_exp(dtw,None,out_path)
+	for deep_i in deep:
+		single_exp(deep_i,binary,out_path)
+		single_exp(dtw+[deep_i],binary,out_path)
+		single_exp(deep_i,None,out_path)
 
-def single_exp(common_path,binary_path,out_path,fun=None):
+def single_exp(common_path,binary_path,out_path,fun=None,clf="LR"):
 	if(not fun):
 		fun=ens.make_votes
+	if(type(clf)==str):
+		clf=[clf]
 	files.make_dir(out_path)
 	lines=[]
-	for clf_i in ["LR"]:#,"SVC"]:
+	for clf_i in clf:
 		desc_i=get_desc(common_path)
 		ens_i=get_desc(binary_path) 
 		out_i="%s/%s,%s,%s" % (out_path,desc_i,ens_i,clf_i)
@@ -25,13 +31,16 @@ def single_exp(common_path,binary_path,out_path,fun=None):
 		print(votes.voting().get_acc())
 	return lines
 
-def show_result(in_path,out_path=None):
+def show_result(in_path,out_path=None,hard=None):
 	lines=[]
 	print("common,ensemble,clf,n_clf,Hard voting,accuracy,precision,recall,fscore")
 	for path_i in files.top_files(in_path):
 		votes_i=learn.read(path_i)
-		for binary_i in [True,False]:
-			lines.append(show_single(path_i,votes_i,binary_i))
+		if(hard is None):
+			for hard_i in [True,False]:
+				lines.append(show_single(path_i,votes_i,hard_i))
+		else:
+				lines.append(show_single(path_i,votes_i,hard))
 	if(out_path):
 		files.to_csv(lines,out_path)
 
@@ -39,7 +48,7 @@ def show_single(path_i,votes_i,binary_i):
 	result_i=votes_i.voting(binary_i)
 	metrics_i=result_i.metrics()
 	metrics_i= [result_i.get_acc()] +list(metrics_i[:3])
-	metrics_i="%4f,%4f,%4f,%4f" % tuple(metrics_i)
+	metrics_i="%.4f,%.4f,%.4f,%.4f" % tuple(metrics_i)
 	prefix_i=path_i.split('/')[-1]#.replace("_",",")
 	line_i="%s,%d,%s,%s" % (prefix_i,len(votes_i),str(binary_i),metrics_i)
 	print(line_i)
@@ -76,15 +85,6 @@ def find_dtw(in_path,dtw_type="dtw"):
 		dtw_feats.append(dtw_i)
 	print(dtw_feats)
 	return dtw_feats
-
-def dtw_exp(dtw,deep,binary,out_path):
-	single_exp(None,binary,out_path)
-	single_exp(dtw,binary,out_path)
-	single_exp(dtw,None,out_path)
-	for deep_i in deep:
-		single_exp(deep_i,binary,out_path)
-		single_exp(dtw+[deep_i],binary,out_path)
-		single_exp(deep_i,None,out_path)
 
 if __name__ == "__main__":
 	deep=['../ICSS_exp/3DHOI/common/1D_CNN/feats','../ICSS_exp/3DHOI/common/stats/feats']

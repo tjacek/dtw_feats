@@ -30,6 +30,8 @@ class Votes(object):
 
 def make_votes(common_path,binary_path,clf="SVC"):
     datasets=read_dataset(common_path,binary_path)
+    if(len(datasets)==0):
+        raise Exception("No data at %s" % binary_path)
     results=[learn.train_model(data_i,clf_type=clf,binary=False)
                 for data_i in datasets]
     return Votes(results)
