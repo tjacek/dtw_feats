@@ -8,13 +8,20 @@ def show_all(in_path,out_path):
     common,binary=exp.find_path(in_path)
     paths=common+binary
     for in_i in paths:
+        print(in_i)
         out_i="%s/%s" % (out_path,in_i.split('/')[-2])
         make_plot(in_i,out_i)
 
 def make_plot(in_path,out_path):
-    if(os.path.isdir(in_path)):
+    if(not os.path.isdir(in_path)):
         plot_i=tsne_plot(in_path,show=False)
         plot_i.savefig(out_path)
+    else:
+        files.make_dir(out_path)
+        for in_i in files.top_files(in_path):
+            out_i="%s/%s" % (out_path,in_i.split('/')[-1])
+            plot_i=tsne_plot(in_i,show=False)
+            plot_i.savefig(out_i)
 
 def tsne_plot(in_path,show=True,color_helper="cat",names=False):
     feat_dataset= feats.read(in_path)[0].split()[1]
@@ -47,4 +54,4 @@ def plot_embedding(X,y,title="plot",color_helper=None,show=True,names=None):
         plt.show()
     return plt
 
-show_all('../ICSS_exp/3DHOI/',"plots")
+show_all('../ICSS_exp/MHAD/',"plots")
