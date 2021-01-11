@@ -3,6 +3,7 @@ import feats
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import classification_report,accuracy_score
 import pickle
+from sklearn.metrics import confusion_matrix
 import clf,files,feats
 
 class Result(object):
@@ -42,6 +43,13 @@ class Result(object):
             hard_pred.append(hard_i)
         return np.array(hard_pred)
    
+    def get_cf(self,out_path=None):
+        y_true,y_pred=self.as_labels()
+        cf_matrix=confusion_matrix(y_true,y_pred)
+        if(out_path):
+            np.savetxt(out_path,cf_matrix,delimiter=",",fmt='%.2e')
+        return cf_matrix
+
     def get_acc(self):
         y_true,y_pred=self.as_labels()
         return accuracy_score(y_true,y_pred)
@@ -54,6 +62,14 @@ class Result(object):
         y_true,y_pred=self.as_labels()
         return precision_recall_fscore_support(y_true,y_pred,average='weighted')
 
+    def get_errors(self):
+        errors=[]
+        y_true,y_pred=self.as_labels()
+        for i,y_i in enumerate(y_true):
+            if(y_i!=y_pred[i]):
+                errors.append( (y_i,y_pred[i],self.names[i]))
+        return errors
+
     def save(self,out_path):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)
@@ -62,7 +78,7 @@ def read(in_path):
     with open(in_path, 'rb') as handle:
         return pickle.load(handle)
 
-def train_model(data,binary=False,clf_type="LR",acc_only=False):
+def train_model(data,binary=False,clf_type="LR"):
     if(type(data)==str):	
         data=feats.read(data)[0]
     data.norm()
@@ -73,6 +89,7 @@ def train_model(data,binary=False,clf_type="LR",acc_only=False):
     X_train,y_train= train.get_X(),train.get_labels()
     model.fit(X_train,y_train)
     X_test,y_true=test.get_X(),test.get_labels()
+    X_train=np.nan_to_num(X_train)
     if(binary):
         y_pred=model.predict(X_test)
     else:
