@@ -38,14 +38,22 @@ def make_votes(common_path,binary_path,clf="SVC"):
 
 def read_dataset(common_path,deep_path):
     if(not common_path):
-        return feats.read(deep_path)
+        return read_deep(deep_path)#feats.read(deep_path)
     if(not deep_path):
         return feats.read(common_path)
     common_data=feats.read(common_path)[0]
-    deep_data=feats.read(deep_path)
+    deep_data=read_deep(deep_path)
     datasets=[common_data+ data_i 
                 for data_i in deep_data]
     return datasets
+
+def read_deep(deep_path):
+    if(type(deep_path)==list):
+        datasets=[]
+        for deep_i in deep_path:
+            datasets+=feats.read(deep_i)
+        return datasets
+    return feats.read(deep_path)
 
 def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     votes=make_votes(common_path,binary_path,clf)
@@ -66,7 +74,13 @@ def show_acc(common_path,binary_path,binary=True,clf="SVC"):
     return [ result_i.get_acc() for result_i in results]
 
 if __name__ == "__main__":
-    deep=['../ICSS_exp/3DHOI/common/stats/feats']
-    binary='../ICSS_exp/3DHOI/ens/lstm/feats'
-    dtw=['../ICSS_exp/3DHOI/dtw/corl/dtw', '../ICSS_exp/MHAD/dtw/max_z/dtw']
+    dataset="3DHOI"
+    path='../ICSS_exp/%s/' % dataset
+    deep=['%s/common/1D_CNN/feats' % path]
+    binary='%s/ens/lstm/feats' % path
+#    binary='../ICSS_sim/%s/sim/feats' % dataset
+#    binary=['%s/ens/lstm/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
+    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
     result=ensemble(dtw+deep,binary,clf="LR",binary=False)
+    result.report()
+#    print(result.get_errors())
