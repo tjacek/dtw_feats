@@ -87,9 +87,9 @@ if __name__ == "__main__":
     binary='%s/ens/lstm/feats' % path
 #    binary='../ICSS_sim/%s/sim/feats' % dataset
 #    binary=['%s/ens/lstm/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
-#    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
-#    result=ensemble(deep,binary,clf="LR",binary=False)
-#    result.report()
-    acc=make_votes(deep,binary).acc_matrix()
-    print(np.mean(np.diag(acc)))
-    print(np.mean(acc))
+    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
+    result=ensemble(deep+dtw,binary,clf="LR",binary=False)
+    result.report()
+#    acc=make_votes(deep,binary).acc_matrix()
+#    print(np.mean(np.diag(acc)))
+#    print(np.mean(acc))
