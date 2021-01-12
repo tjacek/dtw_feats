@@ -70,6 +70,14 @@ class Result(object):
                 errors.append( (y_i,y_pred[i],self.names[i]))
         return errors
 
+    def cat_acc(self,cat_i):
+        y_true,y_pred=self.as_labels()
+        cat_pred=[]
+        for j,y_j in enumerate(y_true): 
+            if(y_j==cat_i):
+                cat_pred.append(int(y_j==y_pred[j]))
+        return np.mean(cat_pred)
+
     def save(self,out_path):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)
@@ -77,6 +85,9 @@ class Result(object):
 def read(in_path):
     with open(in_path, 'rb') as handle:
         return pickle.load(handle)
+
+def train_ens(datasets,clf="LR"):
+    return [train_model(data_i,clf_type=clf) for data_i in datasets]
 
 def train_model(data,binary=False,clf_type="LR"):
     if(type(data)==str):	
@@ -105,7 +116,7 @@ def voting(results,binary):
 def get_prob(results):
     return np.array([result_i[1] for result_i in results])
 
-def get_acc(paths,clf="LR"):
-    datasets=tools.read_datasets(paths)
-    return [train_model(data_i,True,clf,True) 
-                for data_i in datasets]
+#def get_acc(paths,clf="LR"):
+#    datasets=tools.read_datasets(paths)
+#    return [train_model(data_i,True,clf,True) 
+#                for data_i in datasets]
