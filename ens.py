@@ -24,11 +24,19 @@ class Votes(object):
     def indv_acc(self):
         return [ result_i.get_acc() for result_i in self.results]
     
+    def acc_matrix(self):
+        n_cats=self.results[0].n_cats()
+        n_clf=len(self)
+        acc=[[ self.results[i].cat_acc(j)
+                for i in range(n_clf)]
+                    for j in range(n_cats)]
+        return np.array(acc)
+
     def save(self,out_path):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)
 
-def make_votes(common_path,binary_path,clf="SVC"):
+def make_votes(common_path,binary_path,clf="LR"):
     datasets=read_dataset(common_path,binary_path)
     if(len(datasets)==0):
         raise Exception("No data at %s" % binary_path)
@@ -57,7 +65,6 @@ def read_deep(deep_path):
 
 def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     votes=make_votes(common_path,binary_path,clf)
-    print(votes.indv_acc())
     result=votes.voting(binary)
     print(result.get_acc()) 
     return result
@@ -80,7 +87,9 @@ if __name__ == "__main__":
     binary='%s/ens/lstm/feats' % path
 #    binary='../ICSS_sim/%s/sim/feats' % dataset
 #    binary=['%s/ens/lstm/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
-    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
-    result=ensemble(dtw+deep,binary,clf="LR",binary=False)
-    result.report()
-#    print(result.get_errors())
+#    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
+#    result=ensemble(deep,binary,clf="LR",binary=False)
+#    result.report()
+    acc=make_votes(deep,binary).acc_matrix()
+    print(np.mean(np.diag(acc)))
+    print(np.mean(acc))
