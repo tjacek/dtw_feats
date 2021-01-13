@@ -21,6 +21,12 @@ class Votes(object):
         votes=np.sum(votes,axis=0)
         return learn.Result(self.results[0].y_true,votes,self.results[0].names)
 
+    def weighted(self,weights):
+        votes=np.array([ weight_i*result_i.as_numpy() 
+                    for weight_i,result_i in zip(weights,self.results)])
+        votes=np.sum(votes,axis=0)
+        return learn.Result(self.results[0].y_true,votes,self.results[0].names)
+
     def indv_acc(self):
         return [ result_i.get_acc() for result_i in self.results]
     
@@ -81,12 +87,12 @@ def show_acc(common_path,binary_path,binary=True,clf="SVC"):
     return [ result_i.get_acc() for result_i in results]
 
 if __name__ == "__main__":
-    dataset="3DHOI"
+    dataset="MHAD"
     path='../ICSS_exp/%s/' % dataset
     deep=['%s/common/1D_CNN/feats' % path]
-    binary='%s/ens/lstm/feats' % path
+#    binary='%s/ens/lstm_gen/feats' % path
 #    binary='../ICSS_sim/%s/sim/feats' % dataset
-#    binary=['%s/ens/lstm/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
+    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
     dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
     result=ensemble(deep+dtw,binary,clf="LR",binary=False)
     result.report()

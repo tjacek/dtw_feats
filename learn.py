@@ -96,16 +96,20 @@ def train_model(data,binary=False,clf_type="LR"):
     print(data.dim())
     print(len(data))
     train,test=data.split()
-    model= clf.get_cls(clf_type)
-    X_train,y_train= train.get_X(),train.get_labels()
-    model.fit(X_train,y_train)
+    model=make_model(train,clf_type)
     X_test,y_true=test.get_X(),test.get_labels()
-    X_train=np.nan_to_num(X_train)
+#    X_train=np.nan_to_num(X_train)
     if(binary):
         y_pred=model.predict(X_test)
     else:
         y_pred=model.predict_proba(X_test)
     return Result(y_true,y_pred,test.names())
+
+def make_model(train,clf_type):
+    model= clf.get_cls(clf_type)
+    X_train,y_train= train.get_X(),train.get_labels()
+    model.fit(X_train,y_train)
+    return model
 
 def voting(results,binary):
     votes=get_prob(results)
