@@ -1,6 +1,23 @@
 import numpy as np
 from sklearn import neighbors
-import ens,learn
+import ens,learn,exp
+
+def inliner_exp(dtw,deep,binary1,binary2):
+	paths=[ (deep,binary1),(deep+dtw,binary1), 
+			(deep,[binary1,binary2]),(deep+dtw,[binary1,binary2])]
+	results=[]
+	for common_i,binary_i in paths:
+		basic_i=ens.ensemble(common_i,binary_i,clf="LR",binary=False)
+		results.append((False,common_i,binary_i,basic_i))		
+		inline_i=inliner_voting(common_i,binary_i,clf="LR")
+		results.append((True,common_i,binary_i,inline_i))
+	for inline_i,common_i,binary_i,result_i in results:
+		desc_common=exp.get_desc(common_i)
+		desc_binary=exp.get_desc(binary_i)
+		acc_i= result_i.get_acc()
+		metric="%.4f,%.4f.%.4f" % result_i.metrics()[:3]
+		line_i=(int(inline_i),desc_common,desc_binary,acc_i,metric)
+		print("%d,%s,%s,%.4f,%s" % line_i)
 
 def inliner_voting(common,deep,clf="LR"):
 	datasets=ens.read_dataset(None,deep)
@@ -21,14 +38,13 @@ def inliner_voting(common,deep,clf="LR"):
 		else:
 			votes=[results[i].y_pred[j] for i in range(n_clf)]
 #		print(weights_j)
-#		print(len(votes))
+		print(len(votes))
 		votes=np.array(votes)
 		pred_i=np.argmax(np.sum(votes,axis=0))
 #		print(pred_i)
 		y_pred.append(pred_i)
 	y_pred=np.array(y_pred)
 	return learn.Result(results[0].y_true,y_pred,names)
-#	print(y_pred)
 
 def get_inliner_dict(date_i,k=3):
 	train,test=date_i.split()
@@ -47,9 +63,14 @@ def inliner_weights(inliner_i,result_i):
 	return weights
 
 if __name__ == "__main__":
-    dataset='../ICSS_exp/3DHOI/'
-    deep=['%s/common/1D_CNN/feats' % dataset]
-    binary='%s/ens/lstm/feats' % dataset
-    dtw=['%s/dtw/corl/dtw' % dataset, '%s/dtw/max_z/dtw' % dataset]
-    result=inliner_voting(dtw+deep,binary,clf="LR")
-    print(result.get_acc())
+    dataset='3DHOI'
+    path='../ICSS_exp/%s' % dataset
+    deep=['%s/common/1D_CNN/feats' % path]
+    binary1='%s/ens/lstm_gen/feats' % path
+    binary2='../ICSS_sim/%s/sim/feats' % dataset
+#    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
+    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
+    inliner_exp(dtw,deep,binary1,binary2)
+#    result=inliner_voting(deep,binary,clf="LR")
+#    result.report()
+#    print(result.get_acc())
