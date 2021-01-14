@@ -54,6 +54,14 @@ def show_single(path_i,votes_i,binary_i):
 	print(line_i)
 	return line_i
 
+def exp_info(common_i,binary_i,result_i):
+	desc_common=get_desc(common_i)
+	desc_binary=get_desc(binary_i)
+	acc_i= result_i.get_acc()
+	metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
+	metrics="%.4f,%s" % (acc_i,metrics)
+	return desc_common,desc_binary,metrics
+
 def get_desc(common_path):
 	if(common_path is None):
 		return "-"
@@ -72,8 +80,7 @@ def find_path(in_path):
 				binary_paths.append(path_i)
 			else:
 				common_paths.append(path_i)
-	print(common_paths)
-	print(binary_paths)
+	return common_paths,binary_paths
 
 def find_dtw(in_path,dtw_type="dtw"):
 	paths=[path_i for path_i in files.all_dicts(in_path)
@@ -87,8 +94,8 @@ def find_dtw(in_path,dtw_type="dtw"):
 	return dtw_feats
 
 if __name__ == "__main__":
-	deep=['../ICSS_exp/3DHOI/common/1D_CNN/feats','../ICSS_exp/3DHOI/common/stats/feats']
+	deep=['../ICSS_exp/3DHOI/common/1D_CNN/feats']#,'../ICSS_exp/3DHOI/common/stats/feats']
 	binary='../ICSS_exp/3DHOI/ens/lstm/feats'
-	dtw=['../ICSS_exp/3DHOI/dtw/corl/person', '../ICSS_exp/3DHOI/dtw/max_z/person']
-#	dtw_exp(dtw,deep,binary,"3DHOI")
-	show_result("selection/MHAD","selection/MHAD.csv")
+	dtw=['../ICSS_exp/3DHOI/dtw/corl/cat', '../ICSS_exp/3DHOI/dtw/max_z/cat']
+	dtw_exp(dtw,deep,binary,"3DHOI_cat")
+	show_result("reduction/3DHOI_cat")#,"reduction/SVC.csv")

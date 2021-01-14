@@ -12,12 +12,9 @@ def inliner_exp(dtw,deep,binary1,binary2):
 		inline_i=inliner_voting(common_i,binary_i,clf="LR")
 		results.append((True,common_i,binary_i,inline_i))
 	for inline_i,common_i,binary_i,result_i in results:
-		desc_common=exp.get_desc(common_i)
-		desc_binary=exp.get_desc(binary_i)
-		acc_i= result_i.get_acc()
-		metric="%.4f,%.4f.%.4f" % result_i.metrics()[:3]
-		line_i=(int(inline_i),desc_common,desc_binary,acc_i,metric)
-		print("%d,%s,%s,%.4f,%s" % line_i)
+		desc_common,desc_binary,metrics=exp.exp_info(common_i,binary_i,result_i)
+		line_i=(int(inline_i),desc_common,desc_binary,metric)
+		print("%d,%s,%s,%s" % line_i)
 
 def inliner_voting(common,deep,clf="LR"):
 	datasets=ens.read_dataset(None,deep)
@@ -63,13 +60,13 @@ def inliner_weights(inliner_i,result_i):
 	return weights
 
 if __name__ == "__main__":
-    dataset='3DHOI'
+    dataset='MHAD'
     path='../ICSS_exp/%s' % dataset
     deep=['%s/common/1D_CNN/feats' % path]
     binary1='%s/ens/lstm_gen/feats' % path
     binary2='../ICSS_sim/%s/sim/feats' % dataset
 #    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
-    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
+    dtw=['%s/dtw/max_z/dtw' % path]#, '%s/dtw/max_z/dtw' % path]
     inliner_exp(dtw,deep,binary1,binary2)
 #    result=inliner_voting(deep,binary,clf="LR")
 #    result.report()
