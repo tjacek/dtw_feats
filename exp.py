@@ -1,21 +1,31 @@
 import os.path
 import files,ens,learn
 
-def dtw_exp(dtw,deep,binary,out_path):
-	single_exp(None,binary,out_path)
-	single_exp(dtw,binary,out_path)
-	single_exp(dtw,None,out_path)
-	for deep_i in deep:
-		single_exp(deep_i,binary,out_path)
-		single_exp(dtw+[deep_i],binary,out_path)
-		single_exp(deep_i,None,out_path)
+class ExpTemplate(object):
+	def __init__(self,fun=None):
+		if(not fun):
+			fun=ens.make_votes
+		self.fun=fun
+
+	def __call__(self,dtw,deep,binary,out_path,clf="LR"):
+		paths=files.iter_product([[dtw,deep], [binary,None]])
+		paths.append((dtw+deep,binary))
+		paths.append((None,binary))
+		lines=[]
+		for common_i,deep_i in paths: 
+			votes=self.fun(common_i,deep_i,clf=clf)
+			result_i=votes.voting(False)
+			desc=exp_info(common_i,deep_i,result_i)
+			lines.append("%s,%s,%s" % desc)
+		files.to_csv(lines,out_path)
 
 def single_exp(common_path,binary_path,out_path,fun=None,clf="LR"):
 	if(not fun):
 		fun=ens.make_votes
 	if(type(clf)==str):
 		clf=[clf]
-	files.make_dir(out_path)
+	if(out_path):
+		files.make_dir(out_path)
 	lines=[]
 	for clf_i in clf:
 		desc_i=get_desc(common_path)
@@ -68,6 +78,7 @@ def get_desc(common_path):
 	if(type(common_path)==list):
 		desc=[common_i.split("/")[-2] for common_i in common_path]
 		return "-".join(desc)
+#	raise Exception(common_path)
 	return common_path.split("/")[-2]
 
 def find_path(in_path):
@@ -96,6 +107,7 @@ def find_dtw(in_path,dtw_type="dtw"):
 if __name__ == "__main__":
 	deep=['../ICSS_exp/3DHOI/common/1D_CNN/feats']#,'../ICSS_exp/3DHOI/common/stats/feats']
 	binary='../ICSS_exp/3DHOI/ens/lstm/feats'
-	dtw=['../ICSS_exp/3DHOI/dtw/corl/cat', '../ICSS_exp/3DHOI/dtw/max_z/cat']
-	dtw_exp(dtw,deep,binary,"3DHOI_cat")
-	show_result("reduction/3DHOI_cat")#,"reduction/SVC.csv")
+	dtw=['../ICSS_exp/3DHOI/dtw/corl/person', '../ICSS_exp/3DHOI/dtw/max_z/person']
+	dtw_exp=ExpTemplate()
+	dtw_exp(dtw,deep,binary,"3DHOI.csv")
+#	show_result("3DHOI",hard=False)#,"reduction/SVC.csv")
