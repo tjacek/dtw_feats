@@ -1,4 +1,4 @@
-import dtw.pairs,files,feats
+import dtw.pairs,files,feats,dtw.knn
 
 def compute_feats(pair_path,feat_path):
 	pairs=dtw.pairs.read(pair_path)
@@ -11,3 +11,9 @@ def compute_feats(pair_path,feat_path):
 def get_train(pairs):
 	return [name_i for name_i in pairs.keys()
 				if(files.person_selector(name_i))]
+
+def select_feats(pair_path,feat_path):
+	pairs=dtw.pairs.read(pair_path)
+	train=get_train(pairs)
+	s_names=dtw.knn.knn_selection(train,pairs,k=3)
+	print(s_names)
