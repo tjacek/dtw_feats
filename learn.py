@@ -8,6 +8,8 @@ import clf,files,feats
 
 class Result(object):
     def __init__(self,y_true,y_pred,names):
+        if(type(y_pred)==list):
+            y_pred=np.array(y_pred)
         self.y_true=y_true
         self.y_pred=y_pred
         self.names=names

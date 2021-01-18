@@ -17,6 +17,17 @@ class DTWpairs(object):
 	def set(self,key1,key2,data_i):
  		self.pairs[key1][key2]=data_i
 	
+	def split(self,selector=None):
+		if(selector is None):
+			selector=files.person_selector
+		train,test=[],[]
+		for name_i in self.pairs.keys():
+			if(selector(name_i)):
+				train.append(name_i)
+			else:
+				test.append(name_i)
+		return train,test
+
 	def save(self,out_path):
 		with open(out_path, 'wb') as handle:
 			pickle.dump(self, handle, protocol=pickle.HIGHEST_PROTOCOL)
