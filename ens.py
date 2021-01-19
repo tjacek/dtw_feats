@@ -75,27 +75,14 @@ def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     print(result.get_acc()) 
     return result
 
-def simple_exp(common_path,binary_path,clf="SVC"):
-	dataset=read_dataset(common_path,binary_path)[0]
-	result=learn.train_model(dataset,clf_type=clf)
-	print(result.get_acc())
-
-def show_acc(common_path,binary_path,binary=True,clf="SVC"):
-    datasets=read_dataset(common_path,binary_path)
-    results=[learn.train_model(data_i,clf_type=clf,binary=binary)
-                for data_i in datasets]
-    return [ result_i.get_acc() for result_i in results]
-
 if __name__ == "__main__":
     dataset="MHAD"
     path='../ICSS_exp/%s/' % dataset
     deep=['%s/common/1D_CNN/feats' % path]
-#    binary='%s/ens/lstm_gen/feats' % path
+    binary='%s/ens/lstm_gen/feats' % path
 #    binary='../ICSS_sim/%s/sim/feats' % dataset
-    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
-    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
-    result=ensemble(deep+dtw,binary,clf="LR",binary=False)
+#    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
+#    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
+    dtw="handcrafted/3DHOI/max_z/out"
+    result=ensemble(dtw,None,clf="LR",binary=False)
     result.report()
-#    acc=make_votes(deep,binary).acc_matrix()
-#    print(np.mean(np.diag(acc)))
-#    print(np.mean(acc))

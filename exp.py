@@ -1,22 +1,35 @@
 import os.path
 import files,ens,learn
 
+class SimpleExp(object):
+	def __init__(self,fun=None):
+		if(not fun):
+			fun=ens.ensemble
+		self.fun=fun
+
+	def __call__(self,common_path,binary_path,clf="LR",cf_path=None):
+		result=self.fun(common_path,binary_path,clf)
+		result.report()
+		print(result.get_acc())
+		if(cf_path):
+			result.get_cf(cf_path)
+
 class ExpTemplate(object):
 	def __init__(self,fun=None):
 		if(not fun):
-			fun=ens.make_votes
+			fun=ens.ensemble
 		self.fun=fun
 
 	def __call__(self,dtw,deep,binary,out_path,clf="LR"):
 		paths=files.iter_product([[dtw,deep], [binary,None]])
-		paths.append((dtw+deep,binary))
 		paths.append((None,binary))
+		paths.append((dtw+deep,binary))
 		lines=[]
 		for common_i,deep_i in paths: 
-			votes=self.fun(common_i,deep_i,clf=clf)
-			result_i=votes.voting(False)
-			desc=exp_info(common_i,deep_i,result_i)
-			lines.append("%s,%s,%s" % desc)
+			result_i=self.fun(common_i,deep_i,clf=clf)
+			if(result_i):
+				desc=exp_info(common_i,deep_i,result_i)
+				lines.append("%s,%s,%s" % desc)
 		files.to_csv(lines,out_path)
 
 def single_exp(common_path,binary_path,out_path,fun=None,clf="LR"):
@@ -109,5 +122,7 @@ if __name__ == "__main__":
 	binary='../ICSS_exp/3DHOI/ens/lstm/feats'
 	dtw=['../ICSS_exp/3DHOI/dtw/corl/person', '../ICSS_exp/3DHOI/dtw/max_z/person']
 	dtw_exp=ExpTemplate()
-	dtw_exp(dtw,deep,binary,"3DHOI.csv")
+#	dtw_exp(dtw,deep,binary,"3DHOI.csv")
 #	show_result("3DHOI",hard=False)#,"reduction/SVC.csv")
+	simple_exp=SimpleExp()
+	simple_exp(deep,binary)
