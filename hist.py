@@ -3,10 +3,16 @@ import matplotlib.pyplot as plt
 from matplotlib import offsetbox
 import ens
 
-def acc_hist(common_path,binary_path,clf="LR"):
+def acc_hist(common_path,binary_path,clf="LR",cat_i=None):
 	votes=ens.make_votes(common_path,binary_path,clf=clf)
-	acc=votes.indv_acc()
-	show_histogram(acc,title='indiv acc',cumsum=False)
+	if(cat_i is None):
+		acc=votes.indv_acc()
+		title='indiv acc'
+	else:
+		acc_matrix=votes.acc_matrix()
+		acc=acc_matrix[cat_i]
+		title='acc cat %d' % cat_i
+	show_histogram(acc,title=title,cumsum=False)
 
 def show_histogram(hist,title='hist',cumsum=True):
 	if(type(hist)==list):
@@ -22,4 +28,4 @@ def show_histogram(hist,title='hist',cumsum=True):
 dataset="MHAD"
 path='../ICSS_exp/%s/' % dataset
 binary='%s/ens/lstm_gen/feats' % path
-acc_hist(None,binary,clf="LR")
+acc_hist(None,binary,clf="LR",cat_i=5)
