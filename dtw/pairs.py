@@ -28,6 +28,11 @@ class DTWpairs(object):
 				test.append(name_i)
 		return train,test
 
+	def dist_matrix(self,names):
+		distance=[[ self[name_i][name_j] for name_i]
+					for name_j]
+		return np.array(distance)
+
 	def save(self,out_path):
 		with open(out_path, 'wb') as handle:
 			pickle.dump(self, handle, protocol=pickle.HIGHEST_PROTOCOL)
