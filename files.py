@@ -68,3 +68,6 @@ def to_csv(lines,out_path):
     file1 = open(out_path,"w")   
     file1.write(csv) 
     file1.close()
+
+def get_paths(prefix,names):
+    return { name_i:"%s/%s" % (prefix,name_i) for name_i in names}

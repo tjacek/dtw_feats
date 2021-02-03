@@ -29,8 +29,8 @@ class DTWpairs(object):
 		return train,test
 
 	def dist_matrix(self,names):
-		distance=[[ self[name_i][name_j] for name_i]
-					for name_j]
+		distance=[[ self[name_i][name_j] for name_i in names]
+					for name_j in names]
 		return np.array(distance)
 
 	def save(self,out_path):

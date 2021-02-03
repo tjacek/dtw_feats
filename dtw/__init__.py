@@ -1,5 +1,11 @@
 import dtw.pairs,files,feats,dtw.knn
-import files,learn
+import files,learn,dtw.pairs
+
+def dtw_exp(seq_path,out_path):
+	files.make_dir(out_path)
+	paths=files.get_paths(out_path,["pairs","dtw"])
+	dtw.pairs.compute_pairs(seq_path,paths["pairs"])
+	compute_feats(paths["pairs"],paths["dtw"])
 
 def compute_feats(pair_path,feat_path):
 	pairs=dtw.pairs.read(pair_path)
