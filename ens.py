@@ -1,6 +1,6 @@
 import numpy as np
 import pickle
-import learn,feats
+import learn,feats,files
 #import __learn as learn
 #import __feats as feats
 
@@ -38,9 +38,14 @@ class Votes(object):
                     for j in range(n_cats)]
         return np.array(acc)
 
-    def save(self,out_path):
-        with open(out_path, 'wb') as out_file:
-            pickle.dump(self, out_file)
+    def save(self,out_path,as_dir=False):
+        if(as_dir):
+            files.make_dir(out_path)
+            for i,result_i in enumerate(self.results):
+                result_i.save("%s/%d" % (out_path,i))
+        else:
+            with open(out_path, 'wb') as out_file:
+                pickle.dump(self, out_file)
 
 def make_votes(common_path,binary_path,clf="LR"):
     datasets=read_dataset(common_path,binary_path)
@@ -73,16 +78,14 @@ def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     votes=make_votes(common_path,binary_path,clf)
     result=votes.voting(binary)
     print(result.get_acc()) 
-    return result
+    return result,votes
 
 if __name__ == "__main__":
-    dataset="MHAD"
-    path='../ICSS_exp/%s/' % dataset
-    deep=['%s/common/1D_CNN/feats' % path]
-    binary='%s/ens/lstm_gen/feats' % path
-#    binary='../ICSS_sim/%s/sim/feats' % dataset
-#    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
-#    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
-    dtw="handcrafted/3DHOI/max_z/out"
-    result=ensemble(dtw,None,clf="LR",binary=False)
+    dtw="../dtw/feats/corl/dtw"
+    deep="../dtw/RFE/deep"
+    result,votes=ensemble(None,deep,clf="LR",binary=False)
     result.report()
+#    votes.save("results/corl",as_dir=True)
+#    result.save("results/corl")
+#    print(result.get_cf())
+#    print(result.get_errors())
