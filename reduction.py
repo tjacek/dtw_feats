@@ -38,14 +38,20 @@ def selected_deep(in_path,out_path):
     files.make_dir(out_path)
     for i,data_i in enumerate(datasets):
     	data_i.norm()
-    	new_data_i=reduce(data_i)
+    	new_data_i=reduce(data_i,n=84)
     	new_data_i.save("%s/%d" % (out_path,i))
 
-def reduce(data_i):
+def selected_common(paths,out_path):
+	dataset=feats.read_unified(paths)
+	dataset.norm()
+	dataset=reduce(dataset,n=500)
+	dataset.save(out_path)
+
+def reduce(data_i,n=100):
 	print("Old dim:" + str(data_i.dim()))
 	X,y,names=data_i.as_dataset()
 	train_i=data_i.split()[0]
-	new_X=recursive(train_i,data_i)
+	new_X=recursive(train_i,data_i,n)
 	new_data_i=feats.Feats()
 	for j,name_j in enumerate(names):
 		new_data_i[name_j]=new_X[j]
@@ -69,4 +75,7 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-selected_deep("../dtw/deep","../dtw/RFE/deep")
+#selected_deep("../dtw/deep","../dtw/RFE/deep")
+paths=["../dtw/feats/corl/dtw","../dtw/feats/max_z/dtw","../dtw/feats/skew/dtw",
+"../dtw/feats/std/dtw"]
+selected_common(paths,"../dtw/RFE/common2")
