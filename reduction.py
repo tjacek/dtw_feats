@@ -2,36 +2,23 @@ from sklearn import linear_model
 from sklearn.svm import SVC
 from sklearn.feature_selection import SelectFromModel
 from sklearn.feature_selection import RFE
-#import exp,selection,feats,ens,learn
 import files,ens,feats
 
-#def multi_exp(dtw,deep,binary,out_path,clf="LR"):
-#	fun=get_fun("feats")
-#	fun(dtw,None,out_path,clf=clf)
-#	fun(deep,None,out_path,clf=clf)
-#	fun(None,binary,out_path,clf=clf)
-#	fun(dtw,binary,out_path,clf=clf)
-#	fun(deep+dtw,binary,out_path,clf=clf)
+def make_selected_votes(common_path,binary_path,clf="LR",n_feats=584):
+	read=SelectedDataset(n_feats)
+	return ens.make_votes(common_path,binary_path,clf,read)
 
-#def get_fun(gen_type):
-#		def fun(dtw,binary,out_path,clf):
-#			gen=selection.basic_selection
-#			return exp.single_exp(dtw,binary,out_path,clf=clf,fun=gen)
-#	elif(gen_type=="feats"):
-#		def fun(dtw,binary,out_path,clf):
-#			gen=selected_feats
-#			return exp.single_exp(dtw,binary,out_path,clf=clf,fun=gen)
-#	else:
-#		def fun(dtw,binary,out_path,clf):
-#			return exp.single_exp(dtw,binary,out_path,clf=clf)
-#	return fun
+class SelectedDataset(object):
+	def __init__(self,n_feats):
+		self.n_feats=n_feats
 
-#def selected_feats(common_path,binary_path,clf="SVC"):
-#    datasets=ens.read_dataset(common_path,binary_path)
-#    datasets=[reduce(data_i) for data_i in datasets]
-#    results=[learn.train_model(data_i,clf_type=clf,binary=False)
-#                for data_i in datasets]
-#    return ens.Votes(results)
+	def __call__(self,common_path,deep_path):
+		datasets=ens.read_dataset(common_path,deep_path)
+		for data_i in datasets:
+			data_i.norm()
+		return [reduce(data_i,n=self.n_feats)
+		 				for data_i in datasets]
+
 
 def selected_deep(in_path,out_path):
     datasets=ens.read_dataset(None,in_path)
@@ -75,7 +62,11 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-#selected_deep("../dtw/deep","../dtw/RFE/deep")
-paths=["../dtw/feats/corl/dtw","../dtw/feats/max_z/dtw","../dtw/feats/skew/dtw",
-"../dtw/feats/std/dtw"]
-selected_common(paths,"../dtw/RFE/common2")
+paths=["../dtw/base/feats/corl/dtw","../dtw/base/feats/max_z/dtw","../dtw/base/feats/skew/dtw"]
+deep_path="../dtw/base/deep"
+votes=make_selected_votes(paths,deep_path)
+result=votes.voting()
+result.report()
+
+#"../dtw/feats/std/dtw"]
+#selected_common(paths,"../dtw/RFE/common3")
