@@ -47,8 +47,10 @@ class Votes(object):
             with open(out_path, 'wb') as out_file:
                 pickle.dump(self, out_file)
 
-def make_votes(common_path,binary_path,clf="LR"):
-    datasets=read_dataset(common_path,binary_path)
+def make_votes(common_path,binary_path,clf="LR",read=None):
+    if(read is None):
+        read=read_dataset
+    datasets=read(common_path,binary_path)
     if(len(datasets)==0):
         raise Exception("No data at %s" % binary_path)
     results=[learn.train_model(data_i,clf_type=clf,binary=False)
@@ -81,11 +83,14 @@ def ensemble(common_path,binary_path,binary=True,clf="SVC"):
     return result,votes
 
 if __name__ == "__main__":
-    dtw="../dtw/feats/corl/dtw"
-    deep="../dtw/RFE/deep"
-    result,votes=ensemble(None,deep,clf="LR",binary=False)
+#    dtw="../dtw/feats/corl/dtw"
+    common1="../dtw/base/feats/max_z/dtw"
+    common2="../clean/feats"
+    deep1="../dtw/base/deep"
+    deep2="../dtw/agum/RFE"
+    result,votes=ensemble(common1,None,clf="LR",binary=False)
     result.report()
-#    votes.save("results/corl",as_dir=True)
-#    result.save("results/corl")
+#    votes.save("results/c",as_dir=True)
+#    result.save("results/std")
 #    print(result.get_cf())
 #    print(result.get_errors())
