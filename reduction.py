@@ -5,7 +5,7 @@ from sklearn.feature_selection import RFE
 import files,ens,feats
 
 def make_selected_votes(common_path,binary_path,clf="LR",n_feats=584):
-	read=SelectedDataset(n_feats)
+	read=SepSelected()
 	return ens.make_votes(common_path,binary_path,clf,read)
 
 class SelectedDataset(object):
@@ -18,6 +18,22 @@ class SelectedDataset(object):
 			data_i.norm()
 		return [reduce(data_i,n=self.n_feats)
 		 				for data_i in datasets]
+
+class SepSelected(object):
+	def __init__(self,n_common=500,n_binary=84):
+		self.n_common=n_common
+		self.n_binary=n_binary
+
+	def  __call__(self,common_path,deep_path):
+		binary=ens.read_dataset(None,deep_path)
+		for data_i in binary:
+			data_i.norm()
+		binary=[reduce(data_i,n=self.n_binary)
+		 				for data_i in binary]
+		common=ens.read_dataset(common_path,None)[0]
+		common.norm()
+		common=reduce(common,n=self.n_common)
+		return [ common+binary_i for binary_i in binary]
 
 
 def selected_deep(in_path,out_path):
@@ -62,8 +78,8 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-paths=["../dtw/base/feats/corl/dtw","../dtw/base/feats/max_z/dtw","../dtw/base/feats/skew/dtw"]
-deep_path="../dtw/base/deep"
+paths=["../clean3/base/dtw/feats/corl/dtw","../clean3/base/dtw/feats/max_z/dtw","../clean3/base/dtw/feats/skew/dtw"]
+deep_path="../clean3/agum/ens/feats"
 votes=make_selected_votes(paths,deep_path)
 result=votes.voting()
 result.report()
