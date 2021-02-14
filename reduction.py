@@ -8,6 +8,17 @@ def make_selected_votes(common_path,binary_path,clf="LR",n_common=1400,n_binary=
 	read=SepSelected(n_common,n_binary)
 	return ens.make_votes(common_path,binary_path,clf,read)
 
+def acc_curve(common_path,binary_path,clf="LR",n=15,step=100):
+	acc=[]
+	n_feats=step
+	for i in range(1,n):
+		print(i)
+		votes=make_selected_votes(common_path,binary_path,clf,n_common=i*step,n_binary=300)
+		result_i=votes.voting()
+		acc.append(result_i.get_acc())
+		print(acc)
+	return acc
+
 class SelectedDataset(object):
 	def __init__(self,n_feats):
 		self.n_feats=n_feats
@@ -84,8 +95,9 @@ def recursive(train_i,full_i,n=84):
 
 paths=["../clean3/agum/dtw/feats/corl/dtw","../clean3/agum/dtw/feats/max_z/dtw","../clean3/agum/dtw/feats/skew/dtw"]
 deep_path="../clean3/agum/ens/feats"
-votes=make_selected_votes(paths,None,clf="SVC")
-result=votes.voting()
-result.report()
-print(result.get_errors())
-print(result.get_cf())
+#votes=make_selected_votes(paths,None,clf="SVC")
+#result=votes.voting()
+#result.report()
+#print(result.get_errors())
+#print(result.get_cf())
+acc_curve(paths,deep_path,clf="SVC",n=15,step=100)
