@@ -4,8 +4,8 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.feature_selection import RFE
 import files,ens,feats
 
-def make_selected_votes(common_path,binary_path,clf="LR",n_feats=584):
-	read=SepSelected()
+def make_selected_votes(common_path,binary_path,clf="LR",n_common=1400,n_binary=0):
+	read=SepSelected(n_common,n_binary)
 	return ens.make_votes(common_path,binary_path,clf,read)
 
 class SelectedDataset(object):
@@ -25,14 +25,16 @@ class SepSelected(object):
 		self.n_binary=n_binary
 
 	def  __call__(self,common_path,deep_path):
+		common=ens.read_dataset(common_path,None)[0]
+		common.norm()
+		common=reduce(common,n=self.n_common)
+		if(not deep_path):
+			return [common]
 		binary=ens.read_dataset(None,deep_path)
 		for data_i in binary:
 			data_i.norm()
 		binary=[reduce(data_i,n=self.n_binary)
 		 				for data_i in binary]
-		common=ens.read_dataset(common_path,None)[0]
-		common.norm()
-		common=reduce(common,n=self.n_common)
 		return [ common+binary_i for binary_i in binary]
 
 
@@ -51,6 +53,8 @@ def selected_common(paths,out_path):
 	dataset.save(out_path)
 
 def reduce(data_i,n=100):
+	if( not n or n>data_i.dim()[0]):
+		return  data_i
 	print("Old dim:" + str(data_i.dim()))
 	X,y,names=data_i.as_dataset()
 	train_i=data_i.split()[0]
@@ -78,11 +82,10 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-paths=["../clean3/base/dtw/feats/corl/dtw","../clean3/base/dtw/feats/max_z/dtw","../clean3/base/dtw/feats/skew/dtw"]
+paths=["../clean3/agum/dtw/feats/corl/dtw","../clean3/agum/dtw/feats/max_z/dtw","../clean3/agum/dtw/feats/skew/dtw"]
 deep_path="../clean3/agum/ens/feats"
-votes=make_selected_votes(paths,deep_path)
+votes=make_selected_votes(paths,None,clf="SVC")
 result=votes.voting()
 result.report()
-
-#"../dtw/feats/std/dtw"]
-#selected_common(paths,"../dtw/RFE/common3")
+print(result.get_errors())
+print(result.get_cf())
