@@ -33,7 +33,15 @@ def acc_matrix(common_path,binary_path,clf="LR"):
 	plt.show()
 	plt.clf()
 
+def hand_selection(ordering,common_path,binary_path,clf="LR"):
+	votes=ens.make_votes(common_path,binary_path,clf="LR")
+	s_votes=ens.Votes([votes.results[i] for i in ordering])
+	s_result=s_votes.voting()
+	s_result.report()
+
 common="s_dtw"
 binary="../clean3/agum/ens/basic/feats"
-#acc_hist(common,binary,clf="LR",cat_i=None)
+#acc_hist(common,binary,clf="LR",cat_i=6)
+order=[0, 1, 3, 4, 6, 8, 9, 10]
+hand_selection(order,common,binary)
 acc_matrix(common,binary,clf="LR")

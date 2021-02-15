@@ -79,7 +79,10 @@ class Result(object):
             if(y_j==cat_i):
                 cat_pred.append(int(y_j==y_pred[j]))
         return np.mean(cat_pred)
-
+ 
+    def indv_acc(self):
+        return [ self.cat_acc(i) for i in range(self.n_cats())]
+    
     def save(self,out_path):
         with open(out_path, 'wb') as out_file:
             pickle.dump(self, out_file)

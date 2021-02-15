@@ -37,21 +37,26 @@ def selection_exp(dtw,deep,binary,out_path):
 		exp.single_exp(deep_i,binary,out_path,fun)
 		exp.single_exp(dtw+[deep_i],binary,out_path,fun)
 
-def random_selection(common_path,binary_path,n,n_cats,clf="LR"):
+def random_selection(common_path,binary_path,n,n_clf,clf="LR"):
 	votes=ens.make_votes(common_path,binary_path,clf,read=None)
+	indexes=[i for i in range(n_clf)]
 	def helper(size):
-		subset_i= random.sample(votes.results,size)
+		ind_i= random.sample(indexes,size)
+		subset_i=[votes.results[k] for k in ind_i]
 		votes_i=ens.Votes(subset_i)
 		result_i=votes_i.voting(False)
-		return result_i.get_acc()
-	for k in range(2,n_cats):
-		acc=[helper(k) for i in range(n)]
-		print( max(acc))
+		return result_i.get_acc(),ind_i
+	for k in range(2,n_clf):
+		acc,ind=list(zip(*[helper(k) for i in range(n)]))
+		t=np.argmax(acc)
+		print(acc[t])
+		ind[t].sort()
+		print(ind[t])
 
 if __name__ == "__main__":
 	common_path="s_dtw"
 	binary_path="../clean3/agum/ens/basic/feats"
-#	votes=basic_selection(common_path,binary_path,clf="LR")
-#	result=votes.voting(False)
-#	result.report()
-	random_selection(common_path,binary_path,1000,12)
+	votes=basic_selection(common_path,binary_path,clf="LR")
+	result=votes.voting(False)
+	result.report()
+#	random_selection(common_path,binary_path,1000,12)
