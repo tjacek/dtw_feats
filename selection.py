@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np,random
 import ens,feats,learn,files,exp
 
 def basic_selection(common_path,binary_path,clf="SVC"):
@@ -37,10 +37,21 @@ def selection_exp(dtw,deep,binary,out_path):
 		exp.single_exp(deep_i,binary,out_path,fun)
 		exp.single_exp(dtw+[deep_i],binary,out_path,fun)
 
+def random_selection(common_path,binary_path,n,n_cats,clf="LR"):
+	votes=ens.make_votes(common_path,binary_path,clf,read=None)
+	def helper(size):
+		subset_i= random.sample(votes.results,size)
+		votes_i=ens.Votes(subset_i)
+		result_i=votes_i.voting(False)
+		return result_i.get_acc()
+	for k in range(2,n_cats):
+		acc=[helper(k) for i in range(n)]
+		print( max(acc))
 
 if __name__ == "__main__":
-	deep=['../ICSS_exp/3DHOI/common/stats/feats','../ICSS_exp/3DHOI/common/1D_CNN/feats']
-	binary='../ICSS_exp/3DHOI/ens/lstm/feats'
-	dtw=['../ICSS_exp/3DHOI/dtw/corl/dtw', '../ICSS_exp/3DHOI/dtw/max_z/dtw']
-	selection_exp(dtw,deep,binary,"selection/3DHOI")
-	#print(result.voting().get_acc())
+	common_path="s_dtw"
+	binary_path="../clean3/agum/ens/basic/feats"
+#	votes=basic_selection(common_path,binary_path,clf="LR")
+#	result=votes.voting(False)
+#	result.report()
+	random_selection(common_path,binary_path,1000,12)
