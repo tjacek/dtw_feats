@@ -1,6 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import seaborn
 from matplotlib import offsetbox
+import matplotlib.pyplot as plt
 import ens
 
 def acc_hist(common_path,binary_path,clf="LR",cat_i=None):
@@ -25,7 +26,14 @@ def show_histogram(hist,title='hist',cumsum=True):
 	fig.suptitle(title)
 	plt.show()
 
-dataset="MHAD"
-path='../ICSS_exp/%s/' % dataset
-binary='%s/ens/lstm_gen/feats' % path
-acc_hist(None,binary,clf="LR",cat_i=5)
+def acc_matrix(common_path,binary_path,clf="LR"):
+	votes=ens.make_votes(common,binary,clf="LR")
+	acc=votes.acc_matrix()
+	ax=seaborn.heatmap(acc)
+	plt.show()
+	plt.clf()
+
+common="s_dtw"
+binary="../clean3/agum/ens/basic/feats"
+#acc_hist(common,binary,clf="LR",cat_i=None)
+acc_matrix(common,binary,clf="LR")
