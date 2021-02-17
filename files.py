@@ -71,3 +71,12 @@ def to_csv(lines,out_path):
 
 def get_paths(prefix,names):
     return { name_i:"%s/%s" % (prefix,name_i) for name_i in names}
+
+def by_cat(names):
+    group={}
+    for name_i in names:
+        cat_i=name_i.get_cat()
+        if(not cat_i in group):
+            group[cat_i]=[]
+        group[cat_i].append(name_i)
+    return group
