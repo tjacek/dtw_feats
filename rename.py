@@ -1,4 +1,5 @@
 import numpy as np,random
+from distutils.dir_util import copy_tree
 import feats,files,learn
 
 def rename_exp(in_path,k=10,threshold=None):
@@ -36,5 +37,18 @@ def random_split(group):
 			rename[name_i]=files.Name(new_name)
 	return rename
 
-rename=rename_exp("s_dtw",k=1000,threshold=0.7)
-#print(names)
+def rename_frames(in_path,out_path,rename):
+	paths=files.top_files(in_path)
+	files.make_dir(out_path)
+	for path_i in paths:
+		name_i=path_i.split("/")[-1]
+		out_i="%s/%s" % (out_path,rename[name_i])
+		print(path_i)
+		print(out_i)
+		copy_tree(path_i,out_i)
+
+rename=rename_exp("s_dtw",k=10,threshold=0.6)
+print(len(rename))
+in_path="../clean3/agum/frames"
+out_path="../rename/agum/frames"
+rename_frames(in_path,out_path,rename)
