@@ -76,19 +76,24 @@ def read_deep(deep_path):
         return datasets
     return feats.read(deep_path)
 
-def ensemble(common_path,binary_path,binary=True,clf="SVC"):
+def ensemble(common_path,binary_path,binary=True,
+                clf="SVC",s_clf=None):
     votes=make_votes(common_path,binary_path,clf)
+    if(s_clf):
+        votes=Votes([votes.results[i] for i in s_clf])
     result=votes.voting(binary)
     print(result.get_acc()) 
     return result,votes
 
 if __name__ == "__main__":
-#    dtw="../dtw/feats/corl/dtw"
-    common1="../dtw/base/feats/max_z/dtw"
-    common2="../clean/feats"
-    deep1="../dtw/base/deep"
-    deep2="../dtw/agum/RFE"
-    result,votes=ensemble(common1,None,clf="LR",binary=False)
+    common=["../3DHOI_set2/common/feats/max_z/dtw",
+            "../3DHOI_set2/common/feats/corl/dtw",
+            "../3DHOI_set2/common/feats/skew/dtw", 
+            "../3DHOI_set2/common/feats/std/dtw"]
+    common="../3DHOI_set2/s_dtw"
+    binary="../3DHOI_set2/binary/1D_CNN"
+    result,votes=ensemble(common,binary,clf="LR",binary=False,
+        s_clf=[0,1,2,3,4,7,8,9,10,11])
     result.report()
 #    votes.save("results/c",as_dir=True)
 #    result.save("results/std")
