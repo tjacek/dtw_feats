@@ -12,6 +12,10 @@ class Name(str):
     def get_cat(self):
         return int(self.split('_')[0])-1
 
+    def subname(self,k):
+        subname_k="_".join(self.split("_")[:k])
+        return Name(subname_k)
+
 def top_files(path):
     paths=[ path+'/'+file_i for file_i in os.listdir(path)]
     paths=sorted(paths,key=natural_keys)
@@ -63,11 +67,16 @@ def person_selector(name_i):
     person_i=int(name_i.split('_')[1])
     return person_i%2==1
 
-def to_csv(lines,out_path):
-    csv="\n".join(lines)
+def save_txt(text,out_path):
+    if(type(text)):
+        text="\n".join(text)
     file1 = open(out_path,"w")   
-    file1.write(csv) 
+    file1.write(text) 
     file1.close()
+
+def read_txt(in_path):
+    f = open(in_path, "r")
+    return f.read()
 
 def get_paths(prefix,names):
     return { name_i:"%s/%s" % (prefix,name_i) for name_i in names}

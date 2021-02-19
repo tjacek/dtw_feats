@@ -57,10 +57,10 @@ def selected_deep(in_path,out_path):
     	new_data_i=reduce(data_i,n=84)
     	new_data_i.save("%s/%d" % (out_path,i))
 
-def selected_common(paths,out_path):
+def selected_common(paths,out_path,n=500):
 	dataset=feats.read_unified(paths)
 	dataset.norm()
-	dataset=reduce(dataset,n=500)
+	dataset=reduce(dataset,n)
 	dataset.save(out_path)
 
 def reduce(data_i,n=100):
@@ -93,11 +93,10 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-paths=["../clean3/agum/dtw/feats/corl/dtw","../clean3/agum/dtw/feats/max_z/dtw","../clean3/agum/dtw/feats/skew/dtw"]
-deep_path="../clean3/agum/ens/feats"
-#votes=make_selected_votes(paths,None,clf="SVC")
-#result=votes.voting()
-#result.report()
-#print(result.get_errors())
-#print(result.get_cf())
-acc_curve(paths,deep_path,clf="SVC",n=15,step=100)
+common=["dtw/base/max_z","dtw/base/corl","dtw/base/skew"]#,"dtw/base/std"]
+common=["../rename/agum/dtw/feats/max_z/dtw",
+            "../rename/agum/dtw/feats/corl/dtw",
+            "../rename/agum/dtw/feats/skew/dtw"]
+binary="../rename/agum/ens/basic/feats"
+#acc_curve(common,binary,clf="LR",n=15,step=100)
+selected_common(common,"rename_agum",n=200)
