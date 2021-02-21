@@ -23,7 +23,4 @@ if __name__ == "__main__":
 	dataset="../../dtw_paper/set2"
 	common="%s/common/s_dtw" % dataset
 	binary="%s/binary/1D_CNN/feats" %dataset
-#	votes=basic_selection(path,binary,clf="LR")
-#	result=votes.voting(False)
-#	result.report()
 	random_selection(common,binary,1000,12)

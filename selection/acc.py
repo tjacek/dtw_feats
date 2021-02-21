@@ -1,19 +1,23 @@
-def basic_selection(common_path,binary_path,clf="SVC"):
+import sys
+sys.path.append("..")
+import numpy as np
+import ens,learn,feats,files
+
+def basic_selection(common_path,binary_path,clf="LR"):
     datasets=ens.read_dataset(common_path,binary_path)
-    s_datasets=dataset_selection(datasets)
-    print(len(s_datasets))
-    results=[learn.train_model(data_i,clf_type=clf,binary=False)
-                for data_i in s_datasets]
-    return ens.Votes(results)
+    s_clf=dataset_selection(datasets)
+    print(len(s_clf))
+    return ens.ensemble(common_path,binary_path,True,clf,s_clf)[0]
 
 def dataset_selection(datasets):
     acc=np.array([ validate_acc(data_i) for data_i in datasets])
+#    raise Exception(acc)
     acc=np.array(acc)
     if(np.std(acc)==0):
     	return datasets
     acc= (acc-np.mean(acc))/np.std(acc)
     print(acc)
-    s_datasets=[data_i for i,data_i in enumerate(datasets)
+    s_datasets=[i for i,data_i in enumerate(datasets)
     			if(acc[i]>0)]
     return s_datasets
 
@@ -33,3 +37,9 @@ def selection_exp(dtw,deep,binary,out_path):
 	for deep_i in deep:
 		exp.single_exp(deep_i,binary,out_path,fun)
 		exp.single_exp(dtw+[deep_i],binary,out_path,fun)
+
+dataset="../../dtw_paper/MSR"
+common="%s/common/MSR_500" % dataset
+binary="%s/binary/stats/feats" %dataset
+result=basic_selection(common,binary,clf="LR")
+result.report()
