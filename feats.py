@@ -10,8 +10,8 @@ class Feats(dict):
 	def dim(self):
 		return list(self.values())[0].shape
 
-	def split(self):
-		train,test=files.split(self)
+	def split(self,selector=None):
+		train,test=files.split(self,selector)
 		return Feats(train),Feats(test)
 
 	def as_dataset(self):
@@ -38,6 +38,12 @@ class Feats(dict):
 		for name_i in names:
 			x_i=np.concatenate([self[name_i],feat_i[name_i]],axis=0)
 			new_feats[name_i]=x_i
+		return new_feats
+
+	def rename(self,name_dict):
+		new_feats=Feats()
+		for name_i,name_j in name_dict.items():
+			new_feats[files.Name(name_j)]=self[name_i]
 		return new_feats
 
 	def norm(self):

@@ -12,6 +12,9 @@ class Name(str):
     def get_cat(self):
         return int(self.split('_')[0])-1
 
+    def get_person(self):
+        return int(self.split('_')[1])
+
     def subname(self,k):
         subname_k="_".join(self.split("_")[:k])
         return Name(subname_k)
