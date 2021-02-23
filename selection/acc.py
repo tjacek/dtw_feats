@@ -8,7 +8,7 @@ def total_basic_selection(common_path,binary_path,n,n_clf,clf="LR"):
         datasets=ens.read_dataset(common_path,binary_path)
         results=[ validate_acc(data_i) for data_i in datasets]
         return ens.Votes(results)
-    selection.random_selection(common_path,binary_path,n,n_clf,clf,helper)
+    return selection.random_selection(common_path,binary_path,n,n_clf,clf,helper)
 
 def basic_selection(common_path,binary_path,clf="LR"):
     datasets=ens.read_dataset(common_path,binary_path)
@@ -38,9 +38,9 @@ def validate_acc(data_i):
     return result#.get_acc()
 
 if __name__ == "__main__":
-    dataset="../../dtw_paper/MSR"
-    common="%s/common/MSR_500" % dataset
-    binary="%s/binary/stats/feats" %dataset
+    dataset="../../dtw_paper/MHAD"
+    common="%s/common/MHAD_500" % dataset
+    binary="%s/binary/1D_CNN/feats" %dataset
 #    result=basic_selection(common,binary,clf="LR")
 #    result.report()
     total_basic_selection(common,binary,1000,20,clf="LR")

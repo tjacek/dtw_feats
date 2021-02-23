@@ -8,7 +8,7 @@ def total_person_selection(common_path,binary_path,n,n_clf,clf="LR"):
         datasets=ens.read_dataset(common_path,binary_path)
         results=[ person_acc(data_i) for data_i in datasets]
         return ens.Votes(results)
-    selection.random_selection(common_path,binary_path,n,n_clf,clf,helper)
+    return selection.random_selection(common_path,binary_path,n,n_clf,clf,helper)
 
 def person_selection(common_path,binary_path,clf="LR"):
     datasets=ens.read_dataset(common_path,binary_path)
