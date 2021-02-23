@@ -3,8 +3,10 @@ sys.path.append("..")
 import numpy as np,random
 import ens,feats,learn,files,exp
 
-def random_selection(common_path,binary_path,n,n_clf,clf="LR"):
-	votes=ens.make_votes(common_path,binary_path,clf,read=None)
+def random_selection(common_path,binary_path,n,n_clf,clf="LR",fun=None):
+	if(not fun):
+		fun=ens.make_votes
+	votes=fun(common_path,binary_path,clf)
 	indexes=[i for i in range(n_clf)]
 	def helper(size):
 		ind_i= random.sample(indexes,size)

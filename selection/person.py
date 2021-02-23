@@ -5,7 +5,9 @@ import acc,ens,learn
 
 def person_selection(common_path,binary_path,clf="LR"):
     datasets=ens.read_dataset(common_path,binary_path)
-    s_clf=acc.dataset_selection(datasets,person_acc)
+    clf_acc=np.array([ person_acc(data_i)
+                        for data_i in datasets])
+    s_clf=acc.dataset_selection(datasets,clf_acc)
     print(len(s_clf))
     return ens.ensemble(common_path,binary_path,True,clf,s_clf)[0]
 
