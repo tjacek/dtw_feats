@@ -28,7 +28,7 @@ class ExpTemplate(object):
 		lines=[]
 		for common_i,deep_i in paths: 
 			if(common_i or deep_i):
-				result_i=self.fun(common_i,deep_i,clf=clf)[0]
+				result_i=self.fun(common_i,deep_i,binary=False,clf=clf)[0]
 				if(result_i):
 					desc=exp_info(common_i,deep_i,result_i)
 					lines.append("%s,%s,%s" % desc)
@@ -36,29 +36,6 @@ class ExpTemplate(object):
 			files.save_txt(lines,out_path)
 		else:
 			print(lines)
-
-#def show_result(in_path,out_path=None,hard=None):
-#	lines=[]
-#	print("common,ensemble,clf,n_clf,Hard voting,accuracy,precision,recall,fscore")
-#	for path_i in files.top_files(in_path):
-#		votes_i=learn.read(path_i)
-#		if(hard is None):
-#			for hard_i in [True,False]:
-#				lines.append(show_single(path_i,votes_i,hard_i))
-#		else:
-#				lines.append(show_single(path_i,votes_i,hard))
-#	if(out_path):
-#		files.to_csv(lines,out_path)
-
-#def show_single(path_i,votes_i,binary_i):
-#	result_i=votes_i.voting(binary_i)
-#	metrics_i=result_i.metrics()
-#	metrics_i= [result_i.get_acc()] +list(metrics_i[:3])
-#	metrics_i="%.4f,%.4f,%.4f,%.4f" % tuple(metrics_i)
-#	prefix_i=path_i.split('/')[-1]#.replace("_",",")
-#	line_i="%s,%d,%s,%s" % (prefix_i,len(votes_i),str(binary_i),metrics_i)
-#	print(line_i)
-#	return line_i
 
 def exp_info(common_i,binary_i,result_i):
 	desc_common=get_desc(common_i)
@@ -103,14 +80,15 @@ def find_dtw(in_path,dtw_type="dtw"):
 	return dtw_feats
 
 if __name__ == "__main__":
-    common1=["../3DHOI_set2/common/feats/max_z/dtw",
-            "../3DHOI_set2/common/feats/corl/dtw",
-            "../3DHOI_set2/common/feats/skew/dtw", 
-            "../3DHOI_set2/common/feats/std/dtw"]
-    common2="../3DHOI_set2/s_dtw"
-    binary1="../3DHOI_set2/binary/1D_CNN"
-    binary2="../3DHOI_set2/binary/stats"
+    dataset="../dtw_paper/MHAD"
+    common1=["%s/common/feats/max_z/dtw" % dataset,
+            "%s/common/feats/corl/dtw" % dataset,
+            "%s/common/feats/skew/dtw" % dataset, 
+            "%s/common/feats/std/dtw" % dataset]
+    common2="%s/common/MSR_500" % dataset
+    binary1="%s/binary/stats/feats" %dataset
+    binary2="%s/binary/1D_CNN/feats" %dataset
     common=[None,common1,common2]
     binary=[None,binary1,binary2]
     exp=ExpTemplate()
-    exp.standard(common,binary,out_path="test.csv")
+    exp.standard(common,binary,out_path="MHAD.csv")
