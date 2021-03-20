@@ -15,14 +15,16 @@ def random_selection(common_path,binary_path,n,n_clf,clf="LR",fun=None):
 		result_i=votes_i.voting(False)
 		return result_i.get_acc(),ind_i
 	best_set=[]
+	best_acc=[]
 	for k in range(2,n_clf):
 		acc,ind=list(zip(*[helper(k) for i in range(n)]))
 		t=np.argmax(acc)
+		best_acc.append(acc[t])
 		print(acc[t])
 		ind[t].sort()
 		print(ind[t])
 		best_set.append(ind[t])
-	return best_set
+	return best_set[np.argmax(best_acc)]
 
 if __name__ == "__main__":
 	dataset="../../dtw_paper/set2"
