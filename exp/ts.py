@@ -26,7 +26,7 @@ def simple_ens(common,binary):
 	return desc_i[-1]
 
 def select_ens(common,binary):
-	best_set=selection.random_selection(common,binary,1000,20)
+	best_set=selection.random_selection(common,binary,1000,27)
 	result_i=ens.ensemble(common,binary, s_clf=best_set,
 						clf="LR",binary=False)[0]
 	desc_i=exp.exp_info(common,binary,result_i)
@@ -40,7 +40,7 @@ def ts_exp(common,binary,out_path):
 	lines+=exp(common,binary,"H")
 	files.save_txt(lines,out_path)
 
-dataset="MSR"
+dataset="MHAD"
 binary="../../dtw_paper/%s/binary/1D_CNN" % dataset
 common="../../dtw_paper/%s/common/%s_500" % (dataset,dataset)
 ts_exp(common,binary,"%s" % dataset)
