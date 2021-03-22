@@ -28,16 +28,18 @@ def random_selection(common_path,binary_path,n,n_clf,clf="LR",fun=None):
 		best_set.append(ind[t])
 	return best_set[np.argmax(best_acc)]
 
-def selection_exp(common,binary):
+def selection_exp(common,binary,cf_path=None):
 	s_clf=random_selection(common,binary,1000,27,clf="LR")
 	print(s_clf)
 	result,votes=ens.ensemble(common,binary,
 		clf="LR",binary=False,s_clf=s_clf)
 	result.report()
+	if(cf_path):
+		result.get_cf(cf_path)
 
 if __name__ == "__main__":
 	dataset="MHAD"
 	dir_path="../../dtw_paper/%s" % dataset
-	binary="%s/binary/stats/feats" % dir_path
+	binary="%s/binary/1D_CNN/base/feats" % dir_path
 	common="%s/common/%s_500" % (dir_path,dataset)
-	selection_exp(common,binary)
+	selection_exp(common,binary,"MHAD")
