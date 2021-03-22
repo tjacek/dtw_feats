@@ -7,6 +7,8 @@ def random_selection(common_path,binary_path,n,n_clf,clf="LR",fun=None):
 	if(not fun):
 		fun=ens.make_votes
 	votes=fun(common_path,binary_path,clf)
+	if(n_clf>len(votes)):
+		n_clf=len(votes)
 	indexes=[i for i in range(n_clf)]
 	def helper(size):
 		ind_i= random.sample(indexes,size)
@@ -26,8 +28,16 @@ def random_selection(common_path,binary_path,n,n_clf,clf="LR",fun=None):
 		best_set.append(ind[t])
 	return best_set[np.argmax(best_acc)]
 
+def selection_exp(common,binary):
+	s_clf=random_selection(common,binary,1000,27,clf="LR")
+	print(s_clf)
+	result,votes=ens.ensemble(common,binary,
+		clf="LR",binary=False,s_clf=s_clf)
+	result.report()
+
 if __name__ == "__main__":
-	dataset="../../dtw_paper/set2"
-	common="%s/common/s_dtw" % dataset
-	binary="%s/binary/1D_CNN/feats" %dataset
-	random_selection(common,binary,1000,12)
+	dataset="MHAD"
+	dir_path="../../dtw_paper/%s" % dataset
+	binary="%s/binary/stats/feats" % dir_path
+	common="%s/common/%s_500" % (dir_path,dataset)
+	selection_exp(common,binary)
