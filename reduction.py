@@ -13,7 +13,7 @@ def acc_curve(common_path,binary_path,clf="LR",n=15,step=100):
 	n_feats=step
 	for i in range(1,n):
 		print(i)
-		votes=make_selected_votes(common_path,binary_path,clf,n_common=i*step,n_binary=300)
+		votes=make_selected_votes(common_path,binary_path,clf,n_common=i*step)
 		result_i=votes.voting()
 		acc.append(result_i.get_acc())
 		print(acc)
@@ -93,10 +93,12 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-common=["dtw/base/max_z","dtw/base/corl","dtw/base/skew"]#,"dtw/base/std"]
-common=["../rename/agum/dtw/feats/max_z/dtw",
-            "../rename/agum/dtw/feats/corl/dtw",
-            "../rename/agum/dtw/feats/skew/dtw"]
-binary="../rename/agum/ens/basic/feats"
-#acc_curve(common,binary,clf="LR",n=15,step=100)
-selected_common(common,"rename_agum",n=200)
+dataset="MSR"
+dir_path="../dtw_paper/%s" % dataset
+#binary="%s/binary/1D_CNN/dropout_0.5/feats" % dir_path
+binary="../ActionClassifier/agum/agum2/feats"
+common=files.top_files("%s/common/feats" % dir_path)
+common=["%s/dtw" % common_i for common_i in common]
+#acc=acc_curve(common,binary,clf="LR",n=35,step=50)
+#print(acc)
+selected_common(common,"MSR_100",n=100)

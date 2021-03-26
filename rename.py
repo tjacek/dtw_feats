@@ -1,10 +1,24 @@
 import numpy as np,random
 from distutils.dir_util import copy_tree
 import feats,files,learn
+import reduction
+
+def reduce_cross(in_path,step=50):
+	feat_dict=feats.read(in_path)[0]
+	n=int(feat_dict.dim()[0]/step)
+	acc,dataset=[],[]
+	for i in range(n):
+		feat_i=reduction.reduce(feat_dict,(i+1)*step)
+		dataset.append(feat_i)
+		acc.append(cross_validate(feat_i))
+		print(acc)
+	k=np.argmax(acc)
+	print((k+1)*step)
+	return acc    
 
 def cross_validate(feat_dict,n=10):
 	acc=[validate(feat_dict) for i in range(n)]
-	print(acc)
+#	print(acc)
 	return np.mean(acc)
 
 def validate(feat_dict):
@@ -36,5 +50,8 @@ def rename_frames(in_path,out_path,rename):
 		print(out_i)
 		copy_tree(path_i,out_i)
 
-common="../dtw_paper/MSR/common/MSR_500"
-print(cross_validate(common))
+dir_path="../dtw_paper/MSR/"
+common=files.top_files("%s/common/feats" % dir_path)
+common=["%s/dtw" % common_i for common_i in common]
+binary="%s"
+print(reduce_cross(common))
