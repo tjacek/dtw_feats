@@ -3,7 +3,7 @@ from distutils.dir_util import copy_tree
 import feats,files,learn  
 
 def cross_validate(feat_dict,n=10):
-	acc=[validate(feat_dict) for i in range(n)]
+	acc=[person(feat_dict) for i in range(n)]
 #	print(acc)
 	return np.mean(acc)
 
@@ -13,6 +13,16 @@ def validate(feat_dict):
 	train=feat_dict.split()[0]
 	cross_train=random_split(train)
 	result=learn.train_model(cross_train,binary=False,clf_type="LR")
+	return result.get_acc()
+
+def person(feat_dict):
+	if(type(feat_dict)==str):
+		feat_dict=feats.read(feat_dict)[0]
+	train=feat_dict.split()[0]
+	def helper(name_i):
+		return name_i.get_person()==1
+	result=learn.train_model(train,binary=False,
+		clf_type="LR",selector=helper)
 	return result.get_acc()
 
 def random_split(train):
