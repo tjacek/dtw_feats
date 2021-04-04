@@ -86,16 +86,8 @@ def ensemble(common_path,binary_path,binary=True,
     return result,votes
 
 if __name__ == "__main__":
-    common=["../3DHOI_set2/common/feats/max_z/dtw",
-            "../3DHOI_set2/common/feats/corl/dtw",
-            "../3DHOI_set2/common/feats/skew/dtw", 
-            "../3DHOI_set2/common/feats/std/dtw"]
-    common="../3DHOI_set2/s_dtw"
-    binary="../3DHOI_set2/binary/1D_CNN"
-    result,votes=ensemble(common,binary,clf="LR",binary=False,
-        s_clf=[0,1,2,3,4,7,8,9,10,11])
+    common="../dtw_paper/MSR/common/MSR_500"
+#    binary="../MSR/ens/1D_CNN/dropout_0.5/feats"
+    binary="../dtw_paper/MSR/sim/feats"
+    result,votes=ensemble(common,binary,clf="LR",binary=False)
     result.report()
-#    votes.save("results/c",as_dir=True)
-#    result.save("results/std")
-#    print(result.get_cf())
-#    print(result.get_errors())

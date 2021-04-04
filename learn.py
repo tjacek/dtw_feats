@@ -94,16 +94,15 @@ def read(in_path):
 def train_ens(datasets,clf="LR"):
     return [train_model(data_i,clf_type=clf) for data_i in datasets]
 
-def train_model(data,binary=False,clf_type="LR"):
+def train_model(data,binary=False,clf_type="LR",selector=None):
     if(type(data)==str):	
         data=feats.read(data)[0]
     data.norm()
     print(data.dim())
     print(len(data))
-    train,test=data.split()
+    train,test=data.split(selector)
     model=make_model(train,clf_type)
     X_test,y_true=test.get_X(),test.get_labels()
-#    X_train=np.nan_to_num(X_train)
     if(binary):
         y_pred=model.predict(X_test)
     else:

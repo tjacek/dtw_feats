@@ -4,6 +4,9 @@ import numpy as np
 import reduction,files,feats,rename
 import selection,ens,exp
 
+def full_optim(common,binary):
+	datasets=reduction.reduced_datasets(common,50)
+
 def pipe_exp(common,binary,step=100):
 	lines=[]
 	n_feats=reduce_cross(common,step=step)
@@ -39,8 +42,8 @@ def reduce_cross(in_path,step=50):
 	return ((k+1)*step)
 
 if __name__ == "__main__":
-	dir_path="../../dtw_paper/MHAD/"
+	dir_path="../../dtw_paper/MSR"
 	common=files.top_files("%s/common/feats" % dir_path)
 	common=["%s/dtw" % common_i for common_i in common]
-	binary="%s/binary/1D_CNN/base/feats" % dir_path
-	pipe_exp(common,binary)
+	binary="%s/sim/feats" % dir_path
+	full_optim(common,binary)

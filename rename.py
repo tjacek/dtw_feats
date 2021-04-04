@@ -3,8 +3,8 @@ from distutils.dir_util import copy_tree
 import feats,files,learn  
 
 def cross_validate(feat_dict,n=10):
-	acc=[person(feat_dict) for i in range(n)]
-#	print(acc)
+	acc=[validate(feat_dict) for i in range(n)]
+	print(acc)
 	return np.mean(acc)
 
 def validate(feat_dict):

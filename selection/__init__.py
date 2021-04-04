@@ -38,8 +38,8 @@ def selection_exp(common,binary,cf_path=None):
 		result.get_cf(cf_path)
 
 if __name__ == "__main__":
-	dataset="MHAD"
+	dataset="MSR"
 	dir_path="../../dtw_paper/%s" % dataset
-	binary="%s/binary/1D_CNN/base/feats" % dir_path
+	binary="%s/sim/feats" % dir_path
 	common="%s/common/%s_500" % (dir_path,dataset)
 	selection_exp(common,binary,"MHAD")

@@ -48,20 +48,11 @@ class SepSelected(object):
 		 				for data_i in binary]
 		return [ common+binary_i for binary_i in binary]
 
-
-def selected_deep(in_path,out_path):
-    datasets=ens.read_dataset(None,in_path)
-    files.make_dir(out_path)
-    for i,data_i in enumerate(datasets):
-    	data_i.norm()
-    	new_data_i=reduce(data_i,n=84)
-    	new_data_i.save("%s/%d" % (out_path,i))
-
-def selected_common(paths,out_path,n=500):
-	dataset=feats.read_unified(paths)
+def reduced_datasets(common,step):
+	dataset=ens.read_dataset(common,None)[0]
 	dataset.norm()
-	dataset=reduce(dataset,n)
-	dataset.save(out_path)
+	n= int(dataset.dim()[0]/step)+1
+	return [ reduce(dataset,i*step) for i in range(n)]
 
 def reduce(data_i,n=100):
 	if( not n or n>data_i.dim()[0]):
@@ -93,12 +84,12 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
-dataset="MSR"
-dir_path="../dtw_paper/%s" % dataset
-#binary="%s/binary/1D_CNN/dropout_0.5/feats" % dir_path
-binary="../ActionClassifier/agum/agum2/feats"
-common=files.top_files("%s/common/feats" % dir_path)
-common=["%s/dtw" % common_i for common_i in common]
-#acc=acc_curve(common,binary,clf="LR",n=35,step=50)
-#print(acc)
-selected_common(common,"MSR_100",n=100)
+if __name__ == "__main__":
+	dataset="MSR"
+	dir_path="../dtw_paper/%s" % dataset
+	binary="%s/sim/feats" % dir_path
+	common=files.top_files("%s/common/feats" % dir_path)
+	common=["%s/dtw" % common_i for common_i in common]
+	acc=acc_curve(common,binary,clf="LR",n=30,step=50)
+	print(acc)
+	#selected_common(common,"MSR_100",n=100)
