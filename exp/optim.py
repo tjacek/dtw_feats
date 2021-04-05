@@ -4,8 +4,14 @@ import numpy as np
 import reduction,files,feats,rename
 import selection,ens,exp
 
-def full_optim(common,binary):
-	datasets=reduction.reduced_datasets(common,50)
+def full_optim(common,binary,step=50,n=24):
+	acc=[]
+	for i in range(n):
+		n_feats=i*step
+		result,s_clf=reduced_selection(common,binary,n_feats)
+		acc.append( (result.get_acc(),n_feats))
+		print(acc)
+	print(acc)
 
 def pipe_exp(common,binary,step=100):
 	lines=[]
@@ -15,15 +21,20 @@ def pipe_exp(common,binary,step=100):
 	result=votes.voting(binary=False)
 	result.report()
 	lines.append(get_info(str(n_feats),common,binary,result))
-	def helper(common,binary,clf="LR"):
-		read=reduction.SepSelected(n_feats,0)
-		return ens.make_votes(common,binary,clf,read)
-	s_clf=selection.random_selection(common,binary,1000,27,clf="LR",fun=helper)
-	result,votes=ens.ensemble(common,binary,
-		clf="LR",binary=False,s_clf=s_clf)
+	result=reduced_selection(common,binary,n_feats)
 	result.report()
 	lines.append(get_info(str(len(s_clf)),common,binary,result))
 	print("\n".join(lines))
+
+def reduced_selection(common,binary,n_feats):
+	def helper(common,binary,clf="LR"):
+		read=reduction.SepSelected(n_feats,0)
+		return ens.make_votes(common,binary,"LR",read)
+	s_clf=selection.random_selection(common,binary,1000,27,clf="LR",fun=helper)
+	read=reduction.SepSelected(n_feats,0)
+	result,votes=ens.ensemble(common,binary,
+		clf="LR",binary=False,s_clf=s_clf,read=read)
+	return result,s_clf
 
 def get_info(desc,common,binary,result):
 	info=exp.exp_info(common,binary,result)

@@ -77,8 +77,8 @@ def read_deep(deep_path):
     return feats.read(deep_path)
 
 def ensemble(common_path,binary_path,binary=True,
-                clf="SVC",s_clf=None):
-    votes=make_votes(common_path,binary_path,clf)
+                clf="SVC",s_clf=None,read=None):
+    votes=make_votes(common_path,binary_path,clf,read)
     if(s_clf):
         votes=Votes([votes.results[i] for i in s_clf])
     result=votes.voting(binary)
