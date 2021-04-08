@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-import os.path
+import os.path,re
 import files,ens,learn
 
 class SimpleExp(object):
@@ -17,17 +17,17 @@ class SimpleExp(object):
 		lines=[]
 		for common_i in common:
 			result_i=self.fun(common_i,binary,clf=self.clf)[0]
-			desc_i=exp_info(common_i,binary,result_i)
-			lines.append("%s,%s,%s" % desc_i)
+			desc_i=clean_info(common_i,binary,result_i)
+			lines.append(desc_i)#"%s,%s,%s" % desc_i)
 		return lines
 
 def full_exp(common,binary,out_path):
 	if(type(binary)!=list):
 		binary=[binary]
 	simple_exp=SimpleExp()
-	lines=[]
+	lines=["common,binary,n_clf,n_feats,accuracy,precision,recall,f1-score"]
 	for binary_i in binary:
-		lines+=simple_exp(common,binary)
+		lines+=simple_exp(common,binary_i)
 	files.save_txt(lines,out_path)
 
 def exp_info(common_i,binary_i,result_i):
@@ -49,8 +49,25 @@ def get_desc(common_path):
 def get_name(path_i):
 	return "_".join(path_i.split("/")[-2:])
 
+def clean_info(common_i,binary_i,result_i):
+	desc=exp_info(common_i,binary_i,result_i)
+	n_feats=get_n_feats(desc[0])
+	desc_common="-" if(n_feats=="-") else "dtw"
+	desc_binary=desc[1].replace("_feats","")
+	n_clf=result_i.n_cats()
+	clean=(desc_common,desc_binary,n_clf,n_feats,desc[2])
+	return "%s,%s,%d,%s,%s" % clean
+
+def get_n_feats(common_desc):
+    if(common_desc=="-"):
+    	return "-"
+    n_feats=re.findall('\d+',common_desc)
+    if(len(n_feats)==0):
+    	return "full"
+    return str(n_feats[0])
+
 if __name__ == "__main__":
-	dataset="MSR"
+	dataset="MHAD"
 	dir_path="../../dtw_paper/%s/common" % dataset
 	common1=files.get_paths("%s/feats" % dir_path)
 	common2="%s/%s_300" % (dir_path,dataset) 
@@ -60,4 +77,4 @@ if __name__ == "__main__":
 	binary2="../../dtw_paper/%s/stats/feats" % dataset
 	binary3="../../dtw_paper/%s/1D_CNN/feats" % dataset
 	binary=[binary1,binary2,binary3]
-	full_exp(common,binary,"MSR.txt")
+	full_exp(common,binary,"MHAD.txt")
