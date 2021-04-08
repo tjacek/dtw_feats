@@ -92,3 +92,7 @@ def by_cat(names):
             group[cat_i]=[]
         group[cat_i].append(name_i)
     return group
+
+def get_paths(in_path,name="dtw"):
+    return ["%s/%s" % (path_i,name) 
+                for path_i in top_files(in_path)]
