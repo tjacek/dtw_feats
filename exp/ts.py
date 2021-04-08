@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-import files,ens,exp,selection
+import files,ens,exp,selection,reduction
 
 class Exp(object):
 	def __init__(self,fun=None):
@@ -40,7 +40,16 @@ def ts_exp(common,binary,out_path):
 	lines+=exp(common,binary,"H")
 	files.save_txt(lines,out_path)
 
-dataset="MHAD"
+def make_reduced_dataset(common,out_path,n_feats=350):
+	common=files.get_paths(common)
+	dataset=ens.read_dataset(common,None)[0]
+	dataset.norm()
+	redu_data=reduction.reduce(dataset,n_feats)
+	redu_data.save(out_path)
+
+dataset="MSR"
 binary="../../dtw_paper/%s/binary/1D_CNN" % dataset
-common="../../dtw_paper/%s/common/%s_500" % (dataset,dataset)
-ts_exp(common,binary,"%s" % dataset)
+in_common="../../dtw_paper/%s/common/feats" % dataset
+out_common="../../dtw_paper/%s/common/%s_350" % (dataset,dataset)
+make_reduced_dataset(in_common,out_common,n_feats=350)
+#ts_exp(common,binary,"%s" % dataset)
