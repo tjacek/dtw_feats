@@ -1,41 +1,34 @@
+import sys
+sys.path.append("..")
 import os.path
 import files,ens,learn
 
 class SimpleExp(object):
-	def __init__(self,fun=None):
+	def __init__(self,fun=None,clf="LR"):
 		if(not fun):
 			fun=ens.ensemble
 		self.fun=fun
+		self.clf=clf
 
-	def __call__(self,common_path,binary_path,clf="LR",cf_path=None):
-		result=self.fun(common_path,binary_path,clf)
-		result.report()
-		print(result.get_acc())
-		if(cf_path):
-			result.get_cf(cf_path)
-
-class ExpTemplate(object):
-	def __init__(self,fun=None):
-		if(not fun):
-			fun=ens.ensemble
-		self.fun=fun
-
-	def standard(self,common,binary,out_path=None,clf="LR"):
-		paths=files.iter_product([common,binary])   #list(zip(common,binary))
-		self(paths,out_path,clf)
-
-	def __call__(self,paths,out_path,clf="LR"):
+	def __call__(self,common,binary):
+		if(type(common)!=list):
+			common=[common]
+		common=[None]+common
 		lines=[]
-		for common_i,deep_i in paths: 
-			if(common_i or deep_i):
-				result_i=self.fun(common_i,deep_i,binary=False,clf=clf)[0]
-				if(result_i):
-					desc=exp_info(common_i,deep_i,result_i)
-					lines.append("%s,%s,%s" % desc)
-		if(out_path):
-			files.save_txt(lines,out_path)
-		else:
-			print(lines)
+		for common_i in common:
+			result_i=self.fun(common_i,binary,clf=self.clf)[0]
+			desc_i=exp_info(common_i,binary,result_i)
+			lines.append("%s,%s,%s" % desc_i)
+		return lines
+
+def full_exp(common,binary,out_path):
+	if(type(binary)!=list):
+		binary=[binary]
+	simple_exp=SimpleExp()
+	lines=[]
+	for binary_i in binary:
+		lines+=simple_exp(common,binary)
+	files.save_txt(lines,out_path)
 
 def exp_info(common_i,binary_i,result_i):
 	desc_common=get_desc(common_i)
@@ -57,15 +50,14 @@ def get_name(path_i):
 	return "_".join(path_i.split("/")[-2:])
 
 if __name__ == "__main__":
-    dataset="../dtw_paper/MHAD"
-    common1=["%s/common/feats/max_z/dtw" % dataset,
-            "%s/common/feats/corl/dtw" % dataset,
-            "%s/common/feats/skew/dtw" % dataset, 
-            "%s/common/feats/std/dtw" % dataset]
-    common2="%s/common/MSR_500" % dataset
-    binary1="%s/binary/stats/feats" %dataset
-    binary2="%s/binary/1D_CNN/feats" %dataset
-    common=[None,common1,common2]
-    binary=[None,binary1,binary2]
-    exp=ExpTemplate()
-    exp.standard(common,binary,out_path="MHAD.csv")
+	dataset="MSR"
+	dir_path="../../dtw_paper/%s/common" % dataset
+	common1=files.get_paths("%s/feats" % dir_path)
+	common2="%s/%s_300" % (dir_path,dataset) 
+	common3="%s/%s_350" % (dir_path,dataset) 
+	common=[common1,common2,common3]
+	binary1="../../dtw_paper/%s/sim/feats" % dataset
+	binary2="../../dtw_paper/%s/stats/feats" % dataset
+	binary3="../../dtw_paper/%s/1D_CNN/feats" % dataset
+	binary=[binary1,binary2,binary3]
+	full_exp(common,binary,"MSR.txt")
