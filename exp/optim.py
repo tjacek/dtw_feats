@@ -4,14 +4,17 @@ import numpy as np
 import reduction,files,feats,rename
 import selection,ens,exp
 
-def full_optim(common,binary,step=50,n=24):
-	acc=[]
+def full_optim(common,binary,step=50,n=40):
+	acc,s_feats,s_clf=[],[],[]
 	for i in range(n):
 		n_feats=i*step
-		result,s_clf=reduced_selection(common,binary,n_feats)
-		acc.append( (result.get_acc(),n_feats))
-		print(acc)
-	print(acc)
+		result,s_clf_i=reduced_selection(common,binary,n_feats)
+		acc.append(result.get_acc())
+		s_feats.append(n_feats)
+		s_clf.append(s_clf_i)
+		print(list(zip(acc,s_feats)))
+	k=np.argmax(acc)
+	return acc[k],s_feats[k],s_clf[k]
 
 def pipe_exp(common,binary,step=100):
 	lines=[]
@@ -57,4 +60,5 @@ if __name__ == "__main__":
 	common=files.top_files("%s/common/feats" % dir_path)
 	common=["%s/dtw" % common_i for common_i in common]
 	binary="%s/sim/feats" % dir_path
-	full_optim(common,binary)
+	best=full_optim(common,binary)
+	print(best)
