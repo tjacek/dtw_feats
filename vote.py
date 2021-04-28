@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.metrics import accuracy_score
+from collections import Counter
 import ens,files
 
 def ensemble(common_path,binary_path,system=None,clf="LR"):
@@ -34,8 +35,18 @@ def borda_count(prefer):
 		for j,cat_j in enumerate(prefer_i):
 			votes[cat_j]+=j
 	return np.argmax(votes)
-#	print(prefer)
-#	raise Exception("OK")
+
+def bucklin(prefer):
+	prefer=np.flip(np.array(prefer).T)
+	votes=np.zeros((prefer.shape[0],))
+	half=votes.shape[0]/2
+	for prefer_i in prefer:
+		count_i=Counter(prefer_i)
+		for cat,n in count_i.items():
+			votes[cat]+=n
+			if(np.amax(votes)>=half):
+				return np.argmax(votes)
+	raise Exception("OK")
 
 dataset="MHAD"
 dir_path="../ICSS/%s" % dataset
@@ -43,4 +54,4 @@ common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
 common.append("%s/1D_CNN/feats" % dir_path)
 binary="%s/ens/feats" % dir_path 
-ensemble(common,binary,system=None,clf="LR")
+ensemble(common,binary,system=bucklin,clf="LR")
