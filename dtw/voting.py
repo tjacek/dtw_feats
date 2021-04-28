@@ -12,18 +12,23 @@ def basic_exp(in_path):
 def voting(in_path):
 	paths=files.get_paths(in_path,name="pairs")
 	dtw_pairs=read_pairs(paths)
-	pref_dict=get_preferences(dtw_pairs[1])
+	pref_dicts=[ get_preferences(pairs_i) 
+			for pairs_i in dtw_pairs]
+	names=pref_dicts[0].keys()
+
 	y_pred,y_true=[],[]
-	for name_i,pref_i in pref_dict.items():
+	for name_i in names:
 		y_true.append(name_i.get_cat())
-		y_pred.append(border_count(pref_i))
+		votes=[ pref_j[name_i] for pref_j in pref_dicts]
+		y_pred.append(border_count(votes))
 	print(accuracy_score(y_true,y_pred))
 
 def border_count(pref):
-	n_cats=len(pref)
+	n_cats=len(pref[0])
 	votes=np.zeros((n_cats,))
-	for i,cat_i in enumerate(pref):
-		votes[cat_i]+=(n_cats-i)
+	for pref_i in pref:
+		for i,cat_i in enumerate(pref_i):
+			votes[cat_i]+=(n_cats-i)
 	return np.argmax(votes)
 
 def read_pairs(in_path):
