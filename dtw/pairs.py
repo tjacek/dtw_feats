@@ -14,6 +14,10 @@ class DTWpairs(object):
 		return np.array([self.pairs[name_i][name_j]  
 					for name_j in names])
  	
+	def ordering(self,name_i,names):
+		dist_i=self.features(name_i,names)
+		return [names[i] for i in np.argsort(dist_i)]
+
 	def set(self,key1,key2,data_i):
  		self.pairs[key1][key2]=data_i
 	
@@ -38,6 +42,9 @@ class DTWpairs(object):
 			pickle.dump(self, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def read(in_path):
+	if(type(in_path)==list):
+		return [ DTWpairs(read(path_i)) 
+					for path_i in in_path]
 	with open(in_path, 'rb') as handle:
 		return pickle.load(handle)
 
