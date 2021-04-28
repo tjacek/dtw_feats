@@ -17,11 +17,21 @@ def read_pairs(in_path):
 
 def get_preferences(pair_i):
 	train,test=pair_i.split()
-	ord_i=pair_i.ordering(test[0],train)
-	cats_i=[name_i.get_cat() for name_i in ord_i ]
-	print(cats_i)
+	pref_dict={}
+	for name_i in test:
+		ord_i=pair_i.ordering(name_i,train)
+		cats=[name_j.get_cat() for name_j in ord_i ]
+		pref_dict[name_i]=unique_elem(cats)
+	return pref_dict
+
+def unique_elem(cats):
+	unique=[]
+	for cat_j in cats:
+		if(not unique.count(cat_j)):
+			unique.append(cat_j)
+	return unique
 
 in_path="../../ICSS/MHAD/dtw/"#corl/pairs"
 paths=files.get_paths(in_path,name="pairs")
 dtw_pairs=read_pairs(paths)
-get_preferences(dtw_pairs[0])
+print(get_preferences(dtw_pairs[0]))
