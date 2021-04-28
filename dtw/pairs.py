@@ -42,9 +42,6 @@ class DTWpairs(object):
 			pickle.dump(self, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def read(in_path):
-	if(type(in_path)==list):
-		return [ DTWpairs(read(path_i)) 
-					for path_i in in_path]
 	with open(in_path, 'rb') as handle:
 		return pickle.load(handle)
 
