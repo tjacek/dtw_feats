@@ -10,11 +10,20 @@ class Preferences(object):
 	def n_votes(self):
 		return self.order.shape[0]
 
+	def empty_votes(self):
+		return np.zeros((self.n_votes(),))
+
 	def by_vote(self):
 		return [vote_i for vote_i in self.order]
 
-	def by_order(self):
-		return [ord_i for ord_i in self.order.T]
+	def by_order(self,as_counter=False,flip=False):
+		if(as_counter):
+			ordering=[Counter(ord_i) for ord_i in self.order.T]
+		else:
+			ordering=[ord_i for ord_i in self.order.T]
+		if(flip):
+			ordering.reverse()
+		return ordering
 
 def ensemble(common_path,binary_path,system=None,clf="LR"):
 	if(system is None):
@@ -43,26 +52,23 @@ def to_preference(vote_i):
 	return Preferences(pref)
 
 def borda_count(prefer):
-	raise Exception( prefer.by_order())
-	votes=np.zeros( (len(prefer),))
-	for prefer_i in prefer:
+	votes=prefer.empty_votes()
+	for prefer_i in prefer.by_vote():
 		for j,cat_j in enumerate(prefer_i):
 			votes[cat_j]+=j
 	return np.argmax(votes)
 
 def bucklin(prefer):
-	prefer=np.flip(np.array(prefer).T)
-	votes=np.zeros((prefer.shape[0],))
+	votes=prefer.empty_votes()
 	half=votes.shape[0]/2
-	for prefer_i in prefer:
-		count_i=Counter(prefer_i)
+	for count_i in prefer.by_order(True,True):
 		for cat,n in count_i.items():
 			votes[cat]+=n
 			if(np.amax(votes)>=half):
 				return np.argmax(votes)
 	raise Exception("OK")
 
-def k_aproval(prefer,k=1):
+def k_aproval(prefer,k=2):
 	prefer=np.array(prefer)
 	aprov=prefer[:,-k:].flatten()
 	votes=Counter(aprov)
@@ -83,7 +89,7 @@ def coombs(prefer):
 		return cat_i[0]
 	raise Exception(count_i)
 
-dataset="3DHOI"
+dataset="MHAD"
 dir_path="../ICSS/%s" % dataset
 common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
