@@ -48,10 +48,16 @@ def bucklin(prefer):
 				return np.argmax(votes)
 	raise Exception("OK")
 
-dataset="MHAD"
+def k_aproval(prefer,k=5):
+	prefer=np.array(prefer)
+	aprov=prefer[:,-k:].flatten()
+	votes=Counter(aprov)
+	return votes.most_common()[0][0]
+
+dataset="3DHOI"
 dir_path="../ICSS/%s" % dataset
 common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
 common.append("%s/1D_CNN/feats" % dir_path)
 binary="%s/ens/feats" % dir_path 
-ensemble(common,binary,system=bucklin,clf="LR")
+ensemble(common,binary,system=k_aproval,clf="LR")
