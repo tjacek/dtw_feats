@@ -46,3 +46,6 @@ def all_pairs(n_votes):
 		for j in range(i,n_votes):
 			pairs.append((i,j))
 	return pairs
+
+def pair_win(pair,pref_i):
+    return (pref_i==pair[0])<(pref_i==pair[1])
