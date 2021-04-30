@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report,accuracy_score
 from collections import Counter
 import ens,files
 
@@ -35,6 +35,7 @@ def ensemble(common_path,binary_path,system=None,clf="LR"):
 	for vote_i in votes:
 		pref_i= to_preference(vote_i)
 		y_pred.append(system(pref_i))
+	print(classification_report(y_true,y_pred,digits=4))
 	print(accuracy_score(y_true,y_pred))
 
 def prepare_votes(votes):
@@ -90,7 +91,7 @@ def coombs(prefer):
 		print(last)
 	raise Exception(first)
 
-dataset="MHAD"
+dataset="3DHOI"
 dir_path="../ICSS/%s" % dataset
 common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
