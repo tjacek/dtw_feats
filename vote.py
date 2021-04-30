@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn.metrics import classification_report,accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix,accuracy_score
 from collections import Counter
 import ens,files
 
@@ -25,7 +26,7 @@ class Preferences(object):
 			ordering.reverse()
 		return ordering
 
-def ensemble(common_path,binary_path,system=None,clf="LR"):
+def ensemble(common_path,binary_path,system=None,clf="LR",cf_path=None):
 	if(system is None):
 		system=borda_count
 	votes=ens.make_votes(common_path,binary_path,clf,None)
@@ -37,6 +38,9 @@ def ensemble(common_path,binary_path,system=None,clf="LR"):
 		y_pred.append(system(pref_i))
 	print(classification_report(y_true,y_pred,digits=4))
 	print(accuracy_score(y_true,y_pred))
+	if(cf_path):
+		cf_matrix=confusion_matrix(y_true,y_pred)
+		np.savetxt(cf_path,cf_matrix,delimiter=",",fmt='%.2e')
 
 def prepare_votes(votes):
 	y_true=votes.results[0].y_true
@@ -97,4 +101,4 @@ common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
 common.append("%s/1D_CNN/feats" % dir_path)
 binary="%s/ens/feats" % dir_path 
-ensemble(common,binary,system=coombs,clf="LR")
+ensemble(common,binary,system=coombs,clf="LR",cf_path="3DHOI")
