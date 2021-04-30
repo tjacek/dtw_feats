@@ -66,28 +66,29 @@ def bucklin(prefer):
 			votes[cat]+=n
 			if(np.amax(votes)>=half):
 				return np.argmax(votes)
-	raise Exception("OK")
 
 def k_aproval(prefer,k=2):
-	prefer=np.array(prefer)
-	aprov=prefer[:,-k:].flatten()
+	aprov=prefer.order[:,-k:].flatten()
 	votes=Counter(aprov)
 	return votes.most_common()[0][0]
 
 def coombs(prefer):
-	n_cats=prefer[0].shape[0]
-	major=n_cats/2
-	votes=[Counter(prefer_i) 
-		for prefer_i in np.array(prefer).T]
-
-	votes.reverse()
-	vote_i=votes[0]
-	cat_i=vote_i.most_common()[0]
-	count_i=cat_i[1]
-	if(count_i>major):
-		print(cat_i)
-		return cat_i[0]
-	raise Exception(count_i)
+	counters=prefer.by_order(as_counter=True,flip=True)
+	first=counters[0]
+	last=counters.pop()
+	while(first!=last):
+		if(sum(last.values())==0):
+			last=counters.pop()
+		best=first.most_common()[0]
+		major=sum(first.values())/2
+		if(major<best[1]):
+			print(best)
+			return best[0]
+		worst= last.most_common()[0]
+		first[worst[0]]=0
+		last[worst[0]]=0
+		print(last)
+	raise Exception(first)
 
 dataset="MHAD"
 dir_path="../ICSS/%s" % dataset
@@ -95,4 +96,4 @@ common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
 common.append("%s/1D_CNN/feats" % dir_path)
 binary="%s/ens/feats" % dir_path 
-ensemble(common,binary,system=None,clf="LR")
+ensemble(common,binary,system=coombs,clf="LR")
