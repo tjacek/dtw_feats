@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.optimize import differential_evolution
-import ens,learn,exp
+import ens,learn,exp,files
 
 class LossFunction(object):
 	def __init__(self, votes):
@@ -44,15 +44,15 @@ def validation_votes(datasets,clf="LR"):
 		clf_i=learn.make_model(train,clf)
 		y_pred=clf_i.predict_proba(train.get_X())
 		result_i =learn.Result(train.get_labels(),y_pred,train.names())
-		results.append(result_i)#print(result_i.get_acc())
+		results.append(result_i)
 	return results
 
 if __name__ == "__main__":
-    dataset="3DHOI"
-    path='../ICSS_exp/%s/' % dataset
-    deep=['%s/common/1D_CNN/feats' % path]
-    binary1='%s/ens/lstm_gen/feats' % path
-    binary2='../ICSS_sim/%s/sim/feats' % dataset
-#    binary=['%s/ens/lstm_gen/feats' % path,'../ICSS_sim/%s/sim/feats' % dataset]
-    dtw=['%s/dtw/corl/dtw' % path, '%s/dtw/max_z/dtw' % path]
-    diff_exp(dtw,deep,binary1,binary2)
+	dataset="3DHOI"
+	dir_path="../ICSS/%s" % dataset
+	common="%s/dtw" % dir_path
+	common=files.get_paths(common,name="dtw")
+	common.append("%s/1D_CNN/feats" % dir_path)
+	binary="%s/ens/feats" % dir_path 
+	result=diff_voting(common,binary,clf="LR")
+	result.report()
