@@ -38,3 +38,11 @@ def coombs(prefer):
 		last[worst[0]]=0
 		print(last)
 	raise Exception(first)
+
+
+def all_pairs(n_votes):
+	pairs=[]
+	for i in range(n_votes):
+		for j in range(i,n_votes):
+			pairs.append((i,j))
+	return pairs
