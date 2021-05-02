@@ -1,12 +1,10 @@
 import sys
 sys.path.append("..")
 import numpy as np
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix,accuracy_score
 from collections import Counter
 import pickle
 from ens import Votes
-import ens,files
+import ens,files,learn
 from pref.systems import *
 
 class Preferences(object):
@@ -33,27 +31,24 @@ class Preferences(object):
 
 def ensemble(common_path,binary_path,system=None,clf="LR",cf_path=None):
 	votes=ens.make_votes(common_path,binary_path,clf,None)
-	voting(votes,system)
+	return voting(votes,system)
 
 def ext_exp(in_path,system,cf_path=None):
 	with open(in_path, 'rb') as handle:
 		votes=pickle.load(handle)
-		voting(votes,system,cf_path)
+		return voting(votes,system,cf_path)
 
 def voting(votes,system,cf_path=None):
 	if(system is None):
 		system=borda_count
 	y_true=votes.results[0].y_true
+	names=votes.results[0].names
 	votes=prepare_votes(votes)
 	y_pred=[]
 	for vote_i in votes:
 		pref_i= to_preference(vote_i)
 		y_pred.append(system(pref_i))
-	print(classification_report(y_true,y_pred,digits=4))
-	print(accuracy_score(y_true,y_pred))
-	if(cf_path):
-		cf_matrix=confusion_matrix(y_true,y_pred)
-		np.savetxt(cf_path,cf_matrix,delimiter=",",fmt='%.2e')
+	return learn.Result(y_true,y_pred,names)
 
 def prepare_votes(votes):
 	y_true=votes.results[0].y_true
@@ -69,12 +64,14 @@ def to_preference(vote_i):
 		pref.append(ord_i)
 	return Preferences(pref)
 
-dataset="3DHOI"
-dir_path="../../ICSS_exp/%s" % dataset
-common="%s/dtw" % dir_path
-common=files.get_paths(common,name="dtw")
-common.append("%s/common/1D_CNN/feats" % dir_path)
-binary="%s/ens/lstm/feats" % dir_path 
-#ensemble(common,binary,system=coombs,clf="LR")#,cf_path="3DHOI")
-#raise Exception("End")
-ext_exp("../3DHOI",None)
+if __name__ == "__main__":
+	dataset="3DHOI"
+	dir_path="../../ICSS_exp/%s" % dataset
+	common="%s/dtw" % dir_path
+	common=files.get_paths(common,name="dtw")
+	common.append("%s/common/1D_CNN/feats" % dir_path)
+	binary="%s/ens/lstm/feats" % dir_path 
+	#ensemble(common,binary,system=coombs,clf="LR")#,cf_path="3DHOI")
+	#raise Exception("End")
+	result=ext_exp("../3DHOI",None)
+	result.report()
