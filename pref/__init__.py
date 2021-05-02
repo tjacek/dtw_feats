@@ -3,8 +3,8 @@ sys.path.append("..")
 import numpy as np
 from collections import Counter
 import pickle
-from ens import Votes
 import ens,files,learn
+from ens import Votes
 from pref.systems import *
 
 class Preferences(object):
@@ -29,14 +29,16 @@ class Preferences(object):
 			ordering.reverse()
 		return ordering
 
+def read_pref(in_path):
+	with open(in_path, 'rb') as handle:
+		return pickle.load(handle)
+
 def ensemble(common_path,binary_path,system=None,clf="LR",cf_path=None):
 	votes=ens.make_votes(common_path,binary_path,clf,None)
 	return voting(votes,system)
 
 def ext_exp(in_path,system,cf_path=None):
-	with open(in_path, 'rb') as handle:
-		votes=pickle.load(handle)
-		return voting(votes,system,cf_path)
+	return voting(read_pref(in_path),system,cf_path)
 
 def voting(votes,system,cf_path=None):
 	if(system is None):

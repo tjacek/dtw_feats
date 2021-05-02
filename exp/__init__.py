@@ -33,10 +33,12 @@ def full_exp(common,binary,out_path):
 def exp_info(common_i,binary_i,result_i):
 	desc_common=get_desc(common_i)
 	desc_binary=get_desc(binary_i)
+	return desc_common,desc_binary,get_metrics(result_i)
+
+def get_metrics(result_i):
 	acc_i= result_i.get_acc()
 	metrics="%.4f,%.4f,%.4f" % result_i.metrics()[:3]
-	metrics="%.4f,%s" % (acc_i,metrics)
-	return desc_common,desc_binary,metrics
+	return "%.4f,%s" % (acc_i,metrics)
 
 def get_desc(common_path):
 	if(common_path is None):

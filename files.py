@@ -71,7 +71,7 @@ def person_selector(name_i):
     return person_i%2==1
 
 def save_txt(text,out_path):
-    if(type(text)):
+    if(type(text)==list):
         text="\n".join(text)
     file1 = open(out_path,"w")   
     file1.write(text) 

@@ -31,12 +31,10 @@ def coombs(prefer):
 		best=first.most_common()[0]
 		major=sum(first.values())/2
 		if(major<best[1]):
-			print(best)
 			return best[0]
 		worst= last.most_common()[0]
 		first[worst[0]]=0
 		last[worst[0]]=0
-		print(last)
 	raise Exception(first)
 
 
