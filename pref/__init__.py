@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix,accuracy_score
 from collections import Counter
+import pickle
+from ens import Votes
 import ens,files
 from pref.systems import *
 
@@ -30,9 +32,17 @@ class Preferences(object):
 		return ordering
 
 def ensemble(common_path,binary_path,system=None,clf="LR",cf_path=None):
+	votes=ens.make_votes(common_path,binary_path,clf,None)
+	voting(votes,system)
+
+def ext_exp(in_path,system,cf_path=None):
+	with open(in_path, 'rb') as handle:
+		votes=pickle.load(handle)
+		voting(votes,system,cf_path)
+
+def voting(votes,system,cf_path=None):
 	if(system is None):
 		system=borda_count
-	votes=ens.make_votes(common_path,binary_path,clf,None)
 	y_true=votes.results[0].y_true
 	votes=prepare_votes(votes)
 	y_pred=[]
@@ -59,11 +69,12 @@ def to_preference(vote_i):
 		pref.append(ord_i)
 	return Preferences(pref)
 
-dataset="MHAD"
-dir_path="../../ICSS/%s" % dataset
+dataset="3DHOI"
+dir_path="../../ICSS_exp/%s" % dataset
 common="%s/dtw" % dir_path
 common=files.get_paths(common,name="dtw")
-common.append("%s/1D_CNN/feats" % dir_path)
-binary="%s/ens/feats" % dir_path 
-ensemble(common,binary,system=coombs,clf="LR")#,cf_path="3DHOI")
-raise Exception("End")
+common.append("%s/common/1D_CNN/feats" % dir_path)
+binary="%s/ens/lstm/feats" % dir_path 
+#ensemble(common,binary,system=coombs,clf="LR")#,cf_path="3DHOI")
+#raise Exception("End")
+ext_exp("../3DHOI",None)
