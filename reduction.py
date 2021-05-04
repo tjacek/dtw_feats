@@ -9,14 +9,17 @@ def make_selected_votes(common_path,binary_path,clf="LR",n_common=1400,n_binary=
 	return ens.make_votes(common_path,binary_path,clf,read)
 
 def acc_curve(common_path,binary_path,clf="LR",n=15,step=100):
-	acc=[]
+	acc,size=[],[]
 	n_feats=step
 	for i in range(1,n):
+		feats_i=i*step
 		print(i)
-		votes=make_selected_votes(common_path,binary_path,clf,n_common=i*step)
+		votes=make_selected_votes(common_path,binary_path,clf,n_common=feats_i)
 		result_i=votes.voting()
 		acc.append(result_i.get_acc())
+		size.append(feats_i)
 		print(acc)
+	print(list(zip(acc,size)))
 	return acc
 
 class SelectedDataset(object):
@@ -48,11 +51,11 @@ class SepSelected(object):
 		 				for data_i in binary]
 		return [ common+binary_i for binary_i in binary]
 
-def reduced_datasets(common,step):
-	dataset=ens.read_dataset(common,None)[0]
-	dataset.norm()
-	n= int(dataset.dim()[0]/step)+1
-	return [ reduce(dataset,i*step) for i in range(n)]
+#def reduced_datasets(common,step):
+#	dataset=ens.read_dataset(common,None)[0]
+#	dataset.norm()
+#	n= int(dataset.dim()[0]/step)+1
+#	return [ reduce(dataset,i*step) for i in range(n)]
 
 def reduce(data_i,n=100):
 	if( not n or n>data_i.dim()[0]):
@@ -84,12 +87,19 @@ def recursive(train_i,full_i,n=84):
 	new_X= rfe.transform(X)
 	return new_X
 
+def selected_common(common_path,out_path,n=100):
+	dataset=ens.read_dataset(common_path,None)[0]
+	dataset.norm()
+	new_data=reduce(dataset,n)
+	new_data.save(out_path)
+
 if __name__ == "__main__":
-	dataset="MSR"
-	dir_path="../dtw_paper/%s" % dataset
-	binary="%s/sim/feats" % dir_path
-	common=files.top_files("%s/common/feats" % dir_path)
-	common=["%s/dtw" % common_i for common_i in common]
-	acc=acc_curve(common,binary,clf="LR",n=30,step=50)
-	print(acc)
-	#selected_common(common,"MSR_100",n=100)
+	dataset="MHAD"
+	dir_path="../ICSS_exp/%s" % dataset
+	common="%s/dtw" % dir_path
+	common=files.get_paths(common,name="dtw")
+	common.append("%s/common/1D_CNN/feats" % dir_path)
+	binary="%s/ens/lstm/feats" % dir_path 
+	acc=acc_curve(common,binary,clf="SVC",n=20,step=50)
+	n=150
+#	selected_common(common,"s_feats/%s_%d" % (dataset,n),n)

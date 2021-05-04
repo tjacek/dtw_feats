@@ -48,11 +48,11 @@ def validation_votes(datasets,clf="LR"):
 	return results
 
 if __name__ == "__main__":
-	dataset="3DHOI"
-	dir_path="../ICSS/%s" % dataset
+	dataset="MSR"
+	dir_path="../ICSS_exp/%s" % dataset
 	common="%s/dtw" % dir_path
 	common=files.get_paths(common,name="dtw")
-	common.append("%s/1D_CNN/feats" % dir_path)
-	binary="%s/ens/feats" % dir_path 
+	common.append("%s/common/1D_CNN/feats" % dir_path)
+	binary="%s/ens/lstm/feats" % dir_path 
 	result=diff_voting(common,binary,clf="LR")
 	result.report()

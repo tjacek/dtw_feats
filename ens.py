@@ -86,8 +86,13 @@ def ensemble(common_path,binary_path,binary=True,
     return result,votes
 
 if __name__ == "__main__":
-    common="../dtw_paper/MSR/common/MSR_500"
-#    binary="../MSR/ens/1D_CNN/dropout_0.5/feats"
-    binary="../dtw_paper/MSR/sim/feats"
-    result,votes=ensemble(common,binary,clf="LR",binary=False)
+    dataset="3DHOI"
+    dir_path="../ICSS_exp/%s" % dataset
+    common="%s/dtw" % dir_path
+    common=files.get_paths(common,name="dtw")
+    common.append("%s/common/1D_CNN/feats" % dir_path)
+    binary="%s/ens/lstm/feats" % dir_path
+    result,votes=ensemble(common,binary,clf="SVC",binary=False)
     result.report()
+    votes.save("%s_SVC2" % dataset)
+#    result.get_cf("MHAD")
