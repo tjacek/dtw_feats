@@ -10,15 +10,17 @@ def count_condor(in_path):
 	votes=pref.prepare_votes(votes)
 	votes=[ pref.to_preference(vote_i) 
 			for vote_i in votes]
-	for i,win_i in enumerate(y_pred):
-		is_condorcet_winner(win_i,votes[i])
+	condor=[is_condorcet_winner(win_i,votes[i]) 
+				for i,win_i in enumerate(y_pred)]
+	print(condor)
 
 def is_condorcet_winner(win_i,pref_i):
-	
-#	for ord_i in pref_i.order:
-#		print(ord_i)
-#		print("*******")
-	raise Exception(win_i)
+	n_cats=pref_i.order.shape[0]
+	for cat_i in range(n_cats):
+		if(cat_i!=win_i):
+			if(not pref_i.pairwise_score(win_i,cat_i)):
+				return False
+	return True
 
 
 dataset="3DHOI"

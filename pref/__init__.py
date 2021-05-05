@@ -29,6 +29,15 @@ class Preferences(object):
 			ordering.reverse()
 		return ordering
 
+	def pairwise_score(self,x,y):
+		score=0
+		for vote_i in self.by_vote():
+			x_index=np.where(vote_i==x)[0][0]
+			y_index=np.where(vote_i==y)[0][0]
+			if(y_index<x_index):
+				score+=1
+		return score > (self.n_votes()/2)
+
 def read_pref(in_path):
 	with open(in_path, 'rb') as handle:
 		return pickle.load(handle)
