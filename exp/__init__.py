@@ -9,31 +9,15 @@ class BasicExp(object):
 			fun=ens.ensemble
 		self.fun=fun
 		
-	def __call__(self,paths,clf="LR"):
+	def __call__(self,paths,clf="LR",out_path=None):
 		lines=[]
 		for common_i,binary_i in paths:
-			result_i=self.fun(common_i,binary,clf=clf)[0]
-			desc_i=exp_info(common_i,binary,result_i)
+			result_i=self.fun(common_i,binary_i,clf=clf)
+			desc_i=exp_info(common_i,binary_i,result_i)
 			lines.append(desc_i)
+		if(out_path):
+			files.save_txt(lines,out_path)
 		return lines
-
-#class SimpleExp(object):
-#	def __init__(self,fun=None,clf="LR"):
-#		if(not fun):
-#			fun=ens.ensemble
-#		self.fun=fun
-#		self.clf=clf
-
-#	def __call__(self,common,binary):
-#		if(type(common)!=list):
-#			common=[common]
-#		common=[None]+common
-#		lines=[]
-#		for common_i in common:
-#			result_i=self.fun(common_i,binary,clf=self.clf)[0]
-#			desc_i=clean_info(common_i,binary,result_i)
-#			lines.append(desc_i)
-#		return lines
 
 def full_exp(common,binary,out_path):
 	if(type(binary)!=list):
@@ -89,6 +73,13 @@ def basic_paths(dataset,dir_path,common,binary,name="dtw"):
 	paths["common"]=files.get_paths(common,name=name)
 	paths["binary"]="%s/%s" % (paths["dir_path"],binary)
 	return paths 
+
+def common_paths(common,binary):
+	common=files.top_files(common)
+	datasets=[ common_i.split('/')[-1].split("_")[0] 
+				for common_i in common]
+	binary=[ binary % data_i  for data_i in datasets]
+	return list(zip(common,binary))
 
 #if __name__ == "__main__":
 #	dataset="MHAD"

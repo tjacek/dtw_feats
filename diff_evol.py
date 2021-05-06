@@ -52,9 +52,14 @@ def validation_votes(datasets,clf="LR"):
 
 if __name__ == "__main__":
 	dataset="3DHOI"
-	dir_path="../ICSS_exp" 
-	paths=exp.basic_paths(dataset,dir_path,"dtw","ens/lstm/feats")
+#	dir_path="../ICSS_exp" 
+#	paths=exp.basic_paths(dataset,dir_path,"dtw","ens/lstm/feats")
 #	paths["common"].append("%s/common/1D_CNN/feats" % paths["dir_path"])
-	paths["common"]="s_feats2/%s_200" % dataset
-	result=diff_voting(paths["common"],paths["binary"],clf="LR")
-	result.report()
+#	paths["common"]="s_feats2/%s_200" % dataset
+	binary="../ICSS_exp/%s/ens/lstm/feats"
+	paths=exp.common_paths("s_feats2",binary)
+	diff_exp=exp.BasicExp(diff_voting)
+	lines=diff_exp(paths,"diff_l1")
+	print(lines)
+#	result=diff_voting(paths["common"],paths["binary"],clf="LR")
+#	result.report()
