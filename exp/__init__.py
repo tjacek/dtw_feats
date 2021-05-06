@@ -3,23 +3,37 @@ sys.path.append("..")
 import os.path,re
 import files,ens,learn
 
-class SimpleExp(object):
-	def __init__(self,fun=None,clf="LR"):
+class BasicExp(object):
+	def __init__(self,fun):
 		if(not fun):
 			fun=ens.ensemble
 		self.fun=fun
-		self.clf=clf
-
-	def __call__(self,common,binary):
-		if(type(common)!=list):
-			common=[common]
-		common=[None]+common
+		
+	def __call__(self,paths,clf="LR"):
 		lines=[]
-		for common_i in common:
-			result_i=self.fun(common_i,binary,clf=self.clf)[0]
-			desc_i=clean_info(common_i,binary,result_i)
-			lines.append(desc_i)#"%s,%s,%s" % desc_i)
+		for common_i,binary_i in paths:
+			result_i=self.fun(common_i,binary,clf=clf)[0]
+			desc_i=exp_info(common_i,binary,result_i)
+			lines.append(desc_i)
 		return lines
+
+#class SimpleExp(object):
+#	def __init__(self,fun=None,clf="LR"):
+#		if(not fun):
+#			fun=ens.ensemble
+#		self.fun=fun
+#		self.clf=clf
+
+#	def __call__(self,common,binary):
+#		if(type(common)!=list):
+#			common=[common]
+#		common=[None]+common
+#		lines=[]
+#		for common_i in common:
+#			result_i=self.fun(common_i,binary,clf=self.clf)[0]
+#			desc_i=clean_info(common_i,binary,result_i)
+#			lines.append(desc_i)
+#		return lines
 
 def full_exp(common,binary,out_path):
 	if(type(binary)!=list):
@@ -51,32 +65,40 @@ def get_desc(common_path):
 def get_name(path_i):
 	return "_".join(path_i.split("/")[-2:])
 
-def clean_info(common_i,binary_i,result_i):
-	desc=exp_info(common_i,binary_i,result_i)
-	n_feats=get_n_feats(desc[0])
-	desc_common="-" if(n_feats=="-") else "dtw"
-	desc_binary=desc[1].replace("_feats","")
-	n_clf=result_i.n_cats()
-	clean=(desc_common,desc_binary,n_clf,n_feats,desc[2])
-	return "%s,%s,%d,%s,%s" % clean
+#def clean_info(common_i,binary_i,result_i):
+#	desc=exp_info(common_i,binary_i,result_i)
+#	n_feats=get_n_feats(desc[0])
+#	desc_common="-" if(n_feats=="-") else "dtw"
+#	desc_binary=desc[1].replace("_feats","")
+#	n_clf=result_i.n_cats()
+#	clean=(desc_common,desc_binary,n_clf,n_feats,desc[2])
+#	return "%s,%s,%d,%s,%s" % clean
 
-def get_n_feats(common_desc):
-    if(common_desc=="-"):
-    	return "-"
-    n_feats=re.findall('\d+',common_desc)
-    if(len(n_feats)==0):
-    	return "full"
-    return str(n_feats[0])
+#def get_n_feats(common_desc):
+#    if(common_desc=="-"):
+#    	return "-"
+#    n_feats=re.findall('\d+',common_desc)
+#    if(len(n_feats)==0):
+#    	return "full"
+#    return str(n_feats[0])
 
-if __name__ == "__main__":
-	dataset="MHAD"
-	dir_path="../../dtw_paper/%s/common" % dataset
-	common1=files.get_paths("%s/feats" % dir_path)
-	common2="%s/%s_300" % (dir_path,dataset) 
-	common3="%s/%s_350" % (dir_path,dataset) 
-	common=[common1,common2,common3]
-	binary1="../../dtw_paper/%s/sim/feats" % dataset
-	binary2="../../dtw_paper/%s/stats/feats" % dataset
-	binary3="../../dtw_paper/%s/1D_CNN/feats" % dataset
-	binary=[binary1,binary2,binary3]
-	full_exp(common,binary,"MHAD.txt")
+def basic_paths(dataset,dir_path,common,binary,name="dtw"):
+	paths={}
+	paths["dir_path"]="%s/%s" % (dir_path,dataset)
+	common="%s/%s" % (paths["dir_path"],common)
+	paths["common"]=files.get_paths(common,name=name)
+	paths["binary"]="%s/%s" % (paths["dir_path"],binary)
+	return paths 
+
+#if __name__ == "__main__":
+#	dataset="MHAD"
+#	dir_path="../../dtw_paper/%s/common" % dataset
+#	common1=files.get_paths("%s/feats" % dir_path)
+#	common2="%s/%s_300" % (dir_path,dataset) 
+#	common3="%s/%s_350" % (dir_path,dataset) 
+#	common=[common1,common2,common3]
+#	binary1="../../dtw_paper/%s/sim/feats" % dataset
+#	binary2="../../dtw_paper/%s/stats/feats" % dataset
+#	binary3="../../dtw_paper/%s/1D_CNN/feats" % dataset
+#	binary=[binary1,binary2,binary3]
+#	full_exp(common,binary,"MHAD.txt")

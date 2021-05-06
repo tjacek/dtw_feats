@@ -3,12 +3,15 @@ from scipy.optimize import differential_evolution
 import ens,learn,exp,files
 
 class LossFunction(object):
-	def __init__(self, votes):
+	def __init__(self, votes,squared=False):
 		self.votes=votes
+		self.squared=squared
 	
 	def __call__(self,weights):	
 		norm=weights/np.sum(weights)
 		result=self.votes.weighted(norm)
+		if(self.squared):
+			return (1.0-result.get_acc())
 		return 1.0-result.get_acc()
 
 def diff_exp(dtw,deep,binary1,binary2):
@@ -48,11 +51,10 @@ def validation_votes(datasets,clf="LR"):
 	return results
 
 if __name__ == "__main__":
-	dataset="MSR"
-	dir_path="../ICSS_exp/%s" % dataset
-	common="%s/dtw" % dir_path
-	common=files.get_paths(common,name="dtw")
-	common.append("%s/common/1D_CNN/feats" % dir_path)
-	binary="%s/ens/lstm/feats" % dir_path 
-	result=diff_voting(common,binary,clf="LR")
+	dataset="3DHOI"
+	dir_path="../ICSS_exp" 
+	paths=exp.basic_paths(dataset,dir_path,"dtw","ens/lstm/feats")
+#	paths["common"].append("%s/common/1D_CNN/feats" % paths["dir_path"])
+	paths["common"]="s_feats2/%s_200" % dataset
+	result=diff_voting(paths["common"],paths["binary"],clf="LR")
 	result.report()
