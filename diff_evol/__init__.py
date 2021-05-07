@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 import numpy as np
 from scipy.optimize import differential_evolution
 import ens,learn,exp,files

@@ -1,8 +1,6 @@
 import numpy as np
 import pickle
-import learn,feats,files
-#import __learn as learn
-#import __feats as feats
+import learn,feats,files,exp
 
 class Votes(object):
     def __init__(self,results):
@@ -87,12 +85,11 @@ def ensemble(common_path,binary_path,binary=True,
 
 if __name__ == "__main__":
     dataset="3DHOI"
-    dir_path="../ICSS_exp/%s" % dataset
-    common="%s/dtw" % dir_path
-    common=files.get_paths(common,name="dtw")
-    common.append("%s/common/1D_CNN/feats" % dir_path)
-    binary="%s/ens/lstm/feats" % dir_path
-    result,votes=ensemble(common,binary,clf="SVC",binary=False)
+    dir_path="../ICSS"#%s" % dataset
+    paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
+    paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+    result,votes=ensemble(paths["common"],paths["binary"],
+                        clf="LR",binary=False)
     result.report()
-    votes.save("%s_SVC2" % dataset)
+    votes.save("votes/%s" % dataset)
 #    result.get_cf("MHAD")
