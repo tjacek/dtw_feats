@@ -52,6 +52,9 @@ class Result(object):
             np.savetxt(out_path,cf_matrix,delimiter=",",fmt='%.2e')
         return cf_matrix
 
+    def true_one_hot(self):
+        return to_one_hot(self.y_true,self.n_cats())
+
     def get_acc(self):
         y_true,y_pred=self.as_labels()
         return accuracy_score(y_true,y_pred)
@@ -124,7 +127,9 @@ def voting(results,binary):
 def get_prob(results):
     return np.array([result_i[1] for result_i in results])
 
-#def get_acc(paths,clf="LR"):
-#    datasets=tools.read_datasets(paths)
-#    return [train_model(data_i,True,clf,True) 
-#                for data_i in datasets]
+def to_one_hot(y,n_cats):
+    one_hot=[]
+    for y_i in y:
+        one_hot.append(np.zeros((n_cats,)))
+        one_hot[-1][y_i]=1.0
+    return np.array(one_hot)

@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics import log_loss
 from scipy.optimize import minimize
 import random
-import ens,learn,exp,files
+import ens,learn,exp,files,learn
 
 def split_voting(common,deep,clf="LR"):#,n_split=10):
 	datasets=ens.read_dataset(common,deep)
@@ -23,7 +23,8 @@ def find_weights(datasets):
 	votes=shuffle_split(names,datasets,test_size=0.25)
 	def log_loss_func(weights):
 		result=votes.weighted(weights)
-		y_true=to_one_hot(result.y_true,len(votes))
+#		y_true=to_one_hot(result.y_true,len(votes))
+		y_true=result.true_one_hot()
 		y_pred=result.y_pred
 		return log_loss(y_true,y_pred)
 	starting_values = [0.5]*len(votes)
@@ -53,13 +54,6 @@ def custom_split(names, test_size=0.25):
 	random.shuffle(names)
 	split=names[:split_size]
 	return SetSelector(split)
-
-def to_one_hot(y,n_cats):
-	one_hot=[]
-	for y_i in y:
-		one_hot.append(np.zeros((n_cats,)))
-		one_hot[-1][y_i]=1.0
-	return np.array(one_hot)
 
 dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
