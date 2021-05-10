@@ -10,8 +10,7 @@ import ens,learn,exp,files,learn
 def split_voting(common,deep,clf="LR"):#,n_split=10):
 	datasets=ens.read_dataset(common,deep)
 	weights=find_weights(datasets)
-	votes=ens.Votes([learn.train_model(data_i,clf_type=clf)
-				for data_i in datasets])
+	votes=ens.Votes(learn.train_ens(datasets,clf))
 	result=votes.weighted(weights)
 	result.report()
 
@@ -23,7 +22,6 @@ def find_weights(datasets):
 	votes=shuffle_split(names,datasets,test_size=0.25)
 	def log_loss_func(weights):
 		result=votes.weighted(weights)
-#		y_true=to_one_hot(result.y_true,len(votes))
 		y_true=result.true_one_hot()
 		y_pred=result.y_pred
 		return log_loss(y_true,y_pred)
@@ -38,8 +36,7 @@ def find_weights(datasets):
 
 def shuffle_split(names,datasets,test_size=0.25):
 	selector_i=custom_split(names, test_size=test_size)
-	results=[learn.train_model(data_i,clf_type="LR",selector=selector_i)
-				for data_i in datasets]
+	results=learn.train_ens(datasets,clf="LR",selector=selector_i)
 	return ens.Votes(results)
 
 class SetSelector(object):
