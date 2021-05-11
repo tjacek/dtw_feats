@@ -39,13 +39,6 @@ def shuffle_split(names,datasets,test_size=0.25):
 	results=learn.train_ens(datasets,clf="LR",selector=selector_i)
 	return ens.Votes(results)
 
-class SetSelector(object):
-	def __init__(self,names):
-		self.train=set(names)
-
-	def __call__(self,name_i):
-		return name_i in self.train
-
 def custom_split(names, test_size=0.25):
 	split_size= int(len(names)* (1.0-test_size))
 	random.shuffle(names)

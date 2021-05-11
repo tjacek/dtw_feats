@@ -19,6 +19,13 @@ class Name(str):
         subname_k="_".join(self.split("_")[:k])
         return Name(subname_k)
 
+class SetSelector(object):
+    def __init__(self,names):
+        self.train=set(names)
+
+    def __call__(self,name_i):
+        return name_i in self.train
+
 def top_files(path):
     paths=[ path+'/'+file_i for file_i in os.listdir(path)]
     paths=sorted(paths,key=natural_keys)
