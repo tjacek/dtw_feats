@@ -3,7 +3,7 @@ sys.path.append("..")
 import numpy as np
 from sklearn.metrics import log_loss,mean_squared_error,mean_absolute_error
 from scipy.optimize import minimize
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold,StratifiedShuffleSplit
 import ens,exp,files,learn
 
 class KFoldGen(object):
@@ -13,6 +13,18 @@ class KFoldGen(object):
 	def __call__(self,names):
 		self.kf.get_n_splits(names)
 		for train_index, test_index in self.kf.split(names):
+			train_names=[ names[i] for i in train_index]
+			yield files.SetSelector(train_names)
+
+class StratGen(object):
+	def __init__(self, n_split=2):
+		self.sss=StratifiedShuffleSplit(n_splits=n_split, 
+			test_size=0.5, random_state=0)
+
+	def __call__(self,names):
+		self.sss.get_n_splits(names)
+		y=[name_i.get_cat() for name_i in names]
+		for train_index, test_index in self.sss.split(names,y):
 			train_names=[ names[i] for i in train_index]
 			yield files.SetSelector(train_names)
 
@@ -46,7 +58,7 @@ def split_voting(common,deep,clf="LR"):#,n_split=10):
 	datasets=ens.read_dataset(common,deep)
 	train=[data_i.split()[0] for data_i in datasets]
 	names=list(train[0].keys())
-	kf=KFoldGen()
+	kf=StratGen()
 	all_votes=get_votes(train,clf,names,kf)
 	loss_func=LinearLoss(all_votes)
 	weights=optimize(loss_func,len(all_votes[0]))
