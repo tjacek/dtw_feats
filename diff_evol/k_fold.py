@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 import numpy as np
-from sklearn.metrics import log_loss
+from sklearn.metrics import log_loss,mean_squared_error,mean_absolute_error
 from scipy.optimize import minimize
 from sklearn.model_selection import KFold
 import ens,exp,files,learn
@@ -16,9 +16,10 @@ class KFoldGen(object):
 			train_names=[ names[i] for i in train_index]
 			yield files.SetSelector(train_names)
 
-class LogLoss(object):
-	def __init__(self,all_votes):
+class LossFunc(object):
+	def __init__(self,all_votes,metric):
 		self.all_votes=all_votes
+		self.metric=metric
 
 	def __call__(self,weights):
 		loss=0
@@ -26,8 +27,20 @@ class LogLoss(object):
 			result_i=votes_i.weighted(weights)
 			y_true_i=result_i.true_one_hot()
 			y_pred_i=result_i.y_pred
-			loss+=log_loss(y_true_i,y_pred_i)
+			loss+=self.metric(y_true_i,y_pred_i)
 		return loss
+
+class LogLoss(LossFunc):
+	def __init__(self,all_votes):
+		LossFunc.__init__(self,all_votes,log_loss)
+		
+class MSELoss(LossFunc):
+	def __init__(self,all_votes):
+		LossFunc.__init__(self,all_votes,mean_squared_error)	
+
+class LinearLoss(LossFunc):
+	def __init__(self,all_votes):
+		LossFunc.__init__(self,all_votes,mean_absolute_error)
 
 def split_voting(common,deep,clf="LR"):#,n_split=10):
 	datasets=ens.read_dataset(common,deep)
@@ -35,7 +48,7 @@ def split_voting(common,deep,clf="LR"):#,n_split=10):
 	names=list(train[0].keys())
 	kf=KFoldGen()
 	all_votes=get_votes(train,clf,names,kf)
-	loss_func=LogLoss(all_votes)
+	loss_func=LinearLoss(all_votes)
 	weights=optimize(loss_func,len(all_votes[0]))
 	test_weights(datasets,clf,weights)
 
