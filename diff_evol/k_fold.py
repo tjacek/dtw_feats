@@ -26,30 +26,40 @@ class LogLoss(object):
 			result_i=votes_i.weighted(weights)
 			y_true_i=result_i.true_one_hot()
 			y_pred_i=result_i.y_pred
-#			raise Exception(y_pred_i)
 			loss+=log_loss(y_true_i,y_pred_i)
 		return loss
 
 def split_voting(common,deep,clf="LR"):#,n_split=10):
 	datasets=ens.read_dataset(common,deep)
-	datasets=[data_i.split()[0] for data_i in datasets]
-	names=list(datasets[0].keys())
-#	train,test=split(names)
+	train=[data_i.split()[0] for data_i in datasets]
+	names=list(train[0].keys())
 	kf=KFoldGen()
-	all_votes=[ens.Votes(learn.train_ens(datasets,clf=clf,selector=selector_i))
-					for selector_i in kf(names)]
-
+	all_votes=get_votes(train,clf,names,kf)
 	loss_func=LogLoss(all_votes)
-	starting_values = [0.5]*len(all_votes[0])
+	weights=optimize(loss_func,len(all_votes[0]))
+	test_weights(datasets,clf,weights)
+
+def get_votes(train,clf,names,selector_gen):
+	all_votes=[]
+	for selector_i in selector_gen(names):
+		results=learn.train_ens(train,clf=clf,selector=selector_i)
+		all_votes.append(ens.Votes(results))
+	return all_votes
+
+def test_weights(datasets,clf,weights):
+	votes=ens.Votes(learn.train_ens(datasets,clf))
+	result=votes.weighted(weights)
+	result.report()
+
+def optimize(loss_func,n_votes):
+	starting_values = [0.5]*n_votes#len(all_votes[0])
 	cons = ({'type':'eq','fun':lambda w: 1-sum(w)})
-	bounds = [(0,1)]*len(all_votes[0])
+	bounds = [(0,1)]*n_votes#len(all_votes[0])
 	res = minimize(loss_func, starting_values, 
 		method='SLSQP', bounds=bounds, constraints=cons)
 	print('Ensamble Score: {best_score}'.format(best_score=res['fun']))
 	print('Best Weights: {weights}'.format(weights=res['x']))
 	return res['x']
-
-
 
 dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
