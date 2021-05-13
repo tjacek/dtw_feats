@@ -44,7 +44,8 @@ class LossFunc(object):
 
 class LogLoss(LossFunc):
 	def __init__(self,all_votes):
-		LossFunc.__init__(self,all_votes,log_loss)
+		loss=lambda x,y: -log_loss(x,y)
+		LossFunc.__init__(self,all_votes,loss)
 		
 class MSELoss(LossFunc):
 	def __init__(self,all_votes):
@@ -54,31 +55,28 @@ class LinearLoss(LossFunc):
 	def __init__(self,all_votes):
 		LossFunc.__init__(self,all_votes,mean_absolute_error)
 
-def split_exp(common,deep,clf="LR"):
-	datasets=ens.read_dataset(common,deep)
+def split_exp(common,binary,clf="LR",out_path=None):
+	datasets=ens.read_dataset(common,binary)
 	train=[data_i.split()[0] for data_i in datasets]
 	names=list(train[0].keys())
-	gens=[KFoldGen(2),KFoldGen(5),StratGen(2),StratGen(5)]
+	gens={ "KFold,2":KFoldGen(2),"KFold,5":KFoldGen(5),
+			"Strat,2":StratGen(2),"Strat,5":StratGen(5)}
 	lines=[]
-	for gen_i in gens:
+	for info_i,gen_i in gens.items():
 		votes_i=get_votes(train,clf,names,gen_i)
-		loss=[LogLoss(votes_i),MSELoss(votes_i),LinearLoss(votes_i)]
-		for loss_j in loss:
+		loss={"LogLoss":LogLoss(votes_i),
+			  "MSELoss":MSELoss(votes_i),
+			  "LinearLoss":LinearLoss(votes_i)}
+		for info_j,loss_j in loss.items():
 			weights=optimize(loss_j,len(votes_i[0]))
 			result_j=test_weights(datasets,clf,weights)
 			metrics=exp.get_metrics(result_j)
-			lines.append(metrics)
+			line_ij="%s,%s,%s" % (info_i,info_j,metrics)
+			print(line_ij)
+			lines.append(line_ij)
 	print(lines)
-
-#def split_voting(common,deep,clf="LR"):#,n_split=10):
-#	datasets=ens.read_dataset(common,deep)
-#	train=[data_i.split()[0] for data_i in datasets]
-#	names=list(train[0].keys())
-#	kf=StratGen()
-#	all_votes=get_votes(train,clf,names,kf)
-#	loss_func=LinearLoss(all_votes)
-#	weights=optimize(loss_func,len(all_votes[0]))
-#	test_weights(datasets,clf,weights)
+	if(out_path):
+		files.save_txt(lines,out_path)
 
 def get_votes(train,clf,names,selector_gen):
 	all_votes=[]
@@ -90,7 +88,6 @@ def get_votes(train,clf,names,selector_gen):
 def test_weights(datasets,clf,weights):
 	votes=ens.Votes(learn.train_ens(datasets,clf))
 	return votes.weighted(weights)
-#	result.report()
 
 def optimize(loss_func,n_votes):
 	starting_values = [0.5]*n_votes#len(all_votes[0])
@@ -106,4 +103,4 @@ dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-split_exp(paths["common"],paths["binary"],clf="LR")
+split_exp(paths["common"],paths["binary"],clf="LR",out_path="kfold.csv")
