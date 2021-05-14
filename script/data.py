@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 import numpy as np
-import exp,ens,files,learn
+import exp,ens,files,learn,feats
 
 def save_dataset(common,binary,out_path):
 	datasets=ens.read_dataset(common,binary)
@@ -16,7 +16,11 @@ def save_dataset(common,binary,out_path):
 	results=learn.train_ens(datasets,clf="LR")
 	for i,result_i in enumerate( results):
 		votes_i="%s/%d" % (subdirs["votes"],i)
-		np.savetxt(votes_i,result_i.y_pred,delimiter=",")
+		text_i=list(result_i.y_pred.astype(str))
+		lines=[]
+		for line_j,name_j in zip(text_i,result_i.names):
+			lines.append("%s#%s" % (line_j,name_j))
+		files.save_txt(lines,votes_i)
 
 dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
