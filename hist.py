@@ -8,10 +8,21 @@ def acc_hist(common_path,binary_path,clf="LR",
 			out_path=None,title='3DHOI'):
 	votes=full_train(common_path,binary_path,clf)
 	files.make_dir(out_path)
+	fun=simple_histogram
 	for i,result_i in enumerate(votes.results):
 		hist_i=result_i.indv_acc()
 		title_i="%s_%d" % (title,i)
-		plot_i=show_histogram(hist_i,title=title_i,cumsum=False,show=False)
+		plot_i=fun(hist_i,title=title_i,cumsum=False,show=False)
+		plot_i.savefig("%s/%d" % (out_path,i))
+
+def multi_acc_hist(common_path,binary_path,clf="LR",
+			out_path=None,title='3DHOI'):
+	base_votes=base_train(common_path,binary_path,clf)
+	full_votes=full_train(common_path,binary_path,clf)
+	for i,result_i in enumerate(base_votes.results):
+		base_hist_i=result_i.indv_acc()
+		full_hist_i=full_votes.results[i].indv_acc()
+		plot_i=multi_histogram([full_hist_i,base_hist_i],['b','r'])
 		plot_i.savefig("%s/%d" % (out_path,i))
 
 def base_train(common,binary,clf):
@@ -31,8 +42,7 @@ def full_train(common,binary,clf):
 		results.append(result_i)
 	return ens.Votes(results)
 
-
-def show_histogram(hist,title='hist',cumsum=True,show=True):
+def simple_histogram(hist,title='hist',cumsum=True,show=True):
 	if(type(hist)==list):
 		hist=np.array(hist)
 	if(cumsum):
@@ -43,6 +53,14 @@ def show_histogram(hist,title='hist',cumsum=True,show=True):
 	fig.suptitle(title)
 	if(show):
 		plt.show()
+	return plt
+
+def multi_histogram(hists,colors):
+	ax = plt.subplot(111)
+	for i,hist_i in enumerate(hists):
+		hist_i=np.array(hist_i)
+		x=np.array(range(hist_i.shape[0]))
+		ax.bar(x+i*0.2, hist_i,  width=0.2,color=colors[i])
 	return plt
 
 def acc_matrix(common_path,binary_path,clf="LR"):
@@ -56,4 +74,4 @@ dataset="3DHOI"
 dir_path="../ICSS"#%s" % dataset
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-acc_hist(paths["common"],paths["binary"],out_path="hist")
+multi_acc_hist(paths["common"],paths["binary"],out_path="hist")
