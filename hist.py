@@ -2,10 +2,12 @@ import numpy as np
 import seaborn
 from matplotlib import offsetbox
 import matplotlib.pyplot as plt
-import ens
+import ens,exp,learn
 
-def acc_hist(common_path,binary_path,clf="LR",cat_i=None):
-	votes=ens.make_votes(common_path,binary_path,clf=clf)
+def acc_hist(common_path,binary_path,clf="LR",cat_i=None,cross=False):
+	datasets=ens.read_dataset(common_path,binary_path)
+	results=learn.train_ens(datasets,clf="LR")
+	votes=ens.Votes(results)
 	if(cat_i is None):
 		acc=votes.indv_acc()
 		title='indiv acc'
@@ -39,9 +41,8 @@ def hand_selection(ordering,common_path,binary_path,clf="LR"):
 	s_result=s_votes.voting()
 	s_result.report()
 
-common="s_dtw"
-binary="../clean3/agum/ens/basic/feats"
-#acc_hist(common,binary,clf="LR",cat_i=6)
-order=[0, 1, 3, 4, 6, 8, 9, 10]
-hand_selection(order,common,binary)
-acc_matrix(common,binary,clf="LR")
+dataset="3DHOI"
+dir_path="../ICSS"#%s" % dataset
+paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
+paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+acc_hist(paths["common"],paths["binary"])
