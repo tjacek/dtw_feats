@@ -16,13 +16,14 @@ def acc_hist(common_path,binary_path,clf="LR",
 		plot_i.savefig("%s/%d" % (out_path,i))
 
 def multi_acc_hist(common_path,binary_path,clf="LR",
-			out_path=None,title='3DHOI'):
+			out_path=None,title='Accuracy'):
 	base_votes=base_train(common_path,binary_path,clf)
 	full_votes=full_train(common_path,binary_path,clf)
 	for i,result_i in enumerate(base_votes.results):
 		base_hist_i=result_i.indv_acc()
 		full_hist_i=full_votes.results[i].indv_acc()
-		plot_i=multi_histogram([full_hist_i,base_hist_i],['b','r'])
+		plot_i=multi_histogram([full_hist_i,base_hist_i],
+			colors=['b','r'],legend=['val_acc','test_acc'])
 		plot_i.savefig("%s/%d" % (out_path,i))
 
 def base_train(common,binary,clf):
@@ -55,12 +56,15 @@ def simple_histogram(hist,title='hist',cumsum=True,show=True):
 		plt.show()
 	return plt
 
-def multi_histogram(hists,colors):
-	ax = plt.subplot(111)
+def multi_histogram(hists,colors,title="Accuracy",legend=None):
+	ax = plt.figure()#.subplot(111)
 	for i,hist_i in enumerate(hists):
 		hist_i=np.array(hist_i)
 		x=np.array(range(hist_i.shape[0]))
-		ax.bar(x+i*0.2, hist_i,  width=0.2,color=colors[i])
+		plt.bar(x+i*0.2, hist_i,  width=0.2,color=colors[i])
+		print(legend[i])
+		plt.legend(legend)#[i])
+	ax.suptitle(title)	
 	return plt
 
 def acc_matrix(common_path,binary_path,clf="LR"):
