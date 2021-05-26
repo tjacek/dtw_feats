@@ -12,6 +12,7 @@ class LossFunc(object):
         self.n_iters=0
 
     def __call__(self,weights):
+        norm=weights/np.sum(weights)
         C=self.corl()
         n_clf=len(self.all_votes)
         loss=0
@@ -45,7 +46,7 @@ def diff_voting(common,deep,clf="LR"):
 def find_weights(datasets,clf="LR"):
     results=validation_votes(datasets,clf)
     loss_fun=LossFunc(results)
-    bound_w = [(0.0, 1.0)  for _ in datasets]
+    bound_w = [(0.01, 1.0)  for _ in datasets]
     result = differential_evolution(loss_fun, bound_w, 
     			maxiter=10, tol=1e-7)
     weights=result['x']
