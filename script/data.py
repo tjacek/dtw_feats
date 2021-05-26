@@ -19,6 +19,7 @@ def save_dataset(common,binary,out_path):
 		text_i=list(result_i.y_pred.astype(str))
 		lines=[]
 		for line_j,name_j in zip(text_i,result_i.names):
+			line_j=str(line_j).replace("\n","")
 			lines.append("%s#%s" % (line_j,name_j))
 		files.save_txt(lines,votes_i)
 
