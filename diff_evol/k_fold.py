@@ -60,22 +60,27 @@ def split_exp(common,binary,clf="LR",out_path=None):
 	names=list(train[0].keys())
 	gens={ "KFold,2":KFoldGen(2),"KFold,5":KFoldGen(5),
 			"Strat,2":StratGen(2),"Strat,5":StratGen(5)}
+	loss={"LogLoss":LogLoss,
+			  "MSELoss":MSELoss,
+			  "LinearLoss":LinearLoss}
+	lines=exp_template(datasets,train,names,clf,gens,loss)
+	print(lines)
+	if(out_path):
+		files.save_txt(lines,out_path)
+
+def exp_template(datasets,train,names,clf,gens,loss):
 	lines=[]
 	for info_i,gen_i in gens.items():
 		votes_i=get_votes(train,clf,names,gen_i)
-		loss={"LogLoss":LogLoss(votes_i),
-			  "MSELoss":MSELoss(votes_i),
-			  "LinearLoss":LinearLoss(votes_i)}
-		for info_j,loss_j in loss.items():
+		loss_i={name_j:loss_j(votes_i) for name_j,loss_j in loss.items()}
+		for info_j,loss_j in loss_i.items():
 			weights=optimize(loss_j,len(votes_i[0]))
 			result_j=test_weights(datasets,clf,weights)
 			metrics=exp.get_metrics(result_j)
 			line_ij="%s,%s,%s" % (info_i,info_j,metrics)
 			print(line_ij)
 			lines.append(line_ij)
-	print(lines)
-	if(out_path):
-		files.save_txt(lines,out_path)
+	return lines
 
 def get_votes(train,clf,names,selector_gen):
 	all_votes=[]
