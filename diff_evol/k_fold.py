@@ -44,8 +44,7 @@ class LossFunc(object):
 
 class LogLoss(LossFunc):
 	def __init__(self,all_votes):
-		loss=lambda x,y: -log_loss(x,y)
-		LossFunc.__init__(self,all_votes,loss)
+		LossFunc.__init__(self,all_votes,log_loss)
 		
 class MSELoss(LossFunc):
 	def __init__(self,all_votes):
@@ -99,8 +98,9 @@ def optimize(loss_func,n_votes):
 	print('Best Weights: {weights}'.format(weights=res['x']))
 	return res['x']
 
-dataset="3DHOI"
-dir_path="../../ICSS"#%s" % dataset
-paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
-paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-split_exp(paths["common"],paths["binary"],clf="LR",out_path="kfold.csv")
+if __name__ == "__main__":
+	dataset="3DHOI"
+	dir_path="../../ICSS"#%s" % dataset
+	paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
+	paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+	split_exp(paths["common"],paths["binary"],clf="LR",out_path="kfold.csv")
