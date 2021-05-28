@@ -17,9 +17,9 @@ class KFoldGen(object):
 			yield files.SetSelector(train_names)
 
 class StratGen(object):
-	def __init__(self, n_split=2):
+	def __init__(self, n_split=2,test_size=0.5):
 		self.sss=StratifiedShuffleSplit(n_splits=n_split, 
-			test_size=0.5, random_state=0)
+			test_size=test_size, random_state=0)
 
 	def __call__(self,names):
 		self.sss.get_n_splits(names)
@@ -56,19 +56,25 @@ class LinearLoss(LossFunc):
 
 def split_exp(common,binary,clf="LR",out_path=None):
 	datasets=ens.read_dataset(common,binary)
-	train=[data_i.split()[0] for data_i in datasets]
-	names=list(train[0].keys())
 	gens={ "KFold,2":KFoldGen(2),"KFold,5":KFoldGen(5),
 			"Strat,2":StratGen(2),"Strat,5":StratGen(5)}
 	loss={"LogLoss":LogLoss,
 			  "MSELoss":MSELoss,
 			  "LinearLoss":LinearLoss}
-	lines=exp_template(datasets,train,names,clf,gens,loss)
+	lines=exp_template(datasets,clf,gens,loss)
 	print(lines)
-	if(out_path):
-		files.save_txt(lines,out_path)
 
-def exp_template(datasets,train,names,clf,gens,loss):
+def auc_exp(common,binary,clf="LR",out_path=None):
+    datasets=ens.read_dataset(common,binary)
+    gens={"Strat,0.1":StratGen(2,0.1),"Strat,0.3":StratGen(2,0.3),
+           "Strat,0.5":StratGen(2,0.5),"Strat,0.9":StratGen(2,0.9)}
+    loss={"MSELoss":MSELoss}
+    lines=exp_template(datasets,clf,gens,loss,out_path)
+    print(lines)
+
+def exp_template(datasets,clf,gens,loss,out_path):
+	train=[data_i.split()[0] for data_i in datasets]
+	names=list(train[0].keys())
 	lines=[]
 	for info_i,gen_i in gens.items():
 		votes_i=get_votes(train,clf,names,gen_i)
@@ -80,6 +86,8 @@ def exp_template(datasets,train,names,clf,gens,loss):
 			line_ij="%s,%s,%s" % (info_i,info_j,metrics)
 			print(line_ij)
 			lines.append(line_ij)
+	if(out_path):
+		files.save_txt(lines,out_path)
 	return lines
 
 def get_votes(train,clf,names,selector_gen):
@@ -108,4 +116,4 @@ if __name__ == "__main__":
 	dir_path="../../ICSS"#%s" % dataset
 	paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 	paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-	split_exp(paths["common"],paths["binary"],clf="LR",out_path="kfold.csv")
+	aue_exp(paths["common"],paths["binary"],clf="LR",out_path="kfold.csv")
