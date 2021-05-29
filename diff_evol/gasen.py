@@ -5,11 +5,12 @@ from scipy.optimize import differential_evolution
 import ens,exp,files,learn,k_fold
 
 class LossFunc(object):
-    def __init__(self,all_votes):
-        self.all_votes=all_votes
+    def __init__(self,all_votes,acc=True):
+        self.all_votes=ens.Votes(all_votes)
         self.d=[ result_i.true_one_hot() 
                   for result_i in all_votes]
         self.n_iters=0
+        self.acc=acc
 
     def __call__(self,weights):
         norm=weights/np.sum(weights)
@@ -19,18 +20,22 @@ class LossFunc(object):
         for i in range(n_clf):
             for j in range(n_clf):
                 loss+=weights[i]*weights[j] * C[i,j] 
+        if(self.acc):
+            result=self.all_votes.weighted(norm)
+            loss+= (1.0-result.get_acc())
         self.n_iters+=1
         print(self.n_iters)
         print(loss)
         return loss
 
     def corl(self):
+        results=self.all_votes.results
         n_clf=len(self.all_votes)
         C=np.zeros((n_clf,n_clf))
         for i in range(n_clf):
             for j in range(n_clf):
-                f_i=self.all_votes[i].y_pred
-                f_j=self.all_votes[j].y_pred
+                f_i=results[i].y_pred
+                f_j=results[j].y_pred
                 c_ij= (f_i-self.d)*(f_j-self.d)
                 C[i,j]=np.mean(c_ij)
         return C
