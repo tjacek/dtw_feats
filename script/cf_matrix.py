@@ -9,7 +9,8 @@ def show_all(in_path,out_path):
         os.mkdir(out_path)
     if(not os.path.isdir(in_path)):
         title=in_path.split("/")[-1]
-        show_confusion(in_path,title=title,out_path=out_path)
+        show_confusion(in_path,title=title,out_path=out_path,
+            colors="grey")
     all_paths=os.listdir(in_path)
     for path_i in all_paths:
         in_i=in_path+'/'+path_i
@@ -17,7 +18,9 @@ def show_all(in_path,out_path):
         print(out_i)
         show_confusion(in_path=in_i,title=path_i,out_path=out_i)
 
-def show_confusion(in_path,labels=None,title=None,out_path=None):       	
+def show_confusion(in_path,labels=None,title=None,out_path=None,
+                    colors="base"):       	
+    cmap_dict={"grey":'Greys','base':"YlGnBu"}
     plt.clf()
     cf_matrix=np.genfromtxt(in_path,delimiter=',')
     dim=cf_matrix.shape
@@ -25,7 +28,8 @@ def show_confusion(in_path,labels=None,title=None,out_path=None):
         labels=range(dim[0])
     df_cm = pd.DataFrame(cf_matrix, labels,labels)
 #    sn.set(font_scale=1.0)
-    sn.heatmap(df_cm,cmap="YlGnBu",#linewidths=0.5,
+
+    sn.heatmap(df_cm,cmap=cmap_dict[colors],#linewidths=0.5,
     	annot=True,annot_kws={"size": 9}, fmt='g')
     if(title):
         plt.title(title)
@@ -55,5 +59,6 @@ cats_mhad=['right arm swipe to the left', 'right arm swipe to the right', 'right
  'tennis serve', 'two hand push', 'right hand knock on door', 'right hand catch an object', 'right hand pick up and throw', 'jogging in place', 
  'walking in place', 'sit to stand', 'stand to sit','forward lunge','squat']
 
+in_path="../../ICSS/wyniki/confusion_matrix/raw/"
 #show_confusion("cf/pairs",None,"pairs")
-show_all("raw","plots")
+show_all(in_path,"plots")
