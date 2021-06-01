@@ -34,16 +34,16 @@ def show_confusion(in_path,labels=None,title=None,out_path=None,
     fig, ax = plt.subplots(figsize=(6,6))
     
     sn.heatmap(df_cm,cmap=cmap_dict[colors],#linewidths=0.5,
-    	annot=True,annot_kws={"size": 6}, fmt='g',ax=ax)
+    	annot=True,annot_kws={"size": 6}, fmt='g',#ax=ax)
+        xticklabels=True, yticklabels=True)
     if(title):
         plt.title(title)
-    b, t = plt.ylim()
-    b += 0.5 
-    t -= 0.5 
-    plt.ylim(b, t)
+    ax.figure.subplots_adjust(left = 0.3, bottom=0.3)
+
     if(all( type(i) == int for i in labels)):
         plt.xlabel("predicted labels")
         plt.ylabel("true labels")
+    
     plt.yticks(rotation=0) 
     plt.xticks(rotation=90)
     if(out_path):
@@ -62,6 +62,11 @@ cats_MHAD=['right arm swipe to the left', 'right arm swipe to the right', 'right
  'draw triangle','bowling', 'front boxing', 'baseball swing from right', 'tennis right hand forehand swing','arm curl', 
  'tennis serve', 'two hand push', 'right hand knock on door', 'right hand catch an object', 'right hand pick up and throw', 'jogging in place', 
  'walking in place', 'sit to stand', 'stand to sit','forward lunge','squat']
+
+cats_MHAD=['arm swipe to the left','arm swipe to the right','right hand wave','two hand front clap','right arm throw','cross arms in the chest','basketball shoot',
+ 'draw x','circle (clockwise)','circle (counter clock)','draw triangle','bowling', 'front boxing','baseball swing','tennis forehand swing',
+ 'arm curl','tennis serve','two hand push','knock on door','catch an object','pick up and throw','jogging in place','walking in place', 
+ 'sit to stand', 'stand to sit','forward lunge','squat']
 
 cats_3DHOI=['drinking','pouring','calling phone','playing phone',
 'wearing backpacks','packing backpacks','sitting chair','moving chair',
