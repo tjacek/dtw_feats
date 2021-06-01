@@ -8,12 +8,18 @@ def auc_exp(common,binary,clf="LR"):
     dataset=[date_i.norm() for date_i in datasets]
     dataset=[date_i.split() for date_i in datasets]
     dataset=list(zip(*dataset))
+    values= [0.1*(i+1) for i in range(10)]
+    results=[p_train(dataset,p_i).voting() 
+                for p_i in values]
+
+def p_train(dataset,p,clf="LR"):
     train,test=dataset[0],dataset[1]
-    names=subsample(train[0],p=0.9)
+    names=subsample(train[0],p)
     results=[]
     for i,train_i in enumerate( train):
         new_train_i={name_j:train_i[name_j]
             for name_j in names}
+        print(len(new_train_i))
         new_train_i=feats.Feats(new_train_i)
         model_i=learn.make_model(new_train_i,clf)
         X_test,y_true=test[i].get_X(),test[i].get_labels()
