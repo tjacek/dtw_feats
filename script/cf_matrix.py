@@ -29,9 +29,12 @@ def show_confusion(in_path,labels=None,title=None,out_path=None,
     if(not labels):
         labels=range(dim[0])
     df_cm = pd.DataFrame(cf_matrix, labels,labels)
-#    sn.set(font_scale=1.0)
+    sn.set(font_scale=0.8)
+
+    fig, ax = plt.subplots(figsize=(6,6))
+    
     sn.heatmap(df_cm,cmap=cmap_dict[colors],#linewidths=0.5,
-    	annot=True,annot_kws={"size": 9}, fmt='g')
+    	annot=True,annot_kws={"size": 6}, fmt='g',ax=ax)
     if(title):
         plt.title(title)
     b, t = plt.ylim()
