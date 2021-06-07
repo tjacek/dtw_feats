@@ -43,15 +43,16 @@ class OptimWeights(object):
 
     def __call__(self,common,deep,clf="LR"):
         datasets=ens.read_dataset(common,deep)
-        weights=self.find_weights(datasets)
+        datasets,results=self.validation(datasets,clf)
+        weights=self.find_weights(results)
         results=learn.train_ens(datasets,clf)
         votes=ens.Votes(results)
         result=votes.weighted(weights)
         return result
 
-    def find_weights(self,datasets,clf="LR"):
+    def find_weights(self,results,clf="LR"):
         loss_fun=self.loss(results)
-        bound_w = [(0.01, 1.0)  for _ in datasets]
+        bound_w = [(0.01, 1.0)  for _ in results]
         result = differential_evolution(loss_fun, bound_w, 
     			maxiter=10, tol=1e-7)
         weights=result['x']
@@ -62,7 +63,8 @@ def validation_votes(datasets,clf="LR"):
     names=list(train[0].keys())
     selector_gen=k_fold.StratGen(1)
     selector=list(selector_gen(names))[0]
-    return learn.train_ens(train,clf=clf,selector=selector)
+    results= learn.train_ens(train,clf=clf,selector=selector)
+    return datasets,results
 
 class CrossVal(object):
     def __init__(self,p=0.3):
@@ -71,16 +73,17 @@ class CrossVal(object):
 
     def __call__(self,datasets,clf="LR"):
         results=[]
+        new_datasets=[]
         for data_i in datasets:
             train_i,test_i=data_i.split()
             s_train_i=self.subsample(train_i)
             s_data_i={**s_train_i,**test_i}
             s_data_i= feats.Feats(s_data_i)
-#            raise Exception(len(s_data_i))
+            new_datasets.append(s_data_i)
             result_i=learn.train_model(s_data_i,
             	binary=False,clf_type=clf)
             results.append(result_i)
-        return results
+        return new_datasets,results
 
     def subsample(self,train):
         all_names=list(train.keys())
