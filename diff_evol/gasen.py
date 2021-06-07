@@ -42,8 +42,19 @@ class OptimWeights(object):
         self.validation=validation
 
     def __call__(self,common,deep,clf="LR"):
-        datasets=ens.read_dataset(common,deep)
-        datasets,results=self.validation(datasets,clf)
+        datasets=ens.read_dataset(common,deep)   
+        def helper(valid):
+            print("Valid")	
+            new_datasets,results=valid(datasets)
+            return self.single_optim(new_datasets,results,clf)
+        if(type(self.validation)==list ):
+            results=[helper(valid_i)
+                        for valid_i in self.validation]
+            return results
+        else:
+            return helper(self.validation)
+
+    def single_optim(self,datasets,results,clf):
         weights=self.find_weights(results)
         results=learn.train_ens(datasets,clf)
         votes=ens.Votes(results)
@@ -95,11 +106,15 @@ class CrossVal(object):
                     for name_i in self.s_name}
         return feats.Feats(s_train)
 
+def make_cv_optim(n=10):
+    validation=[ CrossVal(0.1*(i+1)) for i in range(2,n)]
+    return OptimWeights(Corl,validation)
+
 dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-optim=OptimWeights(Corl,CrossVal())
+optim=make_cv_optim() #OptimWeights(Corl,CrossVal())
 result=optim(paths["common"],paths["binary"])
 result.report()
