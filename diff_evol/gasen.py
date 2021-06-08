@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 import numpy as np
 from scipy.optimize import differential_evolution
-import exp,ens,k_fold,learn,feats,files
+import exp,ens,k_fold,learn,feats,files,auc
 
 class Comb(object):
     def __init__(self,all_votes):
@@ -98,51 +98,20 @@ def validation_votes(datasets,clf="LR"):
     results= learn.train_ens(train,clf=clf,selector=selector)
     return datasets,results
 
-class CrossVal(object):
-    def __init__(self,p=0.3):
-        self.p=p
-        self.s_name=None
-
-    def __call__(self,datasets,clf="LR"):
-        results=[]
-        new_datasets=[]
-        for data_i in datasets:
-            train_i,test_i=data_i.split()
-            s_train_i=self.subsample(train_i)
-            s_data_i={**s_train_i,**test_i}
-            s_data_i= feats.Feats(s_data_i)
-            new_datasets.append(s_data_i)
-            result_i=learn.train_model(s_data_i,
-            	binary=False,clf_type=clf)
-            results.append(result_i)
-        return new_datasets,results
-
-    def subsample(self,train):
-        all_names=list(train.keys())
-        if(self.s_name is None):
-            self.s_name=[name_i 
-                    for name_i in all_names
-                        if(np.random.uniform()<self.p)]
-        s_train={name_i:train[name_i] 
-                    for name_i in self.s_name}
-        return feats.Feats(s_train)
-
-    def __str__(self):
-        return str(self.p)
-
 def auc_exp(paths,dir_name="auc"):
     files.make_dir(dir_name)
     loss_dict={"Comb":Comb,"MSE":MSE ,"gasen":Corl}
-    validation=[ CrossVal(0.1*(i+1)) for i in range(2,10)]
     for loss_name,loss_i in loss_dict.items():       
+        validation=[ auc.CrossVal(0.1*(i+1)) for i in range(2,10)]
         optim=OptimWeights(loss_i,validation)
         result_dict=optim(paths["common"],paths["binary"])
         out_i="%s/%s.csv" % (dir_name,loss_name)
         exp.result_exp(loss_name,result_dict,out_i)
 
-dataset="3DHOI"
-dir_path="../../ICSS"#%s" % dataset
-paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
-paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
-print(paths)
-optim=auc_exp(paths,"auc2") #OptimWeights(Corl,CrossVal())
+if __name__ == "__main__":
+    dataset="3DHOI"
+    dir_path="../../ICSS"#%s" % dataset
+    paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
+    paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+    print(paths)
+    optim=auc_exp(paths,"auc") #OptimWeights(Corl,CrossVal())
