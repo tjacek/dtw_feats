@@ -18,7 +18,7 @@ class Corl(object):
         for i in range(n_clf):
             for j in range(n_clf):
                 loss+=weights[i]*weights[j] * C[i,j] 	
-        return loss
+        return -1.0*loss
 
     def corl(self):
         results=self.all_votes.results
@@ -48,8 +48,8 @@ class OptimWeights(object):
             new_datasets,results=valid(datasets)
             return self.single_optim(new_datasets,results,clf)
         if(type(self.validation)==list ):
-            results=[helper(valid_i)
-                        for valid_i in self.validation]
+            results={str(valid_i):helper(valid_i)
+                        for valid_i in self.validation}
             return results
         else:
             return helper(self.validation)
@@ -106,15 +106,18 @@ class CrossVal(object):
                     for name_i in self.s_name}
         return feats.Feats(s_train)
 
-def make_cv_optim(n=10):
+    def __str__(self):
+        return str(self.p)
+
+def auc_exp(paths,out_path,n=10):
     validation=[ CrossVal(0.1*(i+1)) for i in range(2,n)]
-    return OptimWeights(Corl,validation)
+    optim=OptimWeights(Corl,validation)
+    result_dict=optim(paths["common"],paths["binary"])
+    exp.result_exp("corl",result_dict,out_path)
 
 dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-optim=make_cv_optim() #OptimWeights(Corl,CrossVal())
-result=optim(paths["common"],paths["binary"])
-result.report()
+optim=auc_exp(paths,"gasen2.csv") #OptimWeights(Corl,CrossVal())
