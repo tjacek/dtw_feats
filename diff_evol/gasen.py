@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 import numpy as np
 from scipy.optimize import differential_evolution
-import exp,ens,k_fold,learn,feats
+import exp,ens,k_fold,learn,feats,files
 
 class Corl(object):
     def __init__(self,all_votes):
@@ -11,14 +11,14 @@ class Corl(object):
                   for result_i in all_votes]
     
     def __call__(self,weights):
-        norm=weights/np.sum(weights)
+        weights=weights/np.sum(weights)
         C=self.corl()
         n_clf=len(self.all_votes)
         loss=0
         for i in range(n_clf):
             for j in range(n_clf):
                 loss+=weights[i]*weights[j] * C[i,j] 	
-        return -1.0*loss
+        return 1.0*loss
 
     def corl(self):
         results=self.all_votes.results
@@ -31,6 +31,19 @@ class Corl(object):
                 c_ij= (f_i-self.d)*(f_j-self.d)
                 C[i,j]=np.mean(c_ij)
         return C
+
+class MSE(object):
+    def __init__(self,all_votes):
+        self.all_votes=ens.Votes(all_votes)
+
+    def __call__(self,weights):
+        weights=weights/np.sum(weights)
+        result=self.all_votes.weighted(weights)
+        y_true=result.true_one_hot()
+        y_pred=result.y_pred
+        squared_mean=[np.sum((true_i- pred_i)**2)
+                for true_i,pred_i in zip(y_true,y_pred)]
+        return np.mean(squared_mean)
 
 class OptimWeights(object):
     def __init__(self, loss=None,validation=None):
@@ -109,15 +122,19 @@ class CrossVal(object):
     def __str__(self):
         return str(self.p)
 
-def auc_exp(paths,out_path,n=10):
-    validation=[ CrossVal(0.1*(i+1)) for i in range(2,n)]
-    optim=OptimWeights(Corl,validation)
-    result_dict=optim(paths["common"],paths["binary"])
-    exp.result_exp("corl",result_dict,out_path)
+def auc_exp(paths,n=10):
+    files.make_dir("auc")
+    loss_dict={"MSE":MSE ,"gasen":Corl}
+    for loss_name,loss_i in loss_dict.items(): 
+        validation=[ CrossVal(0.1*(i+1)) for i in range(2,n)]
+        optim=OptimWeights(loss_i,validation)
+        result_dict=optim(paths["common"],paths["binary"])
+        out_i="auc/%s.csv" % loss_name
+        exp.result_exp(loss_name,result_dict,out_i)
 
 dataset="3DHOI"
 dir_path="../../ICSS"#%s" % dataset
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-optim=auc_exp(paths,"gasen2.csv") #OptimWeights(Corl,CrossVal())
+optim=auc_exp(paths) #OptimWeights(Corl,CrossVal())
