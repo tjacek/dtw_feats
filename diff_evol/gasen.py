@@ -4,6 +4,14 @@ import numpy as np
 from scipy.optimize import differential_evolution
 import exp,ens,k_fold,learn,feats,files
 
+class Comb(object):
+    def __init__(self,all_votes):
+        self.corl=Corl(all_votes)
+        self.mse=MSE(all_votes)
+
+    def __call__(self,weights):
+        return self.corl(weights)+self.mse(weights) 	
+
 class Corl(object):
     def __init__(self,all_votes):
         self.all_votes=ens.Votes(all_votes)	
@@ -122,14 +130,14 @@ class CrossVal(object):
     def __str__(self):
         return str(self.p)
 
-def auc_exp(paths,n=10):
-    files.make_dir("auc")
-    loss_dict={"MSE":MSE ,"gasen":Corl}
-    for loss_name,loss_i in loss_dict.items(): 
-        validation=[ CrossVal(0.1*(i+1)) for i in range(2,n)]
+def auc_exp(paths,dir_name="auc"):
+    files.make_dir(dir_name)
+    loss_dict={"Comb":Comb,"MSE":MSE ,"gasen":Corl}
+    validation=[ CrossVal(0.1*(i+1)) for i in range(2,10)]
+    for loss_name,loss_i in loss_dict.items():       
         optim=OptimWeights(loss_i,validation)
         result_dict=optim(paths["common"],paths["binary"])
-        out_i="auc/%s.csv" % loss_name
+        out_i="%s/%s.csv" % (dir_name,loss_name)
         exp.result_exp(loss_name,result_dict,out_i)
 
 dataset="3DHOI"
@@ -137,4 +145,4 @@ dir_path="../../ICSS"#%s" % dataset
 paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
 paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
 print(paths)
-optim=auc_exp(paths) #OptimWeights(Corl,CrossVal())
+optim=auc_exp(paths,"auc2") #OptimWeights(Corl,CrossVal())
