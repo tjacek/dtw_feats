@@ -38,6 +38,7 @@ def visualize_corl(paths):
     results=[learn.train_model(data_i) for data_i in datasets]
     d=[ result_i.true_one_hot() for result_i in results]
     C=corl(results,d)
+    C=np.round_(C, decimals=3)
     heat_map(C)
 
 def heat_map(matrix,title="3DHOI_corl"):
