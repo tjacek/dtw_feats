@@ -2,7 +2,7 @@ import sys
 sys.path.append("..")
 import numpy as np
 from scipy.optimize import differential_evolution
-import exp,ens,learn,feats,files,
+import exp,ens,learn,feats,files
 import k_fold,auc,gasen
 
 class Comb(object):
@@ -35,12 +35,12 @@ class OptimWeights(object):
             validation=validation_votes	
         self.validation=validation
 
-    def __call__(self,common,deep,clf="LR"):
-        datasets=ens.read_dataset(common,deep)   
+    def __call__(self,paths,clf="LR"):
+        datasets=ens.read_dataset(paths['common'],paths['binary'])   
         def helper(valid):
-            print("Valid")	
+            print("Valid")  
             new_datasets,results=valid(datasets)
-            return self.single_optim(new_datasets,results,clf)
+            return self.single_optim(new_datasets,results,clf)        
         if(type(self.validation)==list ):
             results={str(valid_i):helper(valid_i)
                         for valid_i in self.validation}
@@ -53,7 +53,7 @@ class OptimWeights(object):
         results=learn.train_ens(datasets,clf)
         votes=ens.Votes(results)
         result=votes.weighted(weights)
-        return result
+        return result,weights
 
     def find_weights(self,results,clf="LR"):
         loss_fun=self.loss(results)
@@ -71,16 +71,27 @@ def validation_votes(datasets,clf="LR"):
     results= learn.train_ens(train,clf=clf,selector=selector)
     return datasets,results
 
-def auc_exp(paths,dir_name="auc"):
+def auc_exp(paths,dir_name="auc",mediana=False):
     files.make_dir(dir_name)
     loss_dict={"MSE":MSE,"Comb":Comb,"gasen":gasen.Corl}
     for loss_name,loss_i in loss_dict.items():       
         validation=[ auc.CrossVal(0.1*(i+1)) for i in range(2,10)]
-        validation=[ auc.MedianaVal(val_i) for val_i in validation]
+        if(mediana):
+            validation=[ auc.MedianaVal(val_i) for val_i in validation]
         optim=OptimWeights(loss_i,validation)
-        result_dict=optim(paths["common"],paths["binary"])
+        result_dict=optim(paths)
         out_i="%s/%s.csv" % (dir_name,loss_name)
+        result_dict=weight_desc(result_dict,eps=0.02)    
         exp.result_exp(loss_name,result_dict,out_i)
+
+def weight_desc(result_dict,eps=0.02):
+    weight_dict={}
+    for name_i,pair_i in result_dict.items():
+        result_i,weights_i=pair_i
+        n_clf=weights_i[weights_i<eps].shape[0]
+        new_name_i="%s,%d" % (name_i,n_clf)
+        weight_dict[new_name_i]=result_i
+    return weight_dict
 
 if __name__ == "__main__":
     dataset="3DHOI"
@@ -88,4 +99,4 @@ if __name__ == "__main__":
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
     print(paths)
-    optim=auc_exp(paths,"auc")
+    optim=auc_exp(paths,"auc2")
