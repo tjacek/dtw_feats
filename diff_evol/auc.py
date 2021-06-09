@@ -38,6 +38,22 @@ class CrossVal(object):
     def reset(self):
         self.s_name=None
 
+class MedianaVal(object):
+    def __init__(self,base_val,k=10):
+        self.base_val=base_val
+        self.k=k
+
+    def __call__(self,datasets,clf="LR"):
+        acc,pairs=[],[]
+        for i in range(self.k):
+            self.base_val.reset()
+            pair_i=self.base_val(datasets,clf)
+            result_i=ens.Votes(pair_i[1]).voting(False)
+            acc.append(result_i.get_acc())
+            pairs.append(pair_i)
+        mediana=np.argsort(acc)[len(acc)//2]
+        return pairs[mediana]
+
 def cv_exp(common,binary,out_path=None,clf="LR"):
     datasets=ens.read_dataset(common,binary)
     validation=[ CrossVal(0.1*(i+1)) for i in range(2,10)]

@@ -100,9 +100,10 @@ def validation_votes(datasets,clf="LR"):
 
 def auc_exp(paths,dir_name="auc"):
     files.make_dir(dir_name)
-    loss_dict={"Comb":Comb,"MSE":MSE ,"gasen":Corl}
+    loss_dict={"MSE":MSE,"Comb":Comb,"gasen":Corl}
     for loss_name,loss_i in loss_dict.items():       
         validation=[ auc.CrossVal(0.1*(i+1)) for i in range(2,10)]
+        validation=[ auc.MedianaVal(val_i) for val_i in validation]
         optim=OptimWeights(loss_i,validation)
         result_dict=optim(paths["common"],paths["binary"])
         out_i="%s/%s.csv" % (dir_name,loss_name)
