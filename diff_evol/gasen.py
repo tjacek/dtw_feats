@@ -14,7 +14,7 @@ class Corl(object):
     def __call__(self,weights):
         weights=weights/np.sum(weights)
         results=self.all_votes.results
-        C=self.corl(results,self.d)
+        C=corl(results,self.d)
         n_clf=len(self.all_votes)
         loss=0
         for i in range(n_clf):

@@ -71,7 +71,7 @@ def validation_votes(datasets,clf="LR"):
     results= learn.train_ens(train,clf=clf,selector=selector)
     return datasets,results
 
-def auc_exp(paths,dir_name="auc",mediana=False):
+def auc_exp(paths,dir_name="auc",mediana=True):
     files.make_dir(dir_name)
     loss_dict={"MSE":MSE,"Comb":Comb,"gasen":gasen.Corl}
     for loss_name,loss_i in loss_dict.items():       
@@ -88,8 +88,10 @@ def weight_desc(result_dict,eps=0.02):
     weight_dict={}
     for name_i,pair_i in result_dict.items():
         result_i,weights_i=pair_i
-        n_clf=weights_i[weights_i<eps].shape[0]
-        new_name_i="%s,%d" % (name_i,n_clf)
+        s_clf=(weights_i>eps)
+        n_clf=weights_i[s_clf].shape[0]
+        s_clf=str(np.where(s_clf==True)[0])
+        new_name_i="%s,%d,%s" % (name_i,n_clf,s_clf)
         weight_dict[new_name_i]=result_i
     return weight_dict
 
