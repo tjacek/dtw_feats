@@ -1,14 +1,18 @@
 import sys
 sys.path.append("..")    
 import numpy as np
+from scipy.optimize import differential_evolution
 import ens,auc,exp,learn,diff
 
 class ScoreLoss(object):
     def __init__(self,results):
         self.results=results
+        self.iter=0
 
     def __call__(self,score_weights):
-#        score_weights=score_weights/np.sum(score_weights)
+        self.iter+=1
+        print(self.iter)
+        score_weights=score_weights/np.sum(score_weights)
         pref=[as_pref(result_i,score_weights) 
                 for result_i in self.results]
         y_true,names=self.results[0].y_true,self.results[0].names
@@ -17,13 +21,25 @@ class ScoreLoss(object):
         final_result=ens.Votes(results).voting(False)
         return diff.mse_fun(final_result)
 
+
 def score_opt(paths,clf="LR"):
     datasets=ens.read_dataset(paths['common'],paths['binary'])
     val=auc.CrossVal(0.5)
     new_datasets,results=val(datasets,clf)
-    score_weights=borda_weights(len(datasets))
-    loss=ScoreLoss(results)
-    loss(score_weights)
+    weights=find_weights(results)
+    print(weights)
+
+def find_weights(results):
+    score_weights=borda_weights(len(results))
+    loss_fun=ScoreLoss(results)       
+    bound_w = [(0.01, np.amax(score_weights))  for _ in results]
+    popsize=15
+    init_matrix=np.array([score_weights 
+                    for i in range(popsize)])
+    result = differential_evolution(loss_fun, bound_w, 
+                popsize=popsize,init=init_matrix,maxiter=10, tol=1e-7)
+    weights=result['x']
+    return weights
 
 def borda_weights(n_cats):
     weights=[float(i) for i in range(n_cats)]
