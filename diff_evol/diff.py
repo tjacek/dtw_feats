@@ -67,7 +67,7 @@ class OptimWeights(object):
         loss_fun=self.loss(results)
         bound_w = [(0.01, 1.0)  for _ in results]
         result = differential_evolution(loss_fun, bound_w, 
-    			maxiter=10, tol=1e-7)
+                maxiter=10, tol=1e-7)
         weights=result['x']
         return weights
 
