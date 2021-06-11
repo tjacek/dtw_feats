@@ -20,11 +20,19 @@ class MSE(object):
     def __call__(self,weights):
         weights=weights/np.sum(weights)
         result=self.all_votes.weighted(weights)
-        y_true=result.true_one_hot()
-        y_pred=result.y_pred
-        squared_mean=[np.sum((true_i- pred_i)**2)
+        return mse_fun(result)
+#        y_true=result.true_one_hot()
+#        y_pred=result.y_pred
+#        squared_mean=[np.sum((true_i- pred_i)**2)
+#                for true_i,pred_i in zip(y_true,y_pred)]
+#        return np.mean(squared_mean)
+
+def mse_fun(result):
+    y_true=result.true_one_hot()
+    y_pred=result.y_pred
+    squared_mean=[np.sum((true_i- pred_i)**2)
                 for true_i,pred_i in zip(y_true,y_pred)]
-        return np.mean(squared_mean)
+    return  np.mean(squared_mean)
 
 class OptimWeights(object):
     def __init__(self, loss=None,validation=None):
@@ -96,9 +104,9 @@ def weight_desc(result_dict,eps=0.02):
     return weight_dict
 
 if __name__ == "__main__":
-    dataset="3DHOI"
+    dataset="MHAD"
     dir_path="../../ICSS"#%s" % dataset
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
     print(paths)
-    optim=auc_exp(paths,"auc2")
+    optim=auc_exp(paths,"MHAD")

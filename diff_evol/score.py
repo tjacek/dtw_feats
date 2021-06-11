@@ -1,14 +1,21 @@
 import sys
 sys.path.append("..")    
 import numpy as np
-import ens,auc,exp
+import ens,auc,exp,learn,diff
 
 class ScoreLoss(object):
     def __init__(self,results):
         self.results=results
 
     def __call__(self,score_weights):
-        score_weights=score_weights/np.sum(score_weights)
+#        score_weights=score_weights/np.sum(score_weights)
+        pref=[as_pref(result_i,score_weights) 
+                for result_i in self.results]
+        y_true,names=self.results[0].y_true,self.results[0].names
+        results=[learn.Result(y_true,pref_i,names) 
+                    for pref_i in pref]
+        final_result=ens.Votes(results).voting(False)
+        return diff.mse_fun(final_result)
 
 def score_opt(paths,clf="LR"):
     datasets=ens.read_dataset(paths['common'],paths['binary'])
@@ -22,6 +29,15 @@ def borda_weights(n_cats):
     weights=[float(i) for i in range(n_cats)]
     weights.reverse()
     return np.array( weights)
+
+def as_pref(result_i,score_weights):
+    X=result_i.as_numpy()
+    new_X=[]
+    for x_i in X:
+        ind_i=np.flip(np.argsort(x_i))
+        new_x_i=[score_weights[j]  for j in ind_i]
+        new_X.append(new_x_i)
+    return np.array(new_X)
 
 if __name__ == "__main__":
     dataset="3DHOI"
