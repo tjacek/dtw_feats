@@ -16,16 +16,14 @@ class Comb(object):
 class MSE(object):
     def __init__(self,all_votes):
         self.all_votes=ens.Votes(all_votes)
+        self.iter=0
 
     def __call__(self,weights):
+        self.iter+=1
+        print(self.iter)
         weights=weights/np.sum(weights)
         result=self.all_votes.weighted(weights)
         return mse_fun(result)
-#        y_true=result.true_one_hot()
-#        y_pred=result.y_pred
-#        squared_mean=[np.sum((true_i- pred_i)**2)
-#                for true_i,pred_i in zip(y_true,y_pred)]
-#        return np.mean(squared_mean)
 
 def mse_fun(result):
     y_true=result.true_one_hot()
@@ -35,13 +33,16 @@ def mse_fun(result):
     return  np.mean(squared_mean)
 
 class OptimWeights(object):
-    def __init__(self, loss=None,validation=None):
+    def __init__(self, loss=None,validation=None,
+                    popsize=1):#,maxiter=1):
         if(loss is None):
             loss=Corl
         self.loss = loss
         if(validation is None):
             validation=validation_votes	
         self.validation=validation
+        self.popsize=popsize
+#        self.maxiter=maxiter
 
     def __call__(self,paths,clf="LR"):
         datasets=ens.read_dataset(paths['common'],paths['binary'])   
@@ -66,8 +67,11 @@ class OptimWeights(object):
     def find_weights(self,results,clf="LR"):
         loss_fun=self.loss(results)
         bound_w = [(0.01, 1.0)  for _ in results]
+        init_matrix=np.ones((6, len(bound_w)))
         result = differential_evolution(loss_fun, bound_w, 
-                maxiter=10, tol=1e-7)
+                tol=1e-7,maxiter=3,popsize=5,polish=False)
+#                init=init_matrix)
+#        loss_fun.iter=0
         weights=result['x']
         return weights
 
@@ -79,13 +83,13 @@ def validation_votes(datasets,clf="LR"):
     results= learn.train_ens(train,clf=clf,selector=selector)
     return datasets,results
 
-def auc_exp(paths,dir_name="auc",mediana=True):
+def auc_exp(paths,dir_name="auc",mediana=True,n=10):
     files.make_dir(dir_name)
-    loss_dict={"MSE":MSE,"Comb":Comb,"gasen":gasen.Corl}
+    loss_dict={"MSE":MSE,"gasen":gasen.Corl,"Comb":Comb}
     for loss_name,loss_i in loss_dict.items():       
-        validation=[ auc.CrossVal(0.1*(i+1)) for i in range(2,10)]
+        validation=[ auc.CrossVal(0.1*(i+1)) for i in range(2,n)]
         if(mediana):
-            validation=[ auc.MedianaVal(val_i) for val_i in validation]
+            validation=[ auc.MedianaVal(val_i,k=10) for val_i in validation]
         optim=OptimWeights(loss_i,validation)
         result_dict=optim(paths)
         out_i="%s/%s.csv" % (dir_name,loss_name)
@@ -109,4 +113,8 @@ if __name__ == "__main__":
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
     print(paths)
+    from timeit import default_timer as timer
+    start = timer()
     optim=auc_exp(paths,"MHAD")
+    end = timer()
+    print(end - start)
