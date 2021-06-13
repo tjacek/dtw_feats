@@ -25,6 +25,17 @@ class MSE(object):
         result=self.all_votes.weighted(weights)
         return mse_fun(result)
 
+class DiffEvol(object):
+    def __init__(self,maxiter=3,popsize=5,polish=False):
+        self.maxiter=maxiter
+        self.popsize=popsize
+        self.polish=polish
+
+    def __call__(self,loss_fun,bound_w):
+        return differential_evolution(loss_fun, bound_w, 
+                tol=1e-7,maxiter=self.maxiter,
+                popsize=self.popsize,polish=self.polish)
+
 def mse_fun(result):
     y_true=result.true_one_hot()
     y_pred=result.y_pred
@@ -67,7 +78,7 @@ class OptimWeights(object):
     def find_weights(self,results,clf="LR"):
         loss_fun=self.loss(results)
         bound_w = [(0.01, 1.0)  for _ in results]
-        init_matrix=np.ones((6, len(bound_w)))
+#        init_matrix=np.ones((6, len(bound_w)))
         result = differential_evolution(loss_fun, bound_w, 
                 tol=1e-7,maxiter=3,popsize=5,polish=False)
 #                init=init_matrix)
@@ -107,14 +118,19 @@ def weight_desc(result_dict,eps=0.02):
         weight_dict[new_name_i]=result_i
     return weight_dict
 
+def single_exp(paths,loss_type,out_path,p=0.5,k=10):
+    loss_dict={"MSE":MSE,"gasen":gasen.Corl,"Comb":Comb}
+    valid=auc.CrossVal(p)
+    valid=auc.MedianaVal(valid,k=k)
+    optim=OptimWeights(loss_dict[loss_type],valid)
+    result=optim(paths)[0]
+    result.get_cf(out_path)
+
 if __name__ == "__main__":
-    dataset="MHAD"
+    dataset="3DHOI"
     dir_path="../../ICSS"#%s" % dataset
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
     print(paths)
-    from timeit import default_timer as timer
-    start = timer()
-    optim=auc_exp(paths,"MHAD")
-    end = timer()
-    print(end - start)
+#    optim=auc_exp(paths,"MHAD")
+    single_exp(paths,"MSE","cf/%s" % dataset)
