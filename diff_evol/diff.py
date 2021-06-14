@@ -80,19 +80,19 @@ class OptimWeights(object):
         bound_w = [(0.01, 1.0)  for _ in results]
 #        init_matrix=np.ones((6, len(bound_w)))
         result = differential_evolution(loss_fun, bound_w, 
-                tol=1e-7,maxiter=3,popsize=5,polish=False)
+                tol=1e-7,maxiter=3,popsize=5,polish=True)#False)
 #                init=init_matrix)
 #        loss_fun.iter=0
         weights=result['x']
         return weights
 
-def validation_votes(datasets,clf="LR"):
-    train=[data_i.split()[0] for data_i in datasets]
-    names=list(train[0].keys())
-    selector_gen=k_fold.StratGen(1)
-    selector=list(selector_gen(names))[0]
-    results= learn.train_ens(train,clf=clf,selector=selector)
-    return datasets,results
+#def validation_votes(datasets,clf="LR"):
+#    train=[data_i.split()[0] for data_i in datasets]
+#    names=list(train[0].keys())
+#    selector_gen=k_fold.StratGen(1)
+#    selector=list(selector_gen(names))[0]
+#    results= learn.train_ens(train,clf=clf,selector=selector)
+#    return datasets,results
 
 def auc_exp(paths,dir_name="auc",mediana=True,n=10):
     files.make_dir(dir_name)
@@ -121,16 +121,18 @@ def weight_desc(result_dict,eps=0.02):
 def single_exp(paths,loss_type,out_path,p=0.5,k=10):
     loss_dict={"MSE":MSE,"gasen":gasen.Corl,"Comb":Comb}
     valid=auc.CrossVal(p)
-    valid=auc.MedianaVal(valid,k=k)
+    if(p<1.0):
+        valid=auc.MedianaVal(valid,k=k)
     optim=OptimWeights(loss_dict[loss_type],valid)
     result=optim(paths)[0]
+    result.report()
     result.get_cf(out_path)
 
 if __name__ == "__main__":
-    dataset="3DHOI"
+    dataset="MHAD"
     dir_path="../../ICSS"#%s" % dataset
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
     print(paths)
 #    optim=auc_exp(paths,"MHAD")
-    single_exp(paths,"MSE","cf/%s" % dataset)
+    single_exp(paths,"Comb","cf/%s" % dataset,p=1.0)
