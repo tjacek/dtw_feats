@@ -42,9 +42,12 @@ def read_pref(in_path):
 	with open(in_path, 'rb') as handle:
 		return pickle.load(handle)
 
-def ensemble(common_path,binary_path,system=None,clf="LR",cf_path=None):
-	votes=ens.make_votes(common_path,binary_path,clf,None)
-	return voting(votes,system)
+def ensemble(common_path,binary_path,system=None,clf="LR",s_clf=None):
+    votes=ens.make_votes(common_path,binary_path,clf,None)
+    if(s_clf):
+        votes=ens.Votes([votes.results[clf_i] 
+          	for clf_i in s_clf])
+    return voting(votes,system)
 
 def ext_exp(in_path,system,cf_path=None):
 	return voting(read_pref(in_path),system,cf_path)
@@ -76,13 +79,14 @@ def to_preference(vote_i):
 	return Preferences(pref)
 
 if __name__ == "__main__":
-	dataset="3DHOI"
-	dir_path="../../ICSS_exp/%s" % dataset
-	common="%s/dtw" % dir_path
-	common=files.get_paths(common,name="dtw")
-	common.append("%s/common/1D_CNN/feats" % dir_path)
-	binary="%s/ens/lstm/feats" % dir_path 
-	#ensemble(common,binary,system=coombs,clf="LR")#,cf_path="3DHOI")
-	#raise Exception("End")
-	result=ext_exp("../3DHOI",None)
-	result.report()
+    dataset="3DHOI"
+    dir_path="../../ICSS/%s" % dataset
+    common="%s/dtw" % dir_path
+    common=files.get_paths(common,name="dtw")
+    common.append("%s/1D_CNN/feats" % dir_path)
+    binary="%s/ens/feats" % dir_path 
+    result=ensemble(common,binary,system=coombs,clf="LR",s_clf=[1,6,7])
+    result.report()
+#	raise Exception("End")
+#	result=ext_exp("../3DHOI",None)
+#	result.report()
