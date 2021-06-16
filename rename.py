@@ -1,4 +1,5 @@
 import numpy as np,random
+from sklearn.model_selection import StratifiedShuffleSplit
 from distutils.dir_util import copy_tree
 import feats,files,learn  
 
@@ -26,15 +27,19 @@ def person(feat_dict):
 	return result.get_acc()
 
 def random_split(train):
-	group=files.by_cat(train.keys())
-	new_dict=feats.Feats()
-	for class_i in group.values():
-		random.shuffle(class_i)
-		for i,name_i in enumerate(class_i):
-			new_name="%d_%d_%d" % (name_i.get_cat()+1,i%2,i)
-			new_name=files.Name(new_name)
-			new_dict[new_name]=train[name_i]
-	return new_dict
+    sss=StratifiedShuffleSplit(n_splits=1, 
+            test_size=0.5, random_state=0)
+    X,y,names=train.as_dataset()
+    a=sss.split(X,y)
+    new_dict=feats.Feats()
+    for train_index, test_index in a:
+        for i in test_index:
+        	name_i="%d_0_%d" % (names[i].get_cat(),i)
+        	new_dict[names[i]]=train[names[i]]
+        for i in train_index:
+        	name_i="%d_1_%d" % (names[i].get_cat(),i)
+        	new_dict[names[i]]=train[names[i]]
+    return new_dict
 
 def rename_frames(in_path,out_path,rename):
 	paths=files.top_files(in_path)
@@ -45,3 +50,9 @@ def rename_frames(in_path,out_path,rename):
 		print(path_i)
 		print(out_i)
 		copy_tree(path_i,out_i)
+
+if __name__ == "__main__":
+    path="../ICSS/3DHOI/1D_CNN/feats"
+    import ens
+    datasets=ens.read_dataset(path,None)[0]
+    random_split(datasets)
