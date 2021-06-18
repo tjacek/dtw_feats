@@ -1,20 +1,36 @@
 import numpy as np,random
 from sklearn.model_selection import StratifiedShuffleSplit
 from distutils.dir_util import copy_tree
+from collections import defaultdict
 import feats,files,learn  
 
-def cross_validate(feat_dict,n=10):
-	acc=[validate(feat_dict) for i in range(n)]
-	print(acc)
-	return np.mean(acc)
 
-def validate(feat_dict):
-	if(type(feat_dict)==str):
-		feat_dict=feats.read(feat_dict)[0]
-	train=feat_dict.split()[0]
-	cross_train=random_split(train)
-	result=learn.train_model(cross_train,binary=False,clf_type="LR")
-	return result.get_acc()
+def random_cat(feat_dict):
+    if(type(feat_dict)==str):
+    	feat_dict=feats.read(feat_dict)[0]
+    by_cat=defaultdict(lambda :[])
+    for name_i in feat_dict.keys():
+        by_cat[name_i.get_cat()].append(name_i)
+    rename={}
+    for cat_i,names_i in by_cat.items(): 
+        random.shuffle(names_i)
+        for j,name_j in enumerate(names_i):
+            new_name_j="%d_%d_%d" % (name_j.get_cat()+1,j%2,j)
+            rename[name_j]=new_name_j
+    return rename
+
+#def cross_validate(feat_dict,n=10):
+#	acc=[validate(feat_dict) for i in range(n)]
+#	print(acc)
+#	return np.mean(acc)
+
+#def validate(feat_dict):
+#	if(type(feat_dict)==str):
+#		feat_dict=feats.read(feat_dict)[0]
+#	train=feat_dict.split()[0]
+#	cross_train=random_split(train)
+#	result=learn.train_model(cross_train,binary=False,clf_type="LR")
+#	return result.get_acc()
 
 def person(feat_dict):
 	if(type(feat_dict)==str):
@@ -52,7 +68,8 @@ def rename_frames(in_path,out_path,rename):
 		copy_tree(path_i,out_i)
 
 if __name__ == "__main__":
-    path="../ICSS/3DHOI/1D_CNN/feats"
+    path="../3DHOI/1D_CNN/feats"
     import ens
-    datasets=ens.read_dataset(path,None)[0]
-    random_split(datasets)
+#    datasets=ens.read_dataset(path,None)[0]
+    rename=random_cat(path)
+    print(rename)
