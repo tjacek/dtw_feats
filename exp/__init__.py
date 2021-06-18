@@ -3,21 +3,6 @@ sys.path.append("..")
 import os.path,re
 import files,ens,learn
 
-#class BasicExp(object):
-#	def __init__(self,fun):
-#		if(not fun):
-#			fun=ens.ensemble
-#		self.fun=fun
-		
-#	def __call__(self,paths,clf="LR",out_path=None):
-#		lines=[]
-#		for common_i,binary_i in paths:
-#			result_i=self.fun(common_i,binary_i,clf=clf)
-#			desc_i=exp_info(common_i,binary_i,result_i)
-#			lines.append(desc_i)
-#			files.save_txt(lines,out_path)
-#		return lines
-
 def full_exp(common,binary,out_path):
 	if(type(binary)!=list):
 		binary=[binary]
@@ -56,12 +41,15 @@ def get_name(path_i):
 	return "_".join(path_i.split("/")[-2:])
 
 def basic_paths(dataset,dir_path,common,binary,name="dtw"):
-	paths={}
-	paths["dir_path"]="%s/%s" % (dir_path,dataset)
-	common="%s/%s" % (paths["dir_path"],common)
-	paths["common"]=files.get_paths(common,name=name)
-	paths["binary"]="%s/%s" % (paths["dir_path"],binary)
-	return paths 
+    paths={}
+    paths["dir_path"]="%s/%s" % (dir_path,dataset)
+    common="%s/%s" % (paths["dir_path"],common)
+    paths["common"]=files.get_paths(common,name=name)
+    if(binary):
+        paths["binary"]="%s/%s" % (paths["dir_path"],binary)
+    else:
+        paths["binary"]=None
+    return paths 
 
 #def common_paths(common,binary):
 #	common=files.top_files(common)

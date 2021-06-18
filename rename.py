@@ -1,9 +1,15 @@
 import numpy as np,random
 from sklearn.model_selection import StratifiedShuffleSplit
-from distutils.dir_util import copy_tree
+#from distutils.dir_util import copy_tree
+import json
 from collections import defaultdict
-import feats,files,learn  
+import feats,files,learn,exp,ens
 
+def save_rename(id,rename):
+    json.dump(rename,open("%s.json" % id,'w'))
+
+def read_rename(id):
+	return json.load(open("%s.json" % id))
 
 def random_cat(feat_dict):
     if(type(feat_dict)==str):
@@ -18,19 +24,6 @@ def random_cat(feat_dict):
             new_name_j="%d_%d_%d" % (name_j.get_cat()+1,j%2,j)
             rename[name_j]=new_name_j
     return rename
-
-#def cross_validate(feat_dict,n=10):
-#	acc=[validate(feat_dict) for i in range(n)]
-#	print(acc)
-#	return np.mean(acc)
-
-#def validate(feat_dict):
-#	if(type(feat_dict)==str):
-#		feat_dict=feats.read(feat_dict)[0]
-#	train=feat_dict.split()[0]
-#	cross_train=random_split(train)
-#	result=learn.train_model(cross_train,binary=False,clf_type="LR")
-#	return result.get_acc()
 
 def person(feat_dict):
 	if(type(feat_dict)==str):
@@ -57,19 +50,25 @@ def random_split(train):
         	new_dict[names[i]]=train[names[i]]
     return new_dict
 
-def rename_frames(in_path,out_path,rename):
-	paths=files.top_files(in_path)
-	files.make_dir(out_path)
-	for path_i in paths:
-		name_i=path_i.split("/")[-1]
-		out_i="%s/%s" % (out_path,rename[name_i])
-		print(path_i)
-		print(out_i)
-		copy_tree(path_i,out_i)
+def rename_frames(paths):
+    datasets=ens.read_dataset(paths["common"],paths["binary"])
+    print(datasets[0].dim())
+#def rename_frames(in_path,out_path,rename):
+#	paths=files.top_files(in_path)
+#	files.make_dir(out_path)
+#	for path_i in paths:
+#		name_i=path_i.split("/")[-1]
+#		out_i="%s/%s" % (out_path,rename[name_i])
+#		print(path_i)
+#		print(out_i)
+#		copy_tree(path_i,out_i)
 
-if __name__ == "__main__":
-    path="../3DHOI/1D_CNN/feats"
-    import ens
-#    datasets=ens.read_dataset(path,None)[0]
-    rename=random_cat(path)
-    print(rename)
+if __name__ == "__main__":  
+    dataset="3DHOI"
+    dir_path=".."
+    paths=exp.basic_paths(dataset,dir_path,"dtw",None)
+    paths["common"].append("../3DHOI/1D_CNN/feats")
+    rename_frames(paths)
+#    import ens
+#    rename=random_cat(path)
+#    save_rename("rename",rename)
