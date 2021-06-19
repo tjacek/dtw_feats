@@ -3,7 +3,7 @@ sys.path.append("..")
 import numpy as np
 from collections import Counter
 import pickle
-import ens,files,learn
+import ens,files,learn,exp
 from ens import Votes
 from pref.systems import *
 
@@ -42,8 +42,8 @@ def read_pref(in_path):
 	with open(in_path, 'rb') as handle:
 		return pickle.load(handle)
 
-def ensemble(common_path,binary_path,system=None,clf="LR",s_clf=None):
-    votes=ens.make_votes(common_path,binary_path,clf,None)
+def ensemble(paths,system=None,clf="LR",s_clf=None):
+    votes=ens.make_votes(paths["common"],paths["binary"],clf,None)
     if(s_clf):
         votes=ens.Votes([votes.results[clf_i] 
           	for clf_i in s_clf])
@@ -79,13 +79,12 @@ def to_preference(vote_i):
 	return Preferences(pref)
 
 if __name__ == "__main__":
-    dataset="3DHOI"
-    dir_path="../../ICSS/%s" % dataset
-    common="%s/dtw" % dir_path
-    common=files.get_paths(common,name="dtw")
-    common.append("%s/1D_CNN/feats" % dir_path)
-    binary="%s/ens/feats" % dir_path 
-    result=ensemble(common,binary,system=coombs,clf="LR",s_clf=[1,6,7])
+    dataset="ICCCI"
+    dir_path="../.." #% dataset
+    paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
+    paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+    print(paths)
+    result=ensemble(paths["common"],paths["binary"],system=coombs,clf="LR")
     result.report()
 #	raise Exception("End")
 #	result=ext_exp("../3DHOI",None)
