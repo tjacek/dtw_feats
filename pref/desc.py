@@ -3,14 +3,15 @@ sys.path.append("..")
 from ens import Votes
 import exp,systems,pref,files,ens
 
-def exp_desc(paths,out_path=None,clf="LR",info="info"):
+def exp_desc(paths,out_path=None,clf="LR",info="info",transform=None):
     all_systems=[systems.borda_count,
                  systems.bucklin,
                  systems.coombs]
     lines=[get_soft_voting(paths,clf,info)]
     for system_i in all_systems:
         name_i=system_i.__name__
-        result_i=pref.ensemble(paths,system=system_i,clf=clf)
+        result_i=pref.ensemble(paths,system=system_i,
+                clf=clf,transform=transform)
         lines.append(get_line(name_i,result_i,info))
     if(out_path):
         files.save_txt(lines,out_path)
@@ -32,4 +33,6 @@ if __name__ == "__main__":
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
     print(paths)
-    exp_desc(paths,dataset)
+    import rename
+    helper=rename.get_renam_fun("../rename")
+    exp_desc(paths,dataset,info="split II_true",transform=helper)

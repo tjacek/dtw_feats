@@ -42,11 +42,15 @@ def read_pref(in_path):
 	with open(in_path, 'rb') as handle:
 		return pickle.load(handle)
 
-def ensemble(paths,system=None,clf="LR",s_clf=None):
-    votes=ens.make_votes(paths["common"],paths["binary"],clf,None)
+def ensemble(paths,system=None,clf="LR",s_clf=None,transform=None):
+    datasets=ens.read_dataset(paths["common"],paths["binary"])
+    if(transform):
+        datasets=[transform(data_i)  for data_i in datasets]   
+    results=[learn.train_model(data_i,clf_type=clf,binary=False)
+                    for data_i in datasets]
     if(s_clf):
-        votes=ens.Votes([votes.results[clf_i] 
-          	for clf_i in s_clf])
+        results=[results[clf_i] for clf_i in s_clf]
+    votes=ens.Votes(results)   
     return voting(votes,system)
 
 def ext_exp(in_path,system,cf_path=None):

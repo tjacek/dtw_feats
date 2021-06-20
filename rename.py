@@ -1,15 +1,19 @@
 import numpy as np,random
 from sklearn.model_selection import StratifiedShuffleSplit
+from random import getrandbits
 #from distutils.dir_util import copy_tree
 import json
 from collections import defaultdict
 import feats,files,learn,exp,ens
 
+
 def save_rename(id,rename):
     json.dump(rename,open("%s.json" % id,'w'))
 
 def read_rename(id):
-	return json.load(open("%s.json" % id))
+    rename= json.load(open("%s.json" % id))
+    return { files.Name(name_i):files.Name(rename_i) 
+                for name_i,rename_i in rename.items()}
 
 def random_cat(feat_dict):
     if(type(feat_dict)==str):
@@ -25,15 +29,15 @@ def random_cat(feat_dict):
             rename[name_j]=new_name_j
     return rename
 
-def person(feat_dict):
-	if(type(feat_dict)==str):
-		feat_dict=feats.read(feat_dict)[0]
-	train=feat_dict.split()[0]
-	def helper(name_i):
-		return name_i.get_person()==1
-	result=learn.train_model(train,binary=False,
-		clf_type="LR",selector=helper)
-	return result.get_acc()
+#def person(feat_dict):
+#	if(type(feat_dict)==str):
+#		feat_dict=feats.read(feat_dict)[0]
+#	train=feat_dict.split()[0]
+#	def helper(name_i):
+#		return name_i.get_person()==1
+#	result=learn.train_model(train,binary=False,
+#		clf_type="LR",selector=helper)
+#	return result.get_acc()
 
 def random_split(train):
     sss=StratifiedShuffleSplit(n_splits=1, 
@@ -50,25 +54,31 @@ def random_split(train):
         	new_dict[names[i]]=train[names[i]]
     return new_dict
 
-def rename_frames(paths):
+def rename_frames(paths,json_path):
     datasets=ens.read_dataset(paths["common"],paths["binary"])
-    print(datasets[0].dim())
-#def rename_frames(in_path,out_path,rename):
-#	paths=files.top_files(in_path)
-#	files.make_dir(out_path)
-#	for path_i in paths:
-#		name_i=path_i.split("/")[-1]
-#		out_i="%s/%s" % (out_path,rename[name_i])
-#		print(path_i)
-#		print(out_i)
-#		copy_tree(path_i,out_i)
+    helper=get_renam_fun(json_path)
+    if(get_fun):
+        return helper
+    new_datasets=datasets #[helper(data_i) for data_i in datasets]
+    votes=ens.Votes(learn.train_ens(new_datasets,clf="LR"))
+    result_i=votes.voting(False)
+    result_i.report()
+
+def get_renam_fun(json_path):
+    rename=read_rename(json_path)
+    def helper(data_i):
+        feat_i=feats.Feats()
+        for name_i,rename_i in rename.items():
+            print((rename_i,name_i))
+            feat_i[rename_i]=data_i[name_i]
+        return feat_i
+    return helper
 
 if __name__ == "__main__":  
     dataset="3DHOI"
     dir_path=".."
     paths=exp.basic_paths(dataset,dir_path,"dtw",None)
-    paths["common"].append("../3DHOI/1D_CNN/feats")
-    rename_frames(paths)
-#    import ens
-#    rename=random_cat(path)
+    paths["common"]=["../3DHOI/1D_CNN/feats"]
+    rename_frames(paths,"rename")
+#    rename=random_cat("../3DHOI/1D_CNN/feats")
 #    save_rename("rename",rename)
