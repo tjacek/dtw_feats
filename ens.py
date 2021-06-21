@@ -2,6 +2,26 @@ import numpy as np
 import pickle
 import learn,feats,files,exp
 
+class Ensemble(object):
+    def __init__(self,read=None,transform=None):
+        if(read is None):
+            read=read_dataset
+        self.transform=transform
+        self.read=read
+
+    def __call__(self,paths,binary=False,clf="LR",s_clf=None):
+        datasets=self.read(paths["common"],paths["binary"])
+        if(self.transform):
+            datasets=[self.transform(data_i)  for data_i in datasets]
+        results=[learn.train_model(data_i,clf_type=clf,binary=False)
+                    for data_i in datasets]
+        votes=Votes(results)        
+        if(s_clf):
+            votes=Votes([votes.results[i] for i in s_clf])
+        result=votes.voting(binary)
+        print(result.get_acc()) 
+        return result,votes
+
 class Votes(object):
     def __init__(self,results):
         self.results=results
@@ -84,12 +104,11 @@ def ensemble(common_path,binary_path,binary=True,
     return result,votes
 
 if __name__ == "__main__":
-    dataset="3DHOI"
-    dir_path="../ICSS"#%s" % dataset
+    dataset="ICCCI"
+    dir_path=".." #% dataset
     paths=exp.basic_paths(dataset,dir_path,"dtw","ens/feats")
     paths["common"].append("%s/%s/1D_CNN/feats" % (dir_path,dataset))
+    print(paths)
     result,votes=ensemble(paths["common"],paths["binary"],
                         clf="LR",binary=False)
     result.report()
-    votes.save("votes/%s" % dataset)
-#    result.get_cf("MHAD")

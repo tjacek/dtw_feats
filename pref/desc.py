@@ -7,7 +7,7 @@ def exp_desc(paths,out_path=None,clf="LR",info="info",transform=None):
     all_systems=[systems.borda_count,
                  systems.bucklin,
                  systems.coombs]
-    lines=[get_soft_voting(paths,clf,info)]
+    lines=[get_soft_voting(paths,clf,info,transform)]
     for system_i in all_systems:
         name_i=system_i.__name__
         result_i=pref.ensemble(paths,system=system_i,
@@ -18,9 +18,11 @@ def exp_desc(paths,out_path=None,clf="LR",info="info",transform=None):
     else:
         print(lines)
 
-def get_soft_voting(paths,clf="LR",info="info"):
-    result=ens.ensemble(paths["common"],paths["binary"],
-		        binary=False,clf=clf)[0]
+def get_soft_voting(paths,clf="LR",info="info",transform=None):
+    ensemble=ens.Ensemble(transform=transform)
+    result=ensemble(paths,binary=False,clf=clf)[0]
+#    result=ens.ensemble(paths["common"],paths["binary"],
+#		        binary=False,clf=clf)[0]
     return get_line("soft voting",result,info)
 
 def get_line(name_i,result_i,info):
